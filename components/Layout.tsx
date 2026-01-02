@@ -22,7 +22,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 Afigo<span className="text-red-600">-Sam</span>
               </span>
             </Link>
-            
+
             <div className="hidden md:flex items-center space-x-8">
               {NAV_ITEMS.map((item) => {
                 const isExternal = item.href.startsWith('http') || item.href.startsWith('mailto:');
@@ -47,12 +47,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </Link>
                 );
               })}
-              <a 
-                href="https://flutterwave.com/pay/wordpressai"
+              <Link
+                to="/products"
                 className="bg-red-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-red-700 transition-all shadow-sm"
               >
                 Get Started
-              </a>
+              </Link>
             </div>
           </div>
         </div>

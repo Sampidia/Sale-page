@@ -1,4 +1,6 @@
 
+export type ProductCategory = 'Plugin' | 'Theme' | 'Template' | 'Script';
+
 export interface Product {
   id: string;
   name: string;
@@ -6,7 +8,7 @@ export interface Product {
   price: number;
   alternatePrice?: number;
   imageUrl: string;
-  category: 'Plugin' | 'Theme' | 'Script';
+  category: ProductCategory;
   features: string[];
   buyUrl: string;
   alternateUrl?: string;
