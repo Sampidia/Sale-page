@@ -17,7 +17,7 @@ const BookDocumentation: React.FC<BookDocumentationProps> = ({ isOpen, onClose }
                     <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/leather.png')]"></div>
                     <div className="relative z-10">
                         <div className="w-24 h-24 mb-6 mx-auto bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/20 shadow-xl">
-                            <img src="/assets/license-manager.png" alt="Logo" className="w-16 h-16 object-contain" />
+                            <img src="assets/license-manager.png" alt="Logo" className="w-16 h-16 object-contain" />
                         </div>
                         <h1 className="text-3xl font-black mb-4 tracking-tight">MY LICENSES<br />MANAGER</h1>
                         <p className="text-red-400 mb-8 font-serif italic">Documentation & Guide</p>
@@ -174,7 +174,7 @@ const BookDocumentation: React.FC<BookDocumentationProps> = ({ isOpen, onClose }
                             MLM Manual — Vol. 01
                         </div>
                         <a
-                            href="/assets/lmy licenses manager documentation.pdf"
+                            href="assets/licenses-manager-documentation.pdf"
                             download
                             className="group hidden sm:flex items-center gap-2 bg-white/5 hover:bg-white/20 text-white/80 px-4 py-1.5 rounded-full border border-white/10 transition-all text-[10px] font-bold uppercase tracking-widest"
                         >
@@ -211,7 +211,7 @@ const BookDocumentation: React.FC<BookDocumentationProps> = ({ isOpen, onClose }
                                     <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/leather.png')]"></div>
                                     <div className="relative z-10">
                                         <div className="mb-8 p-6 border-2 border-white/5 rounded-3xl inline-block">
-                                            <img src="/assets/license-manager.png" alt="" className="w-20 h-20 opacity-5 grayscale invert" />
+                                            <img src="assets/license-manager.png" alt="" className="w-20 h-20 opacity-5 grayscale invert" />
                                         </div>
                                         <div className="w-40 h-1 bg-white/5 rounded-full mb-4 mx-auto"></div>
                                         <div className="w-24 h-1 bg-white/5 rounded-full mx-auto"></div>
@@ -292,7 +292,7 @@ const BookDocumentation: React.FC<BookDocumentationProps> = ({ isOpen, onClose }
                         </svg>
                     </button>
                     <a
-                        href="/assets/lmy licenses manager documentation.pdf"
+                        href="assets/licenses-manager-documentation.pdf"
                         download
                         className="bg-white/10 text-white w-full py-4 rounded-2xl font-black uppercase tracking-widest shadow-2xl border border-white/20 flex items-center justify-center gap-3"
                     >

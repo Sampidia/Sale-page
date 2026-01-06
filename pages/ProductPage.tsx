@@ -251,7 +251,7 @@ const ProductPage: React.FC = () => {
                 <div className="grid gap-4">
                   {(isLicenseManager ? [
                     { title: 'Licence documentation', action: () => setIsBookOpen(true) },
-                    { title: 'WP Express Checkout Integration', url: '/assets/lmy licenses manager documentation.pdf', isDownload: true },
+                    { title: 'WP Express Checkout Integration', url: 'assets/licenses-manager-documentation.pdf', isDownload: true },
                     { title: 'WP eStore Integration', action: () => setIsBookOpen(true) }
                   ] : [
                     { title: 'AI Plugin Documentation', url: '#' },
@@ -358,10 +358,10 @@ if ($data->result === 'success') {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {[
-              { img: '/assets/screenshot-1.png', title: 'Intuitive Dashboard' },
-              { img: '/assets/screenshot-2.png', title: 'Advanced Settings' },
-              { img: '/assets/screenshot-3.png', title: 'Real-time Tracking' },
-              { img: '/assets/screenshot-4.png', title: 'Seamless Integration' }
+              { img: 'assets/screenshot-1.png', title: 'Intuitive Dashboard' },
+              { img: 'assets/screenshot-2.png', title: 'Advanced Settings' },
+              { img: 'assets/screenshot-3.png', title: 'Real-time Tracking' },
+              { img: 'assets/screenshot-4.png', title: 'Seamless Integration' }
             ].map((shot, idx) => (
               <div
                 key={idx}
@@ -521,7 +521,7 @@ if ($data->result === 'success') {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <div className="mb-8 flex justify-center">
             {product.id === 'my-licenses-manager' ? (
-              <img src="/assets/license-manager.png" alt="License Manager Icon" className="w-24 h-24 object-contain drop-shadow-2xl" />
+              <img src="assets/license-manager.png" alt="License Manager Icon" className="w-24 h-24 object-contain drop-shadow-2xl" />
             ) : (
               BRAIN_LOGO
             )}

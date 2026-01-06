@@ -12,7 +12,7 @@ export const PRODUCTS: Product[] = [
     description: 'Automatically generate, optimize, and publish high-ranking blog content using multiple AI providers (OpenAI, Gemini, Claude, DeepSeek).',
     price: 25,
     alternatePrice: 35,
-    imageUrl: '/assets/ai generator logo white(1).png',
+    imageUrl: 'assets/ai-generator-logo.png',
     category: 'Plugin',
     features: [
       'Multi-AI Provider Support (OpenAI, Gemini, Claude, DeepSeek)',
@@ -79,7 +79,7 @@ export const PRODUCTS: Product[] = [
     name: 'My Licenses Manager',
     description: 'Central "license server" to remotely manage your Digital Assets with minimal manual effort. Supports Envato, WP Express Checkout, and WP eStore.',
     price: 0,
-    imageUrl: '/assets/banner-772x250.png',
+    imageUrl: 'assets/banner-772x250.png',
     category: 'Plugin',
     features: [
       'Remote License Management',
@@ -146,7 +146,7 @@ export const PRODUCTS: Product[] = [
     name: 'Booking Theme Pro',
     description: 'A comprehensive, high-performance WordPress theme designed specifically for service providers and rental businesses.',
     price: 59,
-    imageUrl: '/assets/bookin theme 1.png',
+    imageUrl: 'assets/booking-theme-1.png',
     category: 'Theme',
     features: [
       'Real-time Availability Calendar',
