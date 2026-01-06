@@ -135,8 +135,10 @@ const ProductsListPage: React.FC = () => {
                                                 {/* Price and CTA */}
                                                 <div className="space-y-4">
                                                     <div className="flex items-baseline space-x-2">
-                                                        <span className="text-4xl font-black text-white">${product.price}</span>
-                                                        {product.alternatePrice && (
+                                                        <span className="text-4xl font-black text-white">
+                                                            {product.price === 0 ? 'Free' : `$${product.price}`}
+                                                        </span>
+                                                        {product.alternatePrice && product.price !== 0 && (
                                                             <span className="text-lg text-gray-500 line-through">${product.alternatePrice}</span>
                                                         )}
                                                     </div>
@@ -161,12 +163,12 @@ const ProductsListPage: React.FC = () => {
                                             </div>
 
                                             {/* Right Side - Product Image */}
-                                            <Link to={`/product/${product.id}`} className="md:w-2/5 relative overflow-hidden block">
-                                                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-pink-600/10"></div>
+                                            <Link to={`/product/${product.id}`} className="md:w-2/5 relative overflow-hidden block bg-[#141b3a]">
+                                                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-pink-600/10 z-0"></div>
                                                 <img
                                                     src={product.imageUrl}
                                                     alt={product.name}
-                                                    className="w-full h-full object-cover md:min-h-[400px] group-hover:scale-105 transition-transform duration-500"
+                                                    className="w-full h-full object-contain relative z-10 group-hover:scale-105 transition-transform duration-500"
                                                 />
                                             </Link>
                                         </div>

@@ -10,8 +10,11 @@ export interface Product {
   imageUrl: string;
   category: ProductCategory;
   features: string[];
+  detailedFeatures?: { title: string; desc: string; icon: string; }[];
+  perfectFor?: { title: string; desc: string; metric: string; }[];
   buyUrl: string;
   alternateUrl?: string;
+  badge?: string;
 }
 
 export interface NavItem {
