@@ -390,12 +390,12 @@ if ($data->result === 'success') {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            {[
+            {(product.showcaseImages || [
               { img: 'assets/screenshot-1.png', title: 'Intuitive Dashboard' },
               { img: 'assets/screenshot-2.png', title: 'Advanced Settings' },
               { img: 'assets/screenshot-3.png', title: 'Real-time Tracking' },
               { img: 'assets/screenshot-4.png', title: 'Seamless Integration' }
-            ].map((shot, idx) => (
+            ]).map((shot, idx) => (
               <div
                 key={idx}
                 className="group relative cursor-pointer"

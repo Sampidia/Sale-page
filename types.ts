@@ -15,6 +15,7 @@ export interface Product {
   buyUrl: string;
   alternateUrl?: string;
   badge?: string;
+  showcaseImages?: { img: string; title: string; }[];
 }
 
 export interface NavItem {

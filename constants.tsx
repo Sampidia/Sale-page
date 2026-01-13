@@ -3,7 +3,7 @@ import React from 'react';
 import { Product, NavItem } from './types';
 
 export const FLUTTERWAVE_URL = "https://flutterwave.com/pay/wordpressai";
-export const CODECANYON_URL = "https://codecanyon.net/popular_item/by_category?category=wordpress";
+export const CODECANYON_URL = "#";
 
 export const PRODUCTS: Product[] = [
   {
@@ -72,7 +72,13 @@ export const PRODUCTS: Product[] = [
     ],
     buyUrl: FLUTTERWAVE_URL,
     alternateUrl: CODECANYON_URL,
-    badge: 'Best Seller'
+    badge: 'Best Seller',
+    showcaseImages: [
+      { img: 'assets/ai-Screenshot-3.png', title: 'Dashboard Overview' },
+      { img: 'assets/ai-Screenshot-5.png', title: 'AI Content Generation' },
+      { img: 'assets/ai-Screenshot-9.png', title: 'SEO Optimization' },
+      { img: 'assets/ai-Screenshot-6.png', title: 'Campaign Management' }
+    ]
   },
   {
     id: 'my-licenses-manager',
@@ -139,7 +145,13 @@ export const PRODUCTS: Product[] = [
       }
     ],
     buyUrl: '#',
-    badge: 'Popular'
+    badge: 'Popular',
+    showcaseImages: [
+      { img: 'assets/screenshot-1.png', title: 'Intuitive Dashboard' },
+      { img: 'assets/screenshot-2.png', title: 'Advanced Settings' },
+      { img: 'assets/screenshot-3.png', title: 'Real-time Tracking' },
+      { img: 'assets/screenshot-4.png', title: 'Seamless Integration' }
+    ]
   },
   {
     id: 'booking-theme',
