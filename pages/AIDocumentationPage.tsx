@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BRAIN_LOGO } from '../constants';
+import SEO from '../components/SEO';
 
 const AIDocumentationPage: React.FC = () => {
     useEffect(() => {
@@ -34,6 +35,12 @@ const AIDocumentationPage: React.FC = () => {
 
     return (
         <div className="bg-white">
+            <SEO
+                title="AI Content Generator - Full Documentation & User Manual | Afigo-Sam"
+                description="Read the complete, detailed documentation, installation guides, configuration guides, and API references for the WordPress AI-Powered Automatic Content Generator."
+                keywords="wordpress ai content generator documentation, auto posting plugin manual, wordpress scraping rss settings"
+                ogImage="/assets/ai-Screenshot-3.webp"
+            />
             {/* Header Section */}
             <header className="relative pt-12 pb-20 overflow-hidden bg-gradient-to-br from-purple-600 via-purple-700 to-purple-900 text-white">
                 <div className="absolute inset-0 opacity-20">

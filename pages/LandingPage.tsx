@@ -3,6 +3,7 @@ import React from 'react';
 import ProductCard from '../components/ProductCard';
 import { PRODUCTS, BRAIN_LOGO } from '../constants';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 
 const LandingPage: React.FC = () => {
   const scrollToProducts = () => {
@@ -11,6 +12,12 @@ const LandingPage: React.FC = () => {
 
   return (
     <div className="hero-pattern">
+      <SEO
+        title="Afigo-Sam | Premium WordPress Plugins, Themes & Mobile Apps"
+        description="Elevate your web publishing and mobile experience. Explore Afigo-Sam's premium plugins (AI Content Generator, License Manager), templates, and games built for ultimate performance and massive scale."
+        keywords="WordPress AI plugins, AI Content Generator, license manager, booking theme, Ayo board game, Mancala mobile, Afro Short, NAFDAC batch scanner, premium wordpress solutions"
+        ogImage="/assets/ai-generator-logo.webp"
+      />
       {/* Hero Section */}
       <section className="relative pt-20 pb-16 md:pt-32 md:pb-24 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

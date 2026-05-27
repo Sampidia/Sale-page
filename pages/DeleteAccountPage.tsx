@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { Turnstile } from '@marsidev/react-turnstile';
 import { MOBILE_APPS } from '../constants';
+import SEO from '../components/SEO';
 
 const DeleteAccountPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -10,6 +12,7 @@ const DeleteAccountPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   // Pre-fill selected app based on query param
   useEffect(() => {
@@ -25,6 +28,12 @@ const DeleteAccountPage: React.FC = () => {
     e.preventDefault();
     if (!email || !username || !selectedApp) {
       setError('Please fill in all fields.');
+      return;
+    }
+
+    // Verify Turnstile has completed if site key is configured
+    if (import.meta.env.VITE_TURNSTILE_SITE_KEY && !turnstileToken) {
+      setError('Please verify that you are a human via the captcha.');
       return;
     }
 
@@ -51,7 +60,8 @@ const DeleteAccountPage: React.FC = () => {
         body: JSON.stringify({
           email,
           username,
-          appName
+          appName,
+          token: turnstileToken // Send token for server-side verification
         })
       });
 
@@ -73,6 +83,12 @@ const DeleteAccountPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <SEO
+        title="Request Mobile App Account Deletion | Afigo-Sam"
+        description="Request the deletion of your account and personal data from any of Afigo-Sam's mobile applications (Naija Ayo Worldwide, Afro Short, Fake Detector) securely."
+        keywords="delete mobile app account, data privacy removal request, gdpr data deletion request, ayo game account delete"
+        ogImage="/assets/favicon-32x32.png"
+      />
       <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-gray-100 p-8 sm:p-10 relative overflow-hidden transition-all">
         {/* Decorative corner glow */}
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-red-100 rounded-full blur-2xl opacity-50"></div>
@@ -154,6 +170,21 @@ const DeleteAccountPage: React.FC = () => {
               <div className="bg-amber-50 rounded-xl p-4 border border-amber-100 text-xs text-amber-800 leading-relaxed">
                 <strong>⚠️ Warning:</strong> This action is irreversible. All of your progress, data, and active licenses related to <strong>{currentAppName}</strong> will be permanently deleted after 48 hours.
               </div>
+
+              {/* Cloudflare Turnstile Captcha Widget */}
+              {import.meta.env.VITE_TURNSTILE_SITE_KEY ? (
+                <div className="flex justify-center my-4 overflow-hidden rounded-xl bg-gray-50 border border-gray-100 p-2">
+                  <Turnstile
+                    siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                    onSuccess={(token) => setTurnstileToken(token)}
+                    onError={() => setError('Turnstile captcha failed to load. Please refresh.')}
+                  />
+                </div>
+              ) : (
+                <div className="text-[10px] text-gray-400 text-center my-2 p-2 bg-gray-50 rounded-xl border border-gray-100">
+                  ℹ️ Captcha bypassed: VITE_TURNSTILE_SITE_KEY is not configured in .env.local
+                </div>
+              )}
 
               <div className="flex gap-4 pt-2">
                 <Link

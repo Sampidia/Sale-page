@@ -9,6 +9,7 @@ import AIDocumentationPage from './pages/AIDocumentationPage';
 import MobileAppsPage from './pages/MobileAppsPage';
 import MobileAppDetailPage from './pages/MobileAppDetailPage';
 import DeleteAccountPage from './pages/DeleteAccountPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 
 const App: React.FC = () => {
   return (
@@ -22,6 +23,7 @@ const App: React.FC = () => {
           <Route path="/apps" element={<MobileAppsPage />} />
           <Route path="/app/:id" element={<MobileAppDetailPage />} />
           <Route path="/delete-account" element={<DeleteAccountPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="*" element={<LandingPage />} />
         </Routes>
       </Layout>

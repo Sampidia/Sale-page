@@ -1,11 +1,5 @@
-export interface Env {
-  RESEND_API_KEY: string;
-  ALLOWED_ORIGIN: string;
-  TURNSTILE_SECRET_KEY: string;
-}
-
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  async fetch(request, env, ctx) {
     const origin = request.headers.get('Origin') || '*';
     const allowedOrigin = (!env.ALLOWED_ORIGIN || env.ALLOWED_ORIGIN === '*') ? origin : env.ALLOWED_ORIGIN;
 
@@ -16,7 +10,6 @@ export default {
       'Access-Control-Max-Age': '86400',
     };
 
-    // Handle CORS preflight request
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers });
     }
@@ -29,20 +22,12 @@ export default {
     }
 
     try {
-      const { email, username, appName, token } = await request.json() as {
-        email?: string;
-        username?: string;
-        appName?: string;
-        token?: string;
-      };
+      const { email, username, appName, token } = await request.json();
 
       if (!email || !username || !appName) {
         return new Response(
           JSON.stringify({ error: 'Missing required fields: email, username, appName' }),
-          {
-            status: 400,
-            headers: { ...headers, 'Content-Type': 'application/json' },
-          }
+          { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
         );
       }
 
@@ -51,10 +36,7 @@ export default {
         if (!token) {
           return new Response(
             JSON.stringify({ error: 'Security verification token is missing. Please complete the captcha.' }),
-            {
-              status: 400,
-              headers: { ...headers, 'Content-Type': 'application/json' },
-            }
+            { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
           );
         }
 
@@ -68,15 +50,12 @@ export default {
           })
         });
 
-        const verifyResult = await verifyResponse.json() as { success: boolean };
+        const verifyResult = await verifyResponse.json();
 
         if (!verifyResult.success) {
           return new Response(
             JSON.stringify({ error: 'Security verification failed. Please try again.' }),
-            {
-              status: 403,
-              headers: { ...headers, 'Content-Type': 'application/json' },
-            }
+            { status: 403, headers: { ...headers, 'Content-Type': 'application/json' } }
           );
         }
       }
@@ -84,14 +63,10 @@ export default {
       if (!env.RESEND_API_KEY) {
         return new Response(
           JSON.stringify({ error: 'RESEND_API_KEY is not configured in Cloudflare Worker secrets' }),
-          {
-            status: 500,
-            headers: { ...headers, 'Content-Type': 'application/json' },
-          }
+          { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
         );
       }
 
-      // Relay request safely to Resend API
       const resendResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -99,35 +74,30 @@ export default {
           'Authorization': `Bearer ${env.RESEND_API_KEY}`,
         },
         body: JSON.stringify({
-          from: 'onboarding@resend.dev', // Use 'onboarding@resend.dev' for testing, or your verified Resend domain in production
-          to: 'admin@sampidia.com', // In testing mode, this must be the email address you signed up to Resend with
+          from: 'onboarding@resend.dev',
+          to: 'admin@sampidia.com',
           subject: `Account Deletion Request: ${username} (${appName})`,
           html: `
             <div style="font-family: sans-serif; padding: 20px; line-height: 1.6; color: #333;">
               <h2 style="color: #dc2626; border-bottom: 1px solid #eee; padding-bottom: 10px;">Account Deletion Request</h2>
               <p>A new account deletion request has been submitted from the <strong>Afigo Sam Page</strong> portal.</p>
-              
               <div style="background-color: #f9fafb; border: 1px solid #f3f4f6; border-radius: 8px; padding: 15px; margin: 20px 0;">
                 <p style="margin: 5px 0;"><strong>Username:</strong> ${username}</p>
                 <p style="margin: 5px 0;"><strong>Email Address:</strong> ${email}</p>
                 <p style="margin: 5px 0;"><strong>App Selection:</strong> ${appName}</p>
               </div>
-              
               <p style="color: #d97706; font-weight: bold;">⚠️ SLA Note: Please process this request within 48 hours to meet platform terms.</p>
             </div>
           `,
         }),
       });
 
-      const responseData = await resendResponse.json() as any;
+      const responseData = await resendResponse.json();
 
       if (!resendResponse.ok) {
         return new Response(
           JSON.stringify({ error: responseData.message || 'Failed to send email via Resend API' }),
-          {
-            status: resendResponse.status,
-            headers: { ...headers, 'Content-Type': 'application/json' },
-          }
+          { status: resendResponse.status, headers: { ...headers, 'Content-Type': 'application/json' } }
         );
       }
 
@@ -136,7 +106,7 @@ export default {
         headers: { ...headers, 'Content-Type': 'application/json' },
       });
 
-    } catch (err: any) {
+    } catch (err) {
       return new Response(JSON.stringify({ error: err.message || 'Internal Server Error' }), {
         status: 500,
         headers: { ...headers, 'Content-Type': 'application/json' },

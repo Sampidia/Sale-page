@@ -172,6 +172,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     </li>
                   );
                 })}
+                <li>
+                  <Link to="/privacy-policy" className="text-gray-500 hover:text-red-600 transition-colors">Privacy Policy</Link>
+                </li>
               </ul>
             </div>
             <div>

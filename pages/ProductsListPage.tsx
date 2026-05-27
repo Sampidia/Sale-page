@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PRODUCTS } from '../constants';
 import { ProductCategory } from '../types';
+import SEO from '../components/SEO';
 
 type FilterOption = 'All' | ProductCategory;
 
@@ -32,6 +33,12 @@ const ProductsListPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-[#0a0e27]">
+            <SEO
+                title="All Premium Plugins & Themes | Afigo-Sam"
+                description="Browse our high-performance suite of premium WordPress plugins, responsive themes, templates, and backend scripts built to optimize performance and scale digital publishing."
+                keywords="wordpress plugins list, license manager download, booking themes pro, high scaling wordpress scripts"
+                ogImage="/assets/banner-772x250.webp"
+            />
             {/* Hero Section */}
             <section className="relative pt-20 pb-12 md:pt-32 md:pb-16 bg-gradient-to-b from-[#0a0e27] to-[#0d1230]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

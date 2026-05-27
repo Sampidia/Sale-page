@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MOBILE_APPS } from '../constants';
 import { MobileAppCategory } from '../types';
+import SEO from '../components/SEO';
 
 type FilterOption = 'All' | MobileAppCategory;
 
@@ -33,6 +34,12 @@ const MobileAppsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0e27]">
+      <SEO
+        title="Mobile Apps Directory - Traditional Games & Media | Afigo-Sam"
+        description="Discover Afigo-Sam's premium mobile app portfolio, including Naija Ayo Worldwide strategy board game, Afro Short inspiring podcasts/media, and Fake Detector product scanner."
+        keywords="mancala games, ayo board game android, afro short entertainment, fake product detector nafdac, afigo sam apps"
+        ogImage="/assets/Naija Ayo Worldwide banner (1).webp"
+      />
       {/* Hero Section */}
       <section className="relative pt-20 pb-12 md:pt-32 md:pb-16 bg-gradient-to-b from-[#0a0e27] to-[#0d1230]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

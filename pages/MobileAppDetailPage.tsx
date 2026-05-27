@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MOBILE_APPS } from '../constants';
+import SEO from '../components/SEO';
 
 const MobileAppDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +15,10 @@ const MobileAppDetailPage: React.FC = () => {
   if (!app) {
     return (
       <div className="py-32 text-center bg-gray-50 min-h-[60vh] flex flex-col items-center justify-center">
+        <SEO
+          title="App Not Found | Afigo-Sam"
+          description="The requested mobile application could not be found. Discover Afigo-Sam's premium mobile games, entertainment, and health tools."
+        />
         <h1 className="text-3xl font-black text-gray-900 mb-4">App Not Found</h1>
         <p className="text-gray-500 mb-8">We couldn't find the mobile application you're looking for.</p>
         <Link to="/apps" className="bg-red-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-red-700 transition-all shadow-xl">
@@ -25,6 +30,13 @@ const MobileAppDetailPage: React.FC = () => {
 
   return (
     <div className="bg-white">
+      <SEO
+        title={`${app.name} - Native Mobile App | Afigo-Sam`}
+        description={app.description}
+        keywords={`${app.name}, mobile app ${app.category.toLowerCase()}, android download, ${app.features.join(', ')}`}
+        ogImage={app.imageUrl}
+        ogType="website"
+      />
       {/* Enhanced Hero Section */}
       <section className="relative pt-12 pb-20 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-red-50">
         <div className="absolute inset-0 opacity-30">

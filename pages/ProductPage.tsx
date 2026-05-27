@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PRODUCTS, BRAIN_LOGO, FLUTTERWAVE_URL, CODECANYON_URL } from '../constants';
 import BookDocumentation from '../components/BookDocumentation';
+import SEO from '../components/SEO';
 
 const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +18,10 @@ const ProductPage: React.FC = () => {
   if (!product) {
     return (
       <div className="py-32 text-center bg-gray-50 min-h-[60vh] flex flex-col items-center justify-center">
+        <SEO
+          title="Product Not Found | Afigo-Sam"
+          description="The requested WordPress plugin or theme could not be found. Explore our catalog of high-performance WordPress solutions."
+        />
         <div className="mb-6 opacity-20">{BRAIN_LOGO}</div>
         <h1 className="text-3xl font-black text-gray-900 mb-4">Product Not Found</h1>
         <p className="text-gray-500 mb-8">We couldn't find the plugin or theme you're looking for.</p>
@@ -32,6 +37,13 @@ const ProductPage: React.FC = () => {
 
   return (
     <div className="bg-white">
+      <SEO
+        title={`${product.name} - Premium ${product.category} | Afigo-Sam`}
+        description={product.description}
+        keywords={`${product.name}, wordpress ${product.category.toLowerCase()}, ${product.features.join(', ')}`}
+        ogImage={product.imageUrl}
+        ogType="product"
+      />
       {/* Enhanced Hero Section */}
       <section className="relative pt-12 pb-20 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-red-50">
         <div className="absolute inset-0 opacity-30">
