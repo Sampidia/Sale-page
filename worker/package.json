@@ -1,0 +1,11 @@
+{
+  "name": "resend-email-worker",
+  "version": "1.0.0",
+  "description": "Secure email relay worker for Resend",
+  "main": "src/index.ts",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240101.0",
+    "typescript": "^5.3.3",
+    "wrangler": "^3.22.1"
+  }
+}

@@ -208,7 +208,7 @@ const ProductsListPage: React.FC = () => {
                         Looking for a tailored solution? Our team can build custom plugins, themes, and integrations for your specific needs.
                     </p>
                     <a
-                        href="mailto:admin@sampidia.cm"
+                        href="mailto:admin@sampidia.com"
                         className="inline-block px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:from-purple-700 hover:to-pink-700 hover:shadow-xl hover:shadow-purple-600/30 transition-all"
                     >
                         Contact Us

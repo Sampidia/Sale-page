@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Product, NavItem } from './types';
+import { Product, NavItem, MobileApp } from './types';
 
 export const FLUTTERWAVE_URL = "https://flutterwave.com/pay/wordpressai";
 export const CODECANYON_URL = "#";
@@ -12,7 +12,7 @@ export const PRODUCTS: Product[] = [
     description: 'Automatically generate, optimize, and publish high-ranking blog content using multiple AI providers (OpenAI, Gemini, Claude, DeepSeek).',
     price: 25,
     alternatePrice: 35,
-    imageUrl: 'assets/ai-generator-logo.png',
+    imageUrl: 'assets/ai-generator-logo.webp',
     category: 'Plugin',
     features: [
       'Multi-AI Provider Support (OpenAI, Gemini, Claude, DeepSeek)',
@@ -74,10 +74,10 @@ export const PRODUCTS: Product[] = [
     alternateUrl: CODECANYON_URL,
     badge: 'Best Seller',
     showcaseImages: [
-      { img: 'assets/ai-Screenshot-3.png', title: 'Dashboard Overview' },
-      { img: 'assets/ai-Screenshot-5.png', title: 'AI Content Generation' },
-      { img: 'assets/ai-Screenshot-9.png', title: 'SEO Optimization' },
-      { img: 'assets/ai-Screenshot-6.png', title: 'Campaign Management' }
+      { img: 'assets/ai-Screenshot-3.webp', title: 'Dashboard Overview' },
+      { img: 'assets/ai-Screenshot-5.webp', title: 'AI Content Generation' },
+      { img: 'assets/ai-Screenshot-9.webp', title: 'SEO Optimization' },
+      { img: 'assets/ai-Screenshot-6.webp', title: 'Campaign Management' }
     ]
   },
   {
@@ -85,7 +85,7 @@ export const PRODUCTS: Product[] = [
     name: 'My Licenses Manager',
     description: 'Central "license server" to remotely manage your Digital Assets with minimal manual effort. Supports Envato, WP Express Checkout, and WP eStore.',
     price: 0,
-    imageUrl: 'assets/banner-772x250.png',
+    imageUrl: 'assets/banner-772x250.webp',
     category: 'Plugin',
     features: [
       'Remote License Management',
@@ -147,10 +147,10 @@ export const PRODUCTS: Product[] = [
     buyUrl: '#',
     badge: 'Popular',
     showcaseImages: [
-      { img: 'assets/screenshot-1.png', title: 'Intuitive Dashboard' },
-      { img: 'assets/screenshot-2.png', title: 'Advanced Settings' },
-      { img: 'assets/screenshot-3.png', title: 'Real-time Tracking' },
-      { img: 'assets/screenshot-4.png', title: 'Seamless Integration' }
+      { img: 'assets/screenshot-1.webp', title: 'Intuitive Dashboard' },
+      { img: 'assets/screenshot-2.webp', title: 'Advanced Settings' },
+      { img: 'assets/screenshot-3.webp', title: 'Real-time Tracking' },
+      { img: 'assets/screenshot-4.webp', title: 'Seamless Integration' }
     ]
   },
   {
@@ -158,7 +158,7 @@ export const PRODUCTS: Product[] = [
     name: 'Booking Theme Pro',
     description: 'A comprehensive, high-performance WordPress theme designed specifically for service providers and rental businesses.',
     price: 59,
-    imageUrl: 'assets/booking-theme-1.png',
+    imageUrl: 'assets/booking-theme-1.webp',
     category: 'Theme',
     features: [
       'Real-time Availability Calendar',
@@ -174,8 +174,152 @@ export const PRODUCTS: Product[] = [
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Products', href: '/products' },
-  { label: 'AI Generator', href: '/product/ai-content-generator' },
-  { label: 'Support', href: 'mailto:admin@sampidia.cm' }
+  { label: 'Mobile App', href: '/apps' },
+  { label: 'Support', href: 'mailto:admin@sampidia.com' }
+];
+
+export const MOBILE_APPS: MobileApp[] = [
+  {
+    id: 'naija-ayo-worldwide',
+    name: 'Naija Ayo Worldwide',
+    category: 'Games',
+    imageUrl: 'assets/Naija Ayo Worldwide banner (1).webp',
+    description: "Rediscover the timeless joy of Ayo, Nigeria's classic strategy board game, with Naija Ayo Worldwide! Whether you're a seasoned master or a curious newcomer, get ready for an authentic and captivating experience right on your mobile device. Challenge your friends, family, and players from across the globe in this beautiful digital adaptation of one of Africa's most beloved traditional games.",
+    googlePlayUrl: 'https://play.google.com/store/apps/details?id=com.naijaayo.worldwide',
+    features: [
+      'Authentic Ayo rules and game design',
+      'Pass and Play multiplayer mode',
+      'Single player mode with smart AI opponent',
+      'Stunning boards and visual themes',
+      'Traditional sounds and local music score'
+    ],
+    detailedFeatures: [
+      {
+        title: 'Authentic Traditional Rules',
+        desc: 'Experience the real Mancala and Ayo rules passed down through generations, fully optimized for your mobile screen.',
+        icon: '🎲'
+      },
+      {
+        title: 'Pass and Play Mode',
+        desc: 'Play with family and friends on a single device, recreating the traditional social board game atmosphere.',
+        icon: '👥'
+      },
+      {
+        title: 'Challenging AI Opponents',
+        desc: 'Hone your strategy skills against built-in AI players that adapt to your playing style and difficulty level.',
+        icon: '🤖'
+      }
+    ],
+    perfectFor: [
+      {
+        title: 'Board Game Lovers',
+        desc: 'Fans of Mancala, Oware, and strategic board games who want a traditional African challenge.',
+        metric: 'Classic Gameplay'
+      },
+      {
+        title: 'Casual Players',
+        desc: 'Anyone looking for a quick, mentally stimulating game to pass the time.',
+        metric: 'Pick Up & Play'
+      }
+    ],
+    showcaseImages: [
+      { img: 'assets/Naija Ayo Worldwide banner (1).webp', title: 'Naija Ayo Gameplay' }
+    ]
+  },
+  {
+    id: 'afro-short',
+    name: 'Afro Short',
+    category: 'Entertainment',
+    imageUrl: 'assets/Afro short gallery.webp',
+    description: "Experience powerful stories, videos, musics, and life-changing podcasts.\n\nWelcome to the Afro Short app—your exclusive home for the most impactful conversations, videos, musics, and thought-provoking podcasts from Afro Short team.\n\nDesigned for those who seek depth, inspiration, and the truth",
+    googlePlayUrl: 'https://play.google.com/store/apps/details?id=com.afroshort',
+    features: [
+      'Curated short-form stories and narratives',
+      'Original music and audio catalog',
+      'Thought-provoking podcast directory',
+      'Motivational talks and video series',
+      'Smooth streaming and download options'
+    ],
+    detailedFeatures: [
+      {
+        title: 'Original Podcasts',
+        desc: 'Listen to life-changing podcasts that inspire depth, awareness, and positive lifestyle changes.',
+        icon: '🎙️'
+      },
+      {
+        title: 'Original Music Catalog',
+        desc: 'Enjoy a rich selection of local, inspiring, and authentic musical releases from native African artists.',
+        icon: '🎵'
+      },
+      {
+        title: 'Inspiring Videos',
+        desc: 'Watch high-quality, thought-provoking short films, documentaries, and motivational messages.',
+        icon: '🎬'
+      }
+    ],
+    perfectFor: [
+      {
+        title: 'Inspiration Seekers',
+        desc: 'People looking for daily motivation, culture, and life wisdom in video/audio formats.',
+        metric: 'Daily Inspiration'
+      },
+      {
+        title: 'Podcast Fans',
+        desc: 'Listeners who appreciate deeper discussions on life, society, and identity.',
+        metric: 'Deep Conversations'
+      }
+    ],
+    showcaseImages: [
+      { img: 'assets/Afro short gallery.webp', title: 'Afro Short Video Feed' }
+    ]
+  },
+  {
+    id: 'fake-detector',
+    name: 'Fake Detector',
+    category: 'Health',
+    imageUrl: 'assets/Fake Detector  App.webp',
+    description: "Tired of wasting money on counterfeit goods? Protect yourself with Fake Products Detector, the ultimate shopping tool for verifying product authenticity in seconds! Our powerful scanner instantly analyzes product name and batch number to check against a NAFDAC database of recall alerts. Get an immediate authenticity report before you buy, ensuring you never fall for a fake again.",
+    googlePlayUrl: 'https://play.google.com/store/apps/details?id=com.sampidia.fakeproductdetector',
+    features: [
+      'Verify NAFDAC recall registry status',
+      'Analyze product name & batch number',
+      'Instant authenticity and safety report',
+      'Shopping safety guidelines and articles',
+      'Simple scanner tool interface'
+    ],
+    detailedFeatures: [
+      {
+        title: 'Instant Database Check',
+        desc: 'Check the safety status of your products against lists of banned, recalled, or suspected counterfeit products.',
+        icon: '🔍'
+      },
+      {
+        title: 'Safety Reports',
+        desc: 'Read through detailed guides and recall logs to know which products pose health and safety risks.',
+        icon: '📋'
+      },
+      {
+        title: 'Batch Verification',
+        desc: 'Enter manufacturer batch numbers to check for specific production runs flagged by regulatory bodies.',
+        icon: '🔢'
+      }
+    ],
+    perfectFor: [
+      {
+        title: 'Safety Conscious Buyers',
+        desc: 'Shoppers who want to confirm if their food, drugs, or cosmetics are officially flagged.',
+        metric: 'Health Shield'
+      },
+      {
+        title: 'Pharmacists & Retailers',
+        desc: 'Confirming store inventory against recall databases to protect customers.',
+        metric: 'Commercial Safety'
+      }
+    ],
+    showcaseImages: [
+      { img: 'assets/Fake Detector  App.webp', title: 'Fake Detector Interface' }
+    ]
+  }
 ];
 
 export const BRAIN_LOGO = (

@@ -306,7 +306,7 @@ const AIDocumentationPage: React.FC = () => {
                     </p>
                     <div className="my-8 rounded-3xl overflow-hidden shadow-2xl border border-gray-200">
                         <img
-                            src="assets/ai-Screenshot-6.png"
+                            src="assets/ai-Screenshot-6.webp"
                             alt="AI Generator Configuration Settings"
                             className="w-full h-auto"
                         />
@@ -320,7 +320,7 @@ const AIDocumentationPage: React.FC = () => {
                     </p>
                     <div className="my-8 rounded-3xl overflow-hidden shadow-2xl border border-gray-200">
                         <img
-                            src="assets/ai-Screenshot-3.png"
+                            src="assets/ai-Screenshot-3.webp"
                             alt="AI Providers Settings"
                             className="w-full h-auto"
                         />
