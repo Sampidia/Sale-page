@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/claim-prize",
+      "destination": "/#/claim-prize",
+      "permanent": false
+    }
+  ]
+}
