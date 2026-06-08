@@ -4,6 +4,11 @@
       "source": "/claim-prize",
       "destination": "/#/claim-prize",
       "permanent": false
+    },
+    {
+      "source": "/get-code",
+      "destination": "/#/get-code",
+      "permanent": false
     }
   ]
 }

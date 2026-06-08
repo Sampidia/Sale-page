@@ -11,6 +11,7 @@ import MobileAppDetailPage from './pages/MobileAppDetailPage';
 import DeleteAccountPage from './pages/DeleteAccountPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import ClaimPrizePage from './pages/ClaimPrizePage';
+import GetCodePage from './pages/GetCodePage';
 
 const App: React.FC = () => {
   return (
@@ -26,6 +27,7 @@ const App: React.FC = () => {
           <Route path="/delete-account" element={<DeleteAccountPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/claim-prize" element={<ClaimPrizePage />} />
+          <Route path="/get-code" element={<GetCodePage />} />
           <Route path="*" element={<LandingPage />} />
         </Routes>
       </Layout>
