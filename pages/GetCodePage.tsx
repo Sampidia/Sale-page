@@ -20,6 +20,9 @@ const GetCodePage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // SDK state — tracks whether FlutterwaveCheckout is actually ready
+  const [sdkReady, setSdkReady] = useState(false);
+
   // Success states
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [passcode, setPasscode] = useState<string | null>(null);
@@ -27,24 +30,37 @@ const GetCodePage: React.FC = () => {
 
   const selectedApp = MOBILE_APPS.find((a) => a.id === 'naija-ayo-worldwide');
 
-  // Dynamic Flutterwave Script Loader
+  // ── Flutterwave Script Loader (fixed race condition) ──────────────────────
   useEffect(() => {
-    if (appParam === 'naija-ayo-worldwide') {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.flutterwave.com/v3.js';
-      script.async = true;
-      document.body.appendChild(script);
+    if (appParam !== 'naija-ayo-worldwide') return;
 
-      return () => {
-        const existingScript = document.querySelector('script[src="https://checkout.flutterwave.com/v3.js"]');
-        if (existingScript) {
-          document.body.removeChild(existingScript);
-        }
-      };
+    // Reuse the script tag if it was already injected (e.g. user navigated back)
+    const existing = document.querySelector('script[src*="flutterwave"]');
+    if (existing) {
+      // SDK was already loaded in a previous render — mark ready immediately
+      setSdkReady(true);
+      return;
     }
+
+    const script = document.createElement('script');
+    script.src = 'https://checkout.flutterwave.com/v3.js';
+    script.async = true;
+
+    // Only mark ready AFTER the browser has fully parsed & executed the SDK
+    script.onload = () => setSdkReady(true);
+    script.onerror = () =>
+      setError('Payment SDK failed to load. Please refresh and try again.');
+
+    document.body.appendChild(script);
+
+    return () => {
+      const s = document.querySelector('script[src*="flutterwave"]');
+      if (s) document.body.removeChild(s);
+      setSdkReady(false);
+    };
   }, [appParam]);
 
-  // Fetch Slots
+  // ── Fetch available slots ─────────────────────────────────────────────────
   const fetchAvailableSlots = async (type: TournamentType) => {
     setCheckingSlots(true);
     setError(null);
@@ -55,9 +71,7 @@ const GetCodePage: React.FC = () => {
         'http://localhost:8788';
 
       const res = await fetch(`${workerUrl}/api/slots?tournamentType=${type}`);
-      if (!res.ok) {
-        throw new Error('Failed to retrieve slot capacity.');
-      }
+      if (!res.ok) throw new Error('Failed to retrieve slot capacity.');
       const data = await res.json();
       setAvailableSlots(data.availableSlots);
     } catch (err: any) {
@@ -74,7 +88,7 @@ const GetCodePage: React.FC = () => {
     }
   }, [appParam, tournamentType]);
 
-  // Handle Form Submit
+  // ── Handle form submit ────────────────────────────────────────────────────
   const handleCheckoutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -94,8 +108,10 @@ const GetCodePage: React.FC = () => {
       return;
     }
 
+    // Guard: sdkReady ensures this check is now always true when button is enabled,
+    // but kept as a safety net in case of unexpected state.
     if (!(window as any).FlutterwaveCheckout) {
-      setError('Payment SDK failed to load. Please refresh and try again.');
+      setError('Payment SDK is not ready. Please wait a moment and try again.');
       return;
     }
 
@@ -107,15 +123,18 @@ const GetCodePage: React.FC = () => {
     (window as any).FlutterwaveCheckout({
       public_key: flwKey,
       tx_ref: `NAW_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-      amount: amount,
+      amount,
       currency: 'NGN',
       payment_options: 'card, mobilemoney, banktransfer',
       customer: {
-        email: email,
+        email,
         name: username,
       },
       customizations: {
-        title: tournamentType === 'weekend' ? 'Naija Ayo Weekend Challenge' : 'Naija Ayo Quick Challenge',
+        title:
+          tournamentType === 'weekend'
+            ? 'Naija Ayo Weekend Challenge'
+            : 'Naija Ayo Quick Challenge',
         description: 'Tournament entry passcode purchase',
         logo: 'https://ajo-esusu.sampidia.com/assets/favicon-32x32.png',
       },
@@ -133,7 +152,7 @@ const GetCodePage: React.FC = () => {
     });
   };
 
-  // Verify Payment via Worker
+  // ── Verify payment via Worker ─────────────────────────────────────────────
   const verifyPayment = async (transactionId: string) => {
     setIsLoading(true);
     setError(null);
@@ -146,18 +165,11 @@ const GetCodePage: React.FC = () => {
       const res = await fetch(`${workerUrl}/api/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          transactionId,
-          tournamentType,
-          username,
-          email,
-        }),
+        body: JSON.stringify({ transactionId, tournamentType, username, email }),
       });
 
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Verification failed. Please contact support.');
-      }
+      if (!res.ok) throw new Error(data.error || 'Verification failed. Please contact support.');
 
       setPasscode(data.passcode);
       setIsSubmitted(true);
@@ -178,8 +190,10 @@ const GetCodePage: React.FC = () => {
   };
 
   const isSoldOut = availableSlots !== null && availableSlots <= 0;
+  // Button is disabled while SDK is still loading, sold out, or payment processing
+  const isSubmitDisabled = isLoading || isSoldOut || !sdkReady;
 
-  // ─── CASE A: LANDING SELECTOR ───────────────────────────────────────
+  // ─── CASE A: LANDING SELECTOR ─────────────────────────────────────────────
   if (appParam !== 'naija-ayo-worldwide') {
     return (
       <div className="min-h-screen bg-gray-950 flex flex-col justify-between">
@@ -339,7 +353,7 @@ const GetCodePage: React.FC = () => {
     );
   }
 
-  // ─── CASE B: CHECKOUT MODE (app = naija-ayo-worldwide) ─────────────
+  // ─── CASE B: CHECKOUT MODE (app = naija-ayo-worldwide) ───────────────────
   return (
     <div className="min-h-screen bg-gray-950">
       <SEO
@@ -348,7 +362,7 @@ const GetCodePage: React.FC = () => {
         keywords="naija ayo, buy passcode, tournament challenge entry, flutterwave ticket"
       />
 
-      {/* ─── HERO WITH PLAYLIST ────────────────────────────────────────── */}
+      {/* ─── HERO WITH PLAYLIST ──────────────────────────────────────────── */}
       <section
         style={{
           background: 'linear-gradient(135deg, #09090f 0%, #1d1430 50%, #0d0914 100%)',
@@ -444,7 +458,7 @@ const GetCodePage: React.FC = () => {
             </p>
           </div>
 
-          {/* YouTube playlist video */}
+          {/* YouTube playlist */}
           <div
             style={{
               width: '100%',
@@ -472,13 +486,8 @@ const GetCodePage: React.FC = () => {
         </div>
       </section>
 
-      {/* ─── CHECKOUT SECTION ──────────────────────────────────────────── */}
-      <section
-        style={{
-          background: '#09080e',
-          padding: '64px 24px 96px',
-        }}
-      >
+      {/* ─── CHECKOUT SECTION ────────────────────────────────────────────── */}
+      <section style={{ background: '#09080e', padding: '64px 24px 96px' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
           <div
             style={{
@@ -508,7 +517,7 @@ const GetCodePage: React.FC = () => {
 
             {!isSubmitted ? (
               <div>
-                {/* Real-time Slots Header */}
+                {/* Header */}
                 <div
                   style={{
                     display: 'flex',
@@ -571,7 +580,7 @@ const GetCodePage: React.FC = () => {
                 )}
 
                 <form onSubmit={handleCheckoutSubmit}>
-                  {/* Tournament Option selector */}
+                  {/* Tournament type selector */}
                   <fieldset style={{ border: 'none', padding: 0, margin: '0 0 28px 0' }}>
                     <legend
                       style={{
@@ -617,9 +626,7 @@ const GetCodePage: React.FC = () => {
                               value={item.type}
                               checked={isSelected}
                               disabled={isSoldOut}
-                              onChange={() => {
-                                setTournamentType(item.type);
-                              }}
+                              onChange={() => setTournamentType(item.type)}
                               style={{ display: 'none' }}
                             />
                             <span
@@ -722,34 +729,42 @@ const GetCodePage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Submit buttons */}
+                  {/* Submit button — disabled until SDK is loaded */}
                   <button
                     type="submit"
-                    disabled={isLoading || isSoldOut}
+                    disabled={isSubmitDisabled}
                     style={{
                       width: '100%',
                       padding: '16px',
                       borderRadius: '16px',
                       background: isSoldOut
                         ? 'rgba(255,255,255,0.06)'
-                        : isLoading
-                        ? 'rgba(239,68,68,0.5)'
-                        : 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
+                        : isSubmitDisabled
+                          ? 'rgba(239,68,68,0.3)'
+                          : 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
                       border: 'none',
                       color: isSoldOut ? '#475569' : '#fff',
                       fontWeight: 800,
                       fontSize: '15px',
-                      cursor: isLoading || isSoldOut ? 'not-allowed' : 'pointer',
+                      cursor: isSubmitDisabled ? 'not-allowed' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '8px',
-                      boxShadow: isLoading || isSoldOut ? 'none' : '0 8px 24px rgba(239,68,68,0.3)',
+                      boxShadow: isSubmitDisabled ? 'none' : '0 8px 24px rgba(239,68,68,0.3)',
                       transition: 'all 0.2s ease',
                     }}
                   >
                     {isSoldOut ? (
                       '❌ Sold Out'
+                    ) : !sdkReady ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Loading payment...
+                      </>
                     ) : isLoading ? (
                       <>
                         <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
@@ -765,7 +780,7 @@ const GetCodePage: React.FC = () => {
                 </form>
               </div>
             ) : (
-              // ── Success State ─────────────────────────────────────
+              // ── Success State ───────────────────────────────────────────
               <div style={{ textAlign: 'center', padding: '16px 0' }}>
                 <div
                   style={{
@@ -790,7 +805,7 @@ const GetCodePage: React.FC = () => {
                   We've successfully verified your payment and reserved your tournament entry.
                 </p>
 
-                {/* Passcode display container */}
+                {/* Passcode display */}
                 <div
                   style={{
                     background: 'rgba(255,255,255,0.02)',
@@ -814,7 +829,7 @@ const GetCodePage: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Next steps info */}
+                {/* Next steps */}
                 <div
                   style={{
                     background: 'rgba(255,255,255,0.02)',
@@ -829,11 +844,17 @@ const GetCodePage: React.FC = () => {
                 >
                   <div className="flex gap-2.5 items-start text-xs text-gray-400">
                     <span>📧</span>
-                    <span>An email confirmation containing this passcode has been sent to <strong>{email}</strong>.</span>
+                    <span>
+                      An email confirmation containing this passcode has been sent to{' '}
+                      <strong>{email}</strong>.
+                    </span>
                   </div>
                   <div className="flex gap-2.5 items-start text-xs text-gray-400">
                     <span>🎮</span>
-                    <span>Open the <strong>Naija Ayo Worldwide</strong> app, enter the tournament lobby, and apply this code to register.</span>
+                    <span>
+                      Open the <strong>Naija Ayo Worldwide</strong> app, enter the tournament lobby,
+                      and apply this code to register.
+                    </span>
                   </div>
                 </div>
 
@@ -856,7 +877,6 @@ const GetCodePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Keyframe animations and stylesheet */}
       <style>{`
         input::placeholder {
           color: #475569;
