@@ -342,8 +342,8 @@ const MobileAppDetailPage: React.FC = () => {
             </div>
 
             {/* CTA Button */}
-            <a
-              href="/#/get-code?app=naija-ayo-worldwide"
+            <Link
+              to="/get-code?app=naija-ayo-worldwide"
               id="tournament-passcode-cta"
               style={{
                 display: 'inline-flex',
@@ -370,7 +370,7 @@ const MobileAppDetailPage: React.FC = () => {
             >
               <span style={{ fontSize: '20px' }}>🎟️</span>
               Get Tournament Pass Code
-            </a>
+            </Link>
 
             <p style={{ color: '#475569', fontSize: '13px', marginTop: '16px' }}>
               Secure payment via Flutterwave · Instant passcode delivery

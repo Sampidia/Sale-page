@@ -11,12 +11,13 @@ const GetCodePage: React.FC = () => {
 
   const QUICK_CHALLENGE_PRICE = Number(import.meta.env.VITE_QUICK_CHALLENGE_PRICE ?? 200);
   const WEEKEND_CHALLENGE_PRICE = Number(import.meta.env.VITE_WEEKEND_CHALLENGE_PRICE ?? 500);
-  const currentPrice = tournamentType === 'weekend' ? WEEKEND_CHALLENGE_PRICE : QUICK_CHALLENGE_PRICE;
 
   // Form states
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [tournamentType, setTournamentType] = useState<TournamentType>('quick');
+
+  const currentPrice = tournamentType === 'weekend' ? WEEKEND_CHALLENGE_PRICE : QUICK_CHALLENGE_PRICE;
 
   // API states
   const [availableSlots, setAvailableSlots] = useState<number | null>(null);
