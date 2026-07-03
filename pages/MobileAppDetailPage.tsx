@@ -343,7 +343,7 @@ const MobileAppDetailPage: React.FC = () => {
 
             {/* CTA Button */}
             <Link
-              to="/get-code?app=naija-ayo-worldwide"
+              to={{ pathname: '/get-code', search: '?app=naija-ayo-worldwide' }}
               id="tournament-passcode-cta"
               style={{
                 display: 'inline-flex',
