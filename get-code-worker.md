@@ -388,7 +388,7 @@ export default {
     // ─────────────────────────────────────────────────────────────────────────
     if (request.method === 'POST' && url.pathname === '/api/verify') {
       try {
-        const { transactionId, tournamentType, username, email } = await request.json();
+        const { transactionId, tournamentType, username, email, browserPasscode } = await request.json();
 
         if (!transactionId || !tournamentType || !username || !email) {
           return new Response(
@@ -495,33 +495,52 @@ export default {
           );
         }
 
-        // 3. Fetch passcode from Firebase passcode service
-        const passcodeFetchUrl = `https://naw-passcode.sampidiablog.workers.dev/api/passcode?tournamentId=${tournamentId}`;
-        const passcodeRes = await fetch(passcodeFetchUrl);
-        if (!passcodeRes.ok) {
-          return new Response(
-            JSON.stringify({ error: 'Failed to retrieve passcode from tournament passcode API' }),
-            { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
-          );
-        }
+        // 3. Fetch passcode
+        // If the browser already fetched the passcode directly (to avoid Cloudflare
+        // error 1042 worker-to-worker block), use it. Otherwise fetch internally.
+        let passcode: string;
 
-        const textResponse = await passcodeRes.text();
-        let passcode = textResponse;
-        try {
-          const parsed = JSON.parse(textResponse);
-          passcode = parsed.passcode || parsed.code || (parsed.data && parsed.data.passcode) || parsed.data || textResponse;
-        } catch (e) {
-          // Response is raw text
-        }
+        if (browserPasscode && typeof browserPasscode === 'string' && browserPasscode.trim()) {
+          // Browser pre-fetched it — use directly
+          passcode = browserPasscode.trim();
+        } else {
+          // Internal fetch (works for paid flows where browser doesn't pre-fetch)
+          const passcodeFetchUrl = `https://naw-passcode.sampidiablog.workers.dev/api/passcode?tournamentId=${tournamentId}`;
+          const passcodeRes = await fetch(passcodeFetchUrl);
+          if (!passcodeRes.ok) {
+            let passcodeErrBody = '';
+            try { passcodeErrBody = await passcodeRes.text(); } catch (_) {}
+            return new Response(
+              JSON.stringify({
+                error: 'Failed to retrieve passcode from tournament passcode API',
+                debug: {
+                  passcodeFetchUrl,
+                  tournamentId,
+                  httpStatus: passcodeRes.status,
+                  responseBody: passcodeErrBody,
+                }
+              }),
+              { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+            );
+          }
 
-        if (!passcode || typeof passcode !== 'string') {
-          return new Response(
-            JSON.stringify({ error: 'Invalid passcode format received from passcode API' }),
-            { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
-          );
-        }
+          const textResponse = await passcodeRes.text();
+          let rawPasscode = textResponse;
+          try {
+            const parsed = JSON.parse(textResponse);
+            rawPasscode = parsed.passcode || parsed.code || (parsed.data && parsed.data.passcode) || parsed.data || textResponse;
+          } catch (e) {
+            // Response is raw text
+          }
 
-        passcode = passcode.trim();
+          if (!rawPasscode || typeof rawPasscode !== 'string') {
+            return new Response(
+              JSON.stringify({ error: 'Invalid passcode format received from passcode API' }),
+              { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+            );
+          }
+          passcode = rawPasscode.trim();
+        }
 
         // 4. Save to D1
         await env.DB.prepare(

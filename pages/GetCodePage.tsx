@@ -121,7 +121,7 @@ const GetCodePage: React.FC = () => {
   }, [appParam, tournamentType]);
 
   // ── Handle form submit ────────────────────────────────────────────────────
-  const handleCheckoutSubmit = (e: React.FormEvent) => {
+  const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!username || !email) {
@@ -140,7 +140,25 @@ const GetCodePage: React.FC = () => {
       setError(null);
       setIsLoading(true);
       const freeTxRef = `FREE_NAW_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-      verifyPayment(freeTxRef);
+
+      // Browser fetches the passcode directly (avoids Cloudflare error 1042
+      // worker-to-worker block — same pattern as the slots-v2 fix)
+      const tournamentId = tournamentType === 'quick' ? 'quicky_challenge01' : 'wednesday_Cup01';
+      let browserPasscode: string | undefined;
+      try {
+        const pcRes = await fetch(
+          `https://naw-passcode.sampidiablog.workers.dev/api/passcode?tournamentId=${tournamentId}`
+        );
+        if (pcRes.ok) {
+          const pcData = await pcRes.json();
+          browserPasscode = pcData.passcode || pcData.code || (pcData.data?.passcode) || pcData.data || undefined;
+          if (typeof browserPasscode === 'string') browserPasscode = browserPasscode.trim();
+        }
+      } catch (_) {
+        // If browser fetch fails, let the worker try the internal fetch
+      }
+
+      verifyPayment(freeTxRef, browserPasscode);
       return;
     }
 
@@ -193,7 +211,7 @@ const GetCodePage: React.FC = () => {
   };
 
   // ── Verify payment via Worker ─────────────────────────────────────────────
-  const verifyPayment = async (transactionId: string) => {
+  const verifyPayment = async (transactionId: string, browserPasscode?: string) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -205,7 +223,13 @@ const GetCodePage: React.FC = () => {
       const res = await fetch(`${workerUrl}/api/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transactionId, tournamentType, username, email }),
+        body: JSON.stringify({
+          transactionId,
+          tournamentType,
+          username,
+          email,
+          ...(browserPasscode ? { browserPasscode } : {}),
+        }),
       });
 
       const data = await res.json();
