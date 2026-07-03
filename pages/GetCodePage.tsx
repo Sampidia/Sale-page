@@ -9,6 +9,10 @@ const GetCodePage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const appParam = searchParams.get('app');
 
+  const QUICK_CHALLENGE_PRICE = Number(import.meta.env.VITE_QUICK_CHALLENGE_PRICE ?? 200);
+  const WEEKEND_CHALLENGE_PRICE = Number(import.meta.env.VITE_WEEKEND_CHALLENGE_PRICE ?? 500);
+  const currentPrice = tournamentType === 'weekend' ? WEEKEND_CHALLENGE_PRICE : QUICK_CHALLENGE_PRICE;
+
   // Form states
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -102,6 +106,16 @@ const GetCodePage: React.FC = () => {
       return;
     }
 
+    const amount = tournamentType === 'weekend' ? WEEKEND_CHALLENGE_PRICE : QUICK_CHALLENGE_PRICE;
+
+    if (amount === 0) {
+      setError(null);
+      setIsLoading(true);
+      const freeTxRef = `FREE_NAW_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      verifyPayment(freeTxRef);
+      return;
+    }
+
     const flwKey = import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY;
     if (!flwKey) {
       setError('Payment gateway is not configured (VITE_FLUTTERWAVE_PUBLIC_KEY is missing).');
@@ -117,8 +131,6 @@ const GetCodePage: React.FC = () => {
 
     setError(null);
     setIsLoading(true);
-
-    const amount = tournamentType === 'weekend' ? 500 : 200;
 
     (window as any).FlutterwaveCheckout({
       public_key: flwKey,
@@ -190,8 +202,8 @@ const GetCodePage: React.FC = () => {
   };
 
   const isSoldOut = availableSlots !== null && availableSlots <= 0;
-  // Button is disabled while SDK is still loading, sold out, or payment processing
-  const isSubmitDisabled = isLoading || isSoldOut || !sdkReady;
+  // Button is disabled while SDK is still loading (only for paid options), sold out, or payment processing
+  const isSubmitDisabled = isLoading || isSoldOut || (currentPrice > 0 && !sdkReady);
 
   // ─── CASE A: LANDING SELECTOR ─────────────────────────────────────────────
   if (appParam !== 'naija-ayo-worldwide') {
@@ -597,8 +609,16 @@ const GetCodePage: React.FC = () => {
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
                       {[
-                        { type: 'quick' as TournamentType, label: 'Quick Challenge', price: '₦200' },
-                        { type: 'weekend' as TournamentType, label: 'Weekend Challenge', price: '₦500' },
+                        { 
+                          type: 'quick' as TournamentType, 
+                          label: 'Quick Challenge', 
+                          price: QUICK_CHALLENGE_PRICE === 0 ? 'Free' : `₦${QUICK_CHALLENGE_PRICE}` 
+                        },
+                        { 
+                          type: 'weekend' as TournamentType, 
+                          label: 'Weekend Challenge', 
+                          price: WEEKEND_CHALLENGE_PRICE === 0 ? 'Free' : `₦${WEEKEND_CHALLENGE_PRICE}` 
+                        },
                       ].map((item) => {
                         const isSelected = tournamentType === item.type;
                         return (
@@ -615,9 +635,9 @@ const GetCodePage: React.FC = () => {
                               background: isSelected
                                 ? 'rgba(239,68,68,0.08)'
                                 : 'rgba(255,255,255,0.02)',
-                              cursor: isSoldOut ? 'not-allowed' : 'pointer',
+                              cursor: 'pointer',
                               transition: 'all 0.2s ease',
-                              opacity: isSoldOut ? 0.5 : 1,
+                              opacity: 1,
                             }}
                           >
                             <input
@@ -625,7 +645,6 @@ const GetCodePage: React.FC = () => {
                               name="tournamentType"
                               value={item.type}
                               checked={isSelected}
-                              disabled={isSoldOut}
                               onChange={() => setTournamentType(item.type)}
                               style={{ display: 'none' }}
                             />
@@ -757,7 +776,7 @@ const GetCodePage: React.FC = () => {
                   >
                     {isSoldOut ? (
                       '❌ Sold Out'
-                    ) : !sdkReady ? (
+                    ) : (currentPrice > 0 && !sdkReady) ? (
                       <>
                         <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -771,10 +790,10 @@ const GetCodePage: React.FC = () => {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        Processing Payment...
+                        Processing...
                       </>
                     ) : (
-                      `Purchase Code — ${tournamentType === 'weekend' ? '₦500' : '₦200'}`
+                      currentPrice === 0 ? 'Get Code' : `Purchase Code — ₦${currentPrice}`
                     )}
                   </button>
                 </form>

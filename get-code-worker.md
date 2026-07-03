@@ -408,29 +408,45 @@ export default {
         }
 
         // 2. Verify payment with Flutterwave
-        if (!env.FLW_SECRET_KEY) {
-          return new Response(
-            JSON.stringify({ error: 'FLW_SECRET_KEY is not configured in worker environment' }),
-            { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
-          );
+        const QUICK_CHALLENGE_PRICE = Number(env.QUICK_CHALLENGE_PRICE ?? 200);
+        const WEEKEND_CHALLENGE_PRICE = Number(env.WEEKEND_CHALLENGE_PRICE ?? 500);
+        const expectedAmount = tournamentType === 'weekend' ? WEEKEND_CHALLENGE_PRICE : QUICK_CHALLENGE_PRICE;
+
+        let flwData;
+        if (expectedAmount === 0 && transactionId.startsWith('FREE_')) {
+          flwData = {
+            status: 'success',
+            data: {
+              status: 'successful',
+              amount: 0,
+              currency: 'NGN'
+            }
+          };
+        } else {
+          if (!env.FLW_SECRET_KEY) {
+            return new Response(
+              JSON.stringify({ error: 'FLW_SECRET_KEY is not configured in worker environment' }),
+              { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          const flwResponse = await fetch(`https://api.flutterwave.com/v3/transactions/${transactionId}/verify`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${env.FLW_SECRET_KEY}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!flwResponse.ok) {
+            return new Response(
+              JSON.stringify({ error: 'Failed to verify transaction status with Flutterwave' }),
+              { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          flwData = await flwResponse.json();
         }
-
-        const flwResponse = await fetch(`https://api.flutterwave.com/v3/transactions/${transactionId}/verify`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${env.FLW_SECRET_KEY}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!flwResponse.ok) {
-          return new Response(
-            JSON.stringify({ error: 'Failed to verify transaction status with Flutterwave' }),
-            { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
-          );
-        }
-
-        const flwData = await flwResponse.json();
 
         if (flwData.status !== 'success' || flwData.data.status !== 'successful') {
           return new Response(
@@ -446,7 +462,6 @@ export default {
           );
         }
 
-        const expectedAmount = tournamentType === 'weekend' ? 500 : 200;
         if (flwData.data.amount < expectedAmount) {
           return new Response(
             JSON.stringify({ error: `Incorrect payment amount. Expected at least ${expectedAmount}, received ${flwData.data.amount}` }),

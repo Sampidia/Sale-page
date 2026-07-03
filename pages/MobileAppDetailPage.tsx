@@ -194,6 +194,191 @@ const MobileAppDetailPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Tournament Passcode CTA — only for Naija Ayo Worldwide */}
+      {app.id === 'naija-ayo-worldwide' && (
+        <section
+          style={{
+            background: 'linear-gradient(135deg, #09090f 0%, #1d1430 50%, #0d0914 100%)',
+            position: 'relative',
+            overflow: 'hidden',
+            padding: '80px 24px',
+          }}
+        >
+          {/* Background glow orbs */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '-80px',
+              left: '-80px',
+              width: '400px',
+              height: '400px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(239,68,68,0.25) 0%, transparent 70%)',
+              filter: 'blur(50px)',
+              pointerEvents: 'none',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '-60px',
+              right: '-60px',
+              width: '350px',
+              height: '350px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(124,58,237,0.2) 0%, transparent 70%)',
+              filter: 'blur(50px)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          <div
+            style={{
+              maxWidth: '860px',
+              margin: '0 auto',
+              position: 'relative',
+              zIndex: 1,
+              textAlign: 'center',
+            }}
+          >
+            {/* Badge */}
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: 'rgba(239,68,68,0.12)',
+                border: '1px solid rgba(239,68,68,0.4)',
+                borderRadius: '999px',
+                padding: '6px 20px',
+                marginBottom: '28px',
+              }}
+            >
+              <span style={{ fontSize: '18px' }}>🏆</span>
+              <span
+                style={{
+                  color: '#fca5a5',
+                  fontSize: '12px',
+                  fontWeight: 800,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                Tournament Season Now Live
+              </span>
+            </div>
+
+            {/* Heading */}
+            <h2
+              style={{
+                fontSize: 'clamp(2rem, 5vw, 3.25rem)',
+                fontWeight: 900,
+                lineHeight: 1.15,
+                marginBottom: '20px',
+                background: 'linear-gradient(135deg, #ffffff 0%, #fecaca 50%, #c4b5fd 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              Ready to Compete?<br />Enter the Arena Today.
+            </h2>
+
+            <p
+              style={{
+                color: '#94a3b8',
+                fontSize: '18px',
+                maxWidth: '560px',
+                margin: '0 auto 48px',
+                lineHeight: 1.7,
+              }}
+            >
+              Join the Naija Ayo Worldwide tournament, challenge players across Nigeria and beyond, and climb the leaderboard to win exciting cash prizes.
+            </p>
+
+            {/* Stats Row */}
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                gap: '16px',
+                marginBottom: '48px',
+              }}
+            >
+              {[
+                { icon: '🎮', value: '10,000+', label: 'Active Players' },
+                { icon: '💰', value: '₦5M+', label: 'Prizes Paid Out' },
+                { icon: '⚡', value: 'Weekly', label: 'New Challenges' },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '16px',
+                    padding: '16px 28px',
+                    backdropFilter: 'blur(12px)',
+                    textAlign: 'center',
+                    minWidth: '130px',
+                  }}
+                >
+                  <div style={{ fontSize: '22px', marginBottom: '4px' }}>{stat.icon}</div>
+                  <div
+                    style={{
+                      color: '#ffffff',
+                      fontWeight: 900,
+                      fontSize: '22px',
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    {stat.value}
+                  </div>
+                  <div style={{ color: '#64748b', fontSize: '12px', marginTop: '2px', fontWeight: 600 }}>
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA Button */}
+            <Link
+              to="/get-code?app=naija-ayo-worldwide"
+              id="tournament-passcode-cta"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '17px',
+                padding: '18px 40px',
+                borderRadius: '20px',
+                textDecoration: 'none',
+                boxShadow: '0 12px 36px rgba(239,68,68,0.4)',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)';
+                (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 18px 48px rgba(239,68,68,0.5)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)';
+                (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 12px 36px rgba(239,68,68,0.4)';
+              }}
+            >
+              <span style={{ fontSize: '20px' }}>🎟️</span>
+              Get Tournament Pass Code
+            </Link>
+
+            <p style={{ color: '#475569', fontSize: '13px', marginTop: '16px' }}>
+              Secure payment via Flutterwave · Instant passcode delivery
+            </p>
+          </div>
+        </section>
+      )}
+
       {/* Target Audience / Use Cases */}
       <section className="py-24 bg-gradient-to-br from-red-50 via-orange-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
