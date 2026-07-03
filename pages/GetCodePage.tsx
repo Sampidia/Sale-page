@@ -75,7 +75,20 @@ const GetCodePage: React.FC = () => {
         import.meta.env.VITE_CLAIM_PRIZE_WORKER_URL ||
         'http://localhost:8788';
 
-      const res = await fetch(`${workerUrl}/api/slots?tournamentType=${type}`);
+      const tournamentId = type === 'quick' ? 'quicky_challenge01' : 'wednesday_Cup01';
+
+      // Step 1: Browser fetches Firebase count directly (avoids Cloudflare error 1042)
+      const firebaseRes = await fetch(
+        `https://naw-passcode.sampidiablog.workers.dev/api/passcode/count?tournamentId=${tournamentId}`
+      );
+      if (!firebaseRes.ok) throw new Error('Failed to retrieve slot capacity.');
+      const firebaseData = await firebaseRes.json();
+      const remainingCount = firebaseData.remainingCount ?? firebaseData.count ?? 0;
+
+      // Step 2: Worker reads D1 sold count and computes available slots
+      const res = await fetch(
+        `${workerUrl}/api/slots-v2?tournamentType=${type}&firebaseCount=${remainingCount}`
+      );
       if (!res.ok) throw new Error('Failed to retrieve slot capacity.');
       const data = await res.json();
       setAvailableSlots(data.availableSlots);
