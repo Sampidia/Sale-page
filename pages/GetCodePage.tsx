@@ -81,7 +81,7 @@ const GetCodePage: React.FC = () => {
         import.meta.env.VITE_CLAIM_PRIZE_WORKER_URL ||
         'http://localhost:8788';
 
-      const tournamentId = type === 'quick' ? 'quicky_challenge01' : 'wednesday_Cup01';
+      const tournamentId = type === 'quick' ? 'quicky_challenge01' : 'weekend_Cup01';
 
       // Step 1: Browser fetches Firebase count directly (avoids Cloudflare error 1042)
       const firebaseRes = await fetch(
@@ -143,7 +143,7 @@ const GetCodePage: React.FC = () => {
 
       // Browser fetches the passcode directly (avoids Cloudflare error 1042
       // worker-to-worker block — same pattern as the slots-v2 fix)
-      const tournamentId = tournamentType === 'quick' ? 'quicky_challenge01' : 'wednesday_Cup01';
+      const tournamentId = tournamentType === 'quick' ? 'quicky_challenge01' : 'weekend_Cup01';
       let browserPasscode: string | undefined;
       try {
         const pcRes = await fetch(
