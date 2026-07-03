@@ -196,9 +196,25 @@ const GetCodePage: React.FC = () => {
         description: 'Tournament entry passcode purchase',
         logo: 'https://ajo-esusu.sampidia.com/assets/favicon-32x32.png',
       },
-      callback: (data: any) => {
+      callback: async (data: any) => {
         if (data.transaction_id || data.tx_ref) {
-          verifyPayment(data.transaction_id || data.tx_ref);
+          // Browser fetches the passcode directly (avoids Cloudflare error 1042 worker-to-worker block)
+          const tournamentId = tournamentType === 'quick' ? 'quicky_challenge01' : 'weekend_Cup01';
+          let browserPasscode: string | undefined;
+          try {
+            const pcRes = await fetch(
+              `https://naw-passcode.sampidiablog.workers.dev/api/passcode?tournamentId=${tournamentId}`
+            );
+            if (pcRes.ok) {
+              const pcData = await pcRes.json();
+              browserPasscode = pcData.passcode || pcData.code || (pcData.data?.passcode) || pcData.data || undefined;
+              if (typeof browserPasscode === 'string') browserPasscode = browserPasscode.trim();
+            }
+          } catch (_) {
+            // If browser fetch fails, let the worker try the internal fetch
+          }
+
+          verifyPayment(data.transaction_id || data.tx_ref, browserPasscode);
         } else {
           setError('Payment succeeded but no reference was returned.');
           setIsLoading(false);
