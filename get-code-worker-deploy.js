@@ -1,47 +1,8 @@
-/*
-  =============================================================================
-  GET-CODE-WORKER  (updated — added /api/debug and /api/slots-v2)
-  =============================================================================
-
-  NEW DIAGNOSTIC ROUTES
-  ─────────────────────
-  GET /api/debug?tournamentType=quick|weekend
-    Hits Firebase and D1 independently and returns their raw outputs side-by-side.
-    Use this to find which side is returning the wrong value.
-
-  GET /api/debug-raw?tournamentType=quick|weekend
-    Same as above but also includes the full raw Firebase response body as a
-    string, in case the field names are not what the worker expects.
-
-  FIXED PRODUCTION ROUTE
-  ──────────────────────
-  GET /api/slots-v2?tournamentType=quick|weekend&firebaseCount=<n>
-    Skips the Worker-to-Worker Firebase fetch entirely (Cloudflare blocks it
-    via error 1042). The browser fetches the Firebase count directly and passes
-    it here as the firebaseCount query param. This worker only touches D1.
-
-  FRONTEND PATTERN  (replace your old /api/slots call with this)
-  ──────────────────────────────────────────────────────────────
-    async function getAvailableSlots(tournamentType) {
-      const tournamentId = tournamentType === 'quick'
-        ? 'quicky_challenge01'
-        : 'weekend_Cup01';
-
-      // Step 1: browser fetches Firebase directly (no worker-to-worker block)
-      const firebaseRes = await fetch(
-        `https://naw-passcode.sampidiablog.workers.dev/api/passcode/count?tournamentId=${tournamentId}`
-      );
-      const { remainingCount } = await firebaseRes.json();
-
-      // Step 2: worker reads only D1 and computes the difference
-      const slotsRes = await fetch(
-        `https://get-code.sampidiablog.workers.dev/api/slots-v2?tournamentType=${tournamentType}&firebaseCount=${remainingCount}`
-      );
-      return await slotsRes.json(); // { availableSlots, totalCount, soldCount }
-    }
-
-  =============================================================================
-*/
+// ============================================================
+// get-code CLOUDFLARE WORKER  — PASTE THIS ENTIRE FILE
+// into the Cloudflare Dashboard → Workers → get-code → Edit
+// then click "Deploy"
+// ============================================================
 
 export default {
   async fetch(request, env, ctx) {
@@ -64,12 +25,6 @@ export default {
 
     // ─────────────────────────────────────────────────────────────────────────
     // Route: GET /api/debug
-    // Returns the raw output of Firebase AND D1 side-by-side so you can
-    // identify which one is returning wrong/missing data.
-    //
-    // Usage:
-    //   https://get-code.sampidiablog.workers.dev/api/debug?tournamentType=quick
-    //   https://get-code.sampidiablog.workers.dev/api/debug?tournamentType=weekend
     // ─────────────────────────────────────────────────────────────────────────
     if (request.method === 'GET' && url.pathname === '/api/debug') {
       const tournamentType = url.searchParams.get('tournamentType');
@@ -99,18 +54,13 @@ export default {
         errors: [],
       };
 
-      // ── Firebase ──────────────────────────────────────────────────────────
       try {
         const firebaseUrl = `https://naw-passcode.sampidiablog.workers.dev/api/passcode/count?tournamentId=${tournamentId}`;
         result.firebase = { url: firebaseUrl };
-
         const firebaseRes = await fetch(firebaseUrl);
         result.firebase.httpStatus = firebaseRes.status;
-
         const firebaseBody = await firebaseRes.json();
         result.firebase.rawBody = firebaseBody;
-
-        // Show exactly which field the worker will pick up
         result.firebase.remainingCount = firebaseBody.remainingCount ?? null;
         result.firebase.count          = firebaseBody.count ?? null;
         result.firebase.resolvedValue  = parseInt(firebaseBody.remainingCount ?? firebaseBody.count ?? 0, 10);
@@ -120,37 +70,25 @@ export default {
         result.errors.push(`Firebase fetch failed: ${err.message}`);
       }
 
-      // ── D1 ────────────────────────────────────────────────────────────────
       try {
         if (!env.DB) throw new Error('D1 binding (DB) is not configured in worker settings');
-
         const { results } = await env.DB.prepare(
           'SELECT COUNT(*) as count FROM purchases WHERE tournament_id = ?'
         ).bind(tournamentId).all();
-
         const soldCount = results && results[0] ? parseInt(results[0].count || 0, 10) : 0;
-
-        // Also pull the last 5 purchases so you can verify the tournament_id values stored
         const { results: recentRows } = await env.DB.prepare(
           'SELECT transaction_id, username, tournament_id, passcode, purchased_at FROM purchases WHERE tournament_id = ? ORDER BY purchased_at DESC LIMIT 5'
         ).bind(tournamentId).all();
-
-        result.d1 = {
-          soldCount,
-          rawCountResult: results,
-          recentPurchases: recentRows || [],
-        };
+        result.d1 = { soldCount, rawCountResult: results, recentPurchases: recentRows || [] };
       } catch (err) {
         result.d1 = { error: err.message };
         result.errors.push(`D1 query failed: ${err.message}`);
       }
 
-      // ── Computed ──────────────────────────────────────────────────────────
       if (result.firebase && result.firebase.resolvedValue != null && result.d1 && result.d1.soldCount != null) {
-        const total    = result.firebase.resolvedValue;
-        const sold     = result.d1.soldCount;
-        const available = Math.max(0, total - sold);
-        result.computed = { totalFromFirebase: total, soldFromD1: sold, availableSlots: available };
+        const total = result.firebase.resolvedValue;
+        const sold = result.d1.soldCount;
+        result.computed = { totalFromFirebase: total, soldFromD1: sold, availableSlots: Math.max(0, total - sold) };
       }
 
       return new Response(
@@ -161,12 +99,6 @@ export default {
 
     // ─────────────────────────────────────────────────────────────────────────
     // Route: GET /api/debug-raw
-    // Same as /api/debug but also captures the Firebase response as raw text
-    // before JSON.parse — useful if the response body is malformed or the
-    // field names don't match what the worker expects.
-    //
-    // Usage:
-    //   https://get-code.sampidiablog.workers.dev/api/debug-raw?tournamentType=quick
     // ─────────────────────────────────────────────────────────────────────────
     if (request.method === 'GET' && url.pathname === '/api/debug-raw') {
       const tournamentType = url.searchParams.get('tournamentType');
@@ -179,31 +111,21 @@ export default {
       }
 
       const tournamentId = tournamentType === 'weekend' ? env.Weekend_Challenge_ID : env.Quick_Challenge_ID;
-      const result = {
-        tournamentType,
-        tournamentId: tournamentId || '(env var not set)',
-        firebase: null,
-        d1: null,
-        errors: [],
-      };
+      const result = { tournamentType, tournamentId: tournamentId || '(env var not set)', firebase: null, d1: null, errors: [] };
 
-      // ── Firebase (raw text capture) ───────────────────────────────────────
       try {
         const firebaseUrl = `https://naw-passcode.sampidiablog.workers.dev/api/passcode/count?tournamentId=${tournamentId}`;
         result.firebase = { url: firebaseUrl };
-
         const firebaseRes = await fetch(firebaseUrl);
         result.firebase.httpStatus = firebaseRes.status;
         result.firebase.headers = Object.fromEntries(firebaseRes.headers.entries());
-
         const rawText = await firebaseRes.text();
-        result.firebase.rawText = rawText;           // exact bytes returned
+        result.firebase.rawText = rawText;
         result.firebase.rawTextLength = rawText.length;
-
         try {
           const parsed = JSON.parse(rawText);
-          result.firebase.parsedBody   = parsed;
-          result.firebase.allFieldNames = Object.keys(parsed);  // shows exactly what fields exist
+          result.firebase.parsedBody = parsed;
+          result.firebase.allFieldNames = Object.keys(parsed);
         } catch (parseErr) {
           result.firebase.parseError = parseErr.message;
         }
@@ -213,20 +135,14 @@ export default {
         result.errors.push(`Firebase fetch failed: ${err.message}`);
       }
 
-      // ── D1 (raw) ──────────────────────────────────────────────────────────
       try {
         if (!env.DB) throw new Error('D1 binding (DB) is not configured');
-
         const { results: countResults } = await env.DB.prepare(
           'SELECT COUNT(*) as count FROM purchases WHERE tournament_id = ?'
         ).bind(tournamentId).all();
-
-        // Also show a sample of ALL distinct tournament_id values in the table
-        // so you can check for typos or mismatches
         const { results: allIds } = await env.DB.prepare(
           'SELECT tournament_id, COUNT(*) as n FROM purchases GROUP BY tournament_id'
         ).all();
-
         result.d1 = {
           countResultForThisTournament: countResults,
           soldCount: countResults && countResults[0] ? parseInt(countResults[0].count || 0, 10) : 0,
@@ -244,12 +160,7 @@ export default {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Route: GET /api/slots-v2  (FIXED — no Worker-to-Worker call)
-    // Browser fetches Firebase count directly and passes it as firebaseCount.
-    // This worker only reads D1, avoiding Cloudflare's error 1042 block.
-    //
-    // Usage:
-    //   https://get-code.sampidiablog.workers.dev/api/slots-v2?tournamentType=quick&firebaseCount=10
+    // Route: GET /api/slots-v2  (browser passes firebaseCount — no 1042 block)
     // ─────────────────────────────────────────────────────────────────────────
     if (request.method === 'GET' && url.pathname === '/api/slots-v2') {
       try {
@@ -265,7 +176,7 @@ export default {
 
         if (firebaseCountRaw === null || firebaseCountRaw === '') {
           return new Response(
-            JSON.stringify({ error: 'Missing firebaseCount query parameter. Fetch it from naw-passcode worker in the browser and pass it here.' }),
+            JSON.stringify({ error: 'Missing firebaseCount query parameter.' }),
             { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
           );
         }
@@ -322,6 +233,35 @@ export default {
       }
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // Route: GET /api/slots  (original — kept for backward compatibility)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'GET' && url.pathname === '/api/slots') {
+      try {
+        const tournamentType = url.searchParams.get('tournamentType');
+        if (!tournamentType || (tournamentType !== 'quick' && tournamentType !== 'weekend')) {
+          return new Response(
+            JSON.stringify({ error: 'Invalid or missing tournamentType' }),
+            { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const tournamentId = tournamentType === 'weekend' ? env.Weekend_Challenge_ID : env.Quick_Challenge_ID;
+        if (!tournamentId) {
+          return new Response(
+            JSON.stringify({ error: `Tournament ID for ${tournamentType} challenge not configured` }),
+            { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const firebaseCountUrl = `https://naw-passcode.sampidiablog.workers.dev/api/passcode/count?tournamentId=${tournamentId}`;
+        const firebaseRes = await fetch(firebaseCountUrl);
+        if (!firebaseRes.ok) {
+          return new Response(
+            JSON.stringify({ error: 'Failed to retrieve slot capacity from firebase API' }),
+            { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
     // ─────────────────────────────────────────────────────────────────────────
     // Route: POST /api/check-user
     // ─────────────────────────────────────────────────────────────────────────

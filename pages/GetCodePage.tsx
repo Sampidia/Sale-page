@@ -134,49 +134,60 @@ const GetCodePage: React.FC = () => {
       return;
     }
 
-    const amount = tournamentType === 'weekend' ? weekendChallengePrice : quickChallengePrice;
+    setError(null);
+    setIsLoading(true);
 
-    if (amount === 0) {
-      setError(null);
-      setIsLoading(true);
-      const freeTxRef = `FREE_NAW_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+    const workerUrl =
+      import.meta.env.VITE_GET_CODE_WORKER_URL ||
+      import.meta.env.VITE_CLAIM_PRIZE_WORKER_URL ||
+      'http://localhost:8788';
 
-      // Browser fetches the passcode directly (avoids Cloudflare error 1042
-      // worker-to-worker block — same pattern as the slots-v2 fix)
-      const tournamentId = tournamentType === 'quick' ? 'quicky_challenge01' : 'weekend_Cup01';
-      let browserPasscode: string | undefined;
-      try {
-        const pcRes = await fetch(
-          `https://naw-passcode.sampidiablog.workers.dev/api/passcode?tournamentId=${tournamentId}`
-        );
-        if (pcRes.ok) {
-          const pcData = await pcRes.json();
-          browserPasscode = pcData.passcode || pcData.code || (pcData.data?.passcode) || pcData.data || undefined;
-          if (typeof browserPasscode === 'string') browserPasscode = browserPasscode.trim();
-        }
-      } catch (_) {
-        // If browser fetch fails, let the worker try the internal fetch
+    // Step 1: Check if user already has a passcode for this tournament
+    try {
+      const checkRes = await fetch(`${workerUrl}/api/check-user`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, tournamentType }),
+      });
+
+      const checkData = await checkRes.json();
+      if (!checkRes.ok) {
+        throw new Error(checkData.error || 'User verification failed.');
       }
 
-      verifyPayment(freeTxRef, browserPasscode);
+      if (checkData.exists) {
+        setError('You already have a passcode for this tournament. Please check your email or contact the admin for assistance.');
+        setIsLoading(false);
+        return;
+      }
+    } catch (checkErr: any) {
+      console.error('Pre-checkout user check failed:', checkErr);
+      setError(checkErr.message || 'Verification failed. Please try again.');
+      setIsLoading(false);
+      return;
+    }
+
+    const amount = tournamentType === 'weekend' ? weekendChallengePrice : quickChallengePrice;
+
+    // Step 2: Handle checkout
+    if (amount === 0) {
+      const freeTxRef = `FREE_NAW_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      verifyPayment(freeTxRef);
       return;
     }
 
     const flwKey = import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY;
     if (!flwKey) {
       setError('Payment gateway is not configured (VITE_FLUTTERWAVE_PUBLIC_KEY is missing).');
+      setIsLoading(false);
       return;
     }
 
-    // Guard: sdkReady ensures this check is now always true when button is enabled,
-    // but kept as a safety net in case of unexpected state.
     if (!(window as any).FlutterwaveCheckout) {
       setError('Payment SDK is not ready. Please wait a moment and try again.');
+      setIsLoading(false);
       return;
     }
-
-    setError(null);
-    setIsLoading(true);
 
     (window as any).FlutterwaveCheckout({
       public_key: flwKey,
@@ -198,23 +209,7 @@ const GetCodePage: React.FC = () => {
       },
       callback: async (data: any) => {
         if (data.transaction_id || data.tx_ref) {
-          // Browser fetches the passcode directly (avoids Cloudflare error 1042 worker-to-worker block)
-          const tournamentId = tournamentType === 'quick' ? 'quicky_challenge01' : 'weekend_Cup01';
-          let browserPasscode: string | undefined;
-          try {
-            const pcRes = await fetch(
-              `https://naw-passcode.sampidiablog.workers.dev/api/passcode?tournamentId=${tournamentId}`
-            );
-            if (pcRes.ok) {
-              const pcData = await pcRes.json();
-              browserPasscode = pcData.passcode || pcData.code || (pcData.data?.passcode) || pcData.data || undefined;
-              if (typeof browserPasscode === 'string') browserPasscode = browserPasscode.trim();
-            }
-          } catch (_) {
-            // If browser fetch fails, let the worker try the internal fetch
-          }
-
-          verifyPayment(data.transaction_id || data.tx_ref, browserPasscode);
+          verifyPayment(data.transaction_id || data.tx_ref);
         } else {
           setError('Payment succeeded but no reference was returned.');
           setIsLoading(false);
