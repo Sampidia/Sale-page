@@ -81,10 +81,18 @@ export default {
         );
       }
 
+      const QUICK_CHALLENGE_PRICE = Number(env.QUICK_CHALLENGE_PRICE ?? 200);
+      const WEEKEND_CHALLENGE_PRICE = Number(env.WEEKEND_CHALLENGE_PRICE ?? 500);
       const tournamentId = tournamentType === 'weekend' ? env.Weekend_Challenge_ID : env.Quick_Challenge_ID;
       const result = {
         tournamentType,
         tournamentId: tournamentId || '(env var not set)',
+        prices: {
+          quick: QUICK_CHALLENGE_PRICE,
+          weekend: WEEKEND_CHALLENGE_PRICE,
+          rawQuickPrice: env.QUICK_CHALLENGE_PRICE ?? null,
+          rawWeekendPrice: env.WEEKEND_CHALLENGE_PRICE ?? null
+        },
         firebase: null,
         d1: null,
         computed: null,
@@ -285,6 +293,9 @@ export default {
           );
         }
 
+        const QUICK_CHALLENGE_PRICE = Number(env.QUICK_CHALLENGE_PRICE ?? 200);
+        const WEEKEND_CHALLENGE_PRICE = Number(env.WEEKEND_CHALLENGE_PRICE ?? 500);
+
         const { results } = await env.DB.prepare(
           'SELECT COUNT(*) as count FROM purchases WHERE tournament_id = ?'
         ).bind(tournamentId).all();
@@ -293,7 +304,13 @@ export default {
         const availableSlots = Math.max(0, firebaseCount - soldCount);
 
         return new Response(
-          JSON.stringify({ availableSlots, totalCount: firebaseCount, soldCount }),
+          JSON.stringify({
+            availableSlots,
+            totalCount: firebaseCount,
+            soldCount,
+            quickChallengePrice: QUICK_CHALLENGE_PRICE,
+            weekendChallengePrice: WEEKEND_CHALLENGE_PRICE,
+          }),
           { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
         );
 
@@ -440,7 +457,16 @@ export default {
 
           if (!flwResponse.ok) {
             return new Response(
-              JSON.stringify({ error: 'Failed to verify transaction status with Flutterwave' }),
+              JSON.stringify({ 
+                error: 'Failed to verify transaction status with Flutterwave',
+                debug: {
+                  env_QUICK_CHALLENGE_PRICE: env.QUICK_CHALLENGE_PRICE ?? 'not-set',
+                  env_WEEKEND_CHALLENGE_PRICE: env.WEEKEND_CHALLENGE_PRICE ?? 'not-set',
+                  expectedAmount,
+                  transactionId,
+                  tournamentType
+                }
+              }),
               { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
             );
           }

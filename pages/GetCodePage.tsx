@@ -9,15 +9,21 @@ const GetCodePage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const appParam = searchParams.get('app');
 
-  const QUICK_CHALLENGE_PRICE = Number(import.meta.env.VITE_QUICK_CHALLENGE_PRICE ?? 200);
-  const WEEKEND_CHALLENGE_PRICE = Number(import.meta.env.VITE_WEEKEND_CHALLENGE_PRICE ?? 500);
+  // Prices are fetched from the worker (single source of truth).
+  // Env vars are only used as initial fallback until the worker responds.
+  const [quickChallengePrice, setQuickChallengePrice] = useState(
+    Number(import.meta.env.VITE_QUICK_CHALLENGE_PRICE ?? 200)
+  );
+  const [weekendChallengePrice, setWeekendChallengePrice] = useState(
+    Number(import.meta.env.VITE_WEEKEND_CHALLENGE_PRICE ?? 500)
+  );
 
   // Form states
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [tournamentType, setTournamentType] = useState<TournamentType>('quick');
 
-  const currentPrice = tournamentType === 'weekend' ? WEEKEND_CHALLENGE_PRICE : QUICK_CHALLENGE_PRICE;
+  const currentPrice = tournamentType === 'weekend' ? weekendChallengePrice : quickChallengePrice;
 
   // API states
   const [availableSlots, setAvailableSlots] = useState<number | null>(null);
@@ -92,6 +98,14 @@ const GetCodePage: React.FC = () => {
       if (!res.ok) throw new Error('Failed to retrieve slot capacity.');
       const data = await res.json();
       setAvailableSlots(data.availableSlots);
+
+      // Sync prices from the worker (the single source of truth)
+      if (data.quickChallengePrice !== undefined) {
+        setQuickChallengePrice(Number(data.quickChallengePrice));
+      }
+      if (data.weekendChallengePrice !== undefined) {
+        setWeekendChallengePrice(Number(data.weekendChallengePrice));
+      }
     } catch (err: any) {
       console.error(err);
       setAvailableSlots(null);
@@ -120,7 +134,7 @@ const GetCodePage: React.FC = () => {
       return;
     }
 
-    const amount = tournamentType === 'weekend' ? WEEKEND_CHALLENGE_PRICE : QUICK_CHALLENGE_PRICE;
+    const amount = tournamentType === 'weekend' ? weekendChallengePrice : quickChallengePrice;
 
     if (amount === 0) {
       setError(null);
@@ -626,12 +640,12 @@ const GetCodePage: React.FC = () => {
                         { 
                           type: 'quick' as TournamentType, 
                           label: 'Quick Challenge', 
-                          price: QUICK_CHALLENGE_PRICE === 0 ? 'Free' : `₦${QUICK_CHALLENGE_PRICE}` 
+                          price: quickChallengePrice === 0 ? 'Free' : `₦${quickChallengePrice}` 
                         },
                         { 
                           type: 'weekend' as TournamentType, 
                           label: 'Weekend Challenge', 
-                          price: WEEKEND_CHALLENGE_PRICE === 0 ? 'Free' : `₦${WEEKEND_CHALLENGE_PRICE}` 
+                          price: weekendChallengePrice === 0 ? 'Free' : `₦${weekendChallengePrice}` 
                         },
                       ].map((item) => {
                         const isSelected = tournamentType === item.type;
