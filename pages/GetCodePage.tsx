@@ -934,7 +934,16 @@ const GetCodePage: React.FC = () => {
                   <div className="flex gap-2.5 items-start text-xs text-gray-400">
                     <span>🎮</span>
                     <span>
-                      Open the <strong>Naija Ayo Worldwide</strong> app, enter the tournament lobby,
+                      Open the{' '}
+                      <a
+                        href="https://play.google.com/store/apps/details?id=com.naijaayo.worldwide"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-bold text-red-600 underline hover:text-red-800"
+                      >
+                        Naija Ayo Worldwide
+                      </a>{' '}
+                      app, enter the tournament lobby,
                       and apply this code to register.
                     </span>
                   </div>
