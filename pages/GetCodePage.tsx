@@ -205,7 +205,7 @@ const GetCodePage: React.FC = () => {
             ? 'Naija Ayo Weekend Challenge'
             : 'Naija Ayo Quick Challenge',
         description: 'Tournament entry passcode purchase',
-        logo: 'https://ajo-esusu.sampidia.com/assets/favicon-32x32.png',
+        logo: 'https://afigo.sampidia.com/assets/favicon-32x32.png',
       },
       callback: async (data: any) => {
         if (data.transaction_id || data.tx_ref) {
