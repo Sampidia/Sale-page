@@ -38,3 +38,43 @@ export interface NavItem {
   label: string;
   href: string;
 }
+
+export type ClientProjectCategory = 'Hotel Booking' | 'E-commerce' | 'Appointment Booking' | 'AI & Web3' | 'Landing Pages';
+
+export interface ClientProject {
+  id: string;
+  title: string;
+  category: ClientProjectCategory;
+  client: string;
+  location?: string;
+  date?: string;
+  description: string;
+  imageUrl: string;
+  additionalImages?: string[];
+  websiteUrl?: string;
+  tags: string[];
+}
+
+export interface SkillCategory {
+  title: string;
+  icon: string;
+  description: string;
+  skills: string[];
+}
+
+export interface ExperienceItem {
+  role: string;
+  company: string;
+  period: string;
+  location?: string;
+  description: string[];
+}
+
+export interface EducationItem {
+  degree: string;
+  institution: string;
+  period: string;
+  thesisOrDissertation: string;
+  supervisor?: string;
+}
+

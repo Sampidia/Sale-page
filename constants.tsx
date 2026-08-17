@@ -1,9 +1,219 @@
 
 import React from 'react';
-import { Product, NavItem, MobileApp } from './types';
+import { Product, NavItem, MobileApp, ClientProject, SkillCategory, ExperienceItem, EducationItem } from './types';
 
 export const FLUTTERWAVE_URL = "https://flutterwave.com/pay/wordpressai";
 export const CODECANYON_URL = "#";
+
+export const FIVERR_URL = "https://pro.fiverr.com/freelancers/afigo2211?";
+export const UPWORK_URL = "https://www.upwork.com/freelancers/~01aec98a5a87d3096e?s=1044578476142100494";
+export const N8N_CREATOR_URL = "https://n8n.io/creators/sampidia/";
+export const PORTFOLIO_URL = "https://portfolio.sampidia.com/";
+export const CV_DOWNLOAD_URL = "assets/Oghenekaro_Samson_Afigo_CV.pdf";
+
+export const EMAIL_MAIN = "oghenekaroafigo@gmail.com";
+export const EMAIL_SUPPORT = "admin@sampidia.com";
+export const PHONE_MAIN = "+234 706 345 3903";
+export const PHONE_ALT = "+234 903 717 2693";
+export const LOCATION_MAIN = "Ilorin, Kwara State, Nigeria";
+
+export const NAV_ITEMS: NavItem[] = [
+  { label: 'Home', href: '/' },
+  { label: 'About', href: '/#about' },
+  { label: 'Skills', href: '/#skills' },
+  { label: 'Projects', href: '/#projects' },
+  { label: 'Products', href: '/#products' },
+  { label: 'Mobile Apps', href: '/apps' },
+  { label: 'Experience', href: '/#experience' },
+  { label: 'Contact', href: '/#contact' }
+];
+
+export const CLIENT_PROJECTS: ClientProject[] = [
+  {
+    id: 'hotel-casa-escobar',
+    title: 'Hotel Casa Escobar',
+    category: 'Hotel Booking',
+    client: 'Leonardoalza',
+    location: 'Guadalajara de Buga, Valle del Cauca, Colombia',
+    date: 'May 2022',
+    description: 'Complete hotel booking engine with room selection, amenities preview, event space reservation, and seamless online payment gateway integration.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/hotelcasaescobar.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/hotelcasa1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/hotelcasa2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/hotelcasa3.webp'
+    ],
+    websiteUrl: 'https://hotelcasaescobar.com/',
+    tags: ['WordPress', 'MotoPress Booking', 'Payment Gateway', 'Custom PHP']
+  },
+  {
+    id: 'nano-earth-cbd',
+    title: 'Nano Earth CBD',
+    category: 'E-commerce',
+    client: 'Markmediaman',
+    location: 'Pittsford, NY, USA',
+    date: 'August 2022',
+    description: 'E-commerce storefront for Nano Emulsified CBD health treatments featuring custom product catalog, secure checkout flows, and payment gateway integration.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/nanoearthcbd.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/nanoearthcbd1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/nanoearthcbd2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/nanoearthcbd3.webp'
+    ],
+    websiteUrl: 'https://nanoearthcbd.com/',
+    tags: ['E-commerce', 'WooCommerce', 'Payment Gateway', 'Custom Theme']
+  },
+  {
+    id: 'chazzy-creations',
+    title: 'Chazzy Creations',
+    category: 'E-commerce',
+    client: 'Adeel',
+    location: 'USA',
+    date: 'October 2024',
+    description: 'Vibrant e-commerce platform for custom event design, party favors, birthdays, and celebrations with personalized product ordering.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/Chazzy.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/chazzy1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/Chazzy2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/Chazzy3.webp'
+    ],
+    websiteUrl: 'https://chazzycreations.com/',
+    tags: ['E-commerce', 'Product Customization', 'Payment Processing']
+  },
+  {
+    id: 'dream-stories-hub',
+    title: 'Dream Stories Hub',
+    category: 'Appointment Booking',
+    client: 'Morountodun Joseph',
+    location: 'Nigeria & UK',
+    date: 'August 2021',
+    description: 'Appointment booking and service portal for scriptwriting courses, script consultations, and copyediting with online calendar scheduling.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/dreamstorieshub.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/dreamstorieshub1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/dreamstorieshub2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/dreamstorieshub3.webp'
+    ],
+    websiteUrl: 'https://dreamstorieshub.com/',
+    tags: ['Appointment Booking', 'WordPress', 'Payment Gateway', 'Calendar Sync']
+  },
+  {
+    id: 'tetrad-opus',
+    title: 'Tetrad Opus Photography',
+    category: 'Appointment Booking',
+    client: 'Tetradopus',
+    location: 'Baltimore, MD, USA',
+    date: 'February 2022',
+    description: 'Service appointment scheduling site serving DC, MD, and VA, integrated with digital package checkout and automated confirmation systems.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/tet.webp',
+    websiteUrl: 'https://www.tetradopus.com/',
+    tags: ['Appointment Booking', 'Payment Gateway', 'Photography Services']
+  },
+  {
+    id: 'solana-community-dapp',
+    title: 'Solana Savings dApp',
+    category: 'AI & Web3',
+    client: 'Web3 Community',
+    date: '2024',
+    description: 'Decentralized community-savings dApp engineered on Solana utilizing Rust smart contracts for transparent financial pools.',
+    imageUrl: 'https://picsum.photos/seed/solana-dapp/800/600',
+    tags: ['Rust', 'Solana', 'Smart Contracts', 'Web3', 'dApp']
+  },
+  {
+    id: 'ai-multi-agent-workflow',
+    title: 'AI Multi-Agent Content Pipeline',
+    category: 'AI & Web3',
+    client: 'Gaming & Creator Studio',
+    date: '2025',
+    description: 'Autonomous multi-agent workflow for game developers and VTubers integrating Seedance, Claude 3.5, GPT Image, and FLUX visual generation.',
+    imageUrl: 'https://picsum.photos/seed/ai-workflow/800/600',
+    tags: ['n8n Creator', 'LLM Agents', 'FLUX Image Gen', 'Apify', 'Buffer API']
+  }
+];
+
+export const SKILL_CATEGORIES: SkillCategory[] = [
+  {
+    title: 'AI Automation & Workflows',
+    icon: '⚡',
+    description: 'Published n8n workflow creator building enterprise-grade LLM pipelines, bots, and API bridges.',
+    skills: ['n8n (Published Creator)', 'Make (Integromat)', 'Zapier', 'OpenAI / Gemini / Claude API', 'FLUX Image Generation', 'Telegram Bot Commerce', 'Social Media Automation (Buffer/Apify)']
+  },
+  {
+    title: 'Web & E-Commerce Engineering',
+    icon: '💻',
+    description: '10+ years creating high-converting booking portals, custom plugins, and storefronts.',
+    skills: ['WordPress Theme & Plugin Dev', 'Custom PHP', 'HTML5 / CSS3 / JavaScript', 'React & Tailwind CSS', 'Framer & Webflow', 'Paystack & Flutterwave Integration', 'Shopify & WooCommerce']
+  },
+  {
+    title: 'Mobile & Web3 Systems',
+    icon: '📱',
+    description: 'Cross-platform mobile apps and decentralized applications with robust backend logic.',
+    skills: ['React Native (iOS/Android)', 'Native Android (Java/Kotlin)', 'Offline-First Data Sync', 'Rust on Solana', 'Solana Smart Contracts', 'dApp Architecture']
+  },
+  {
+    title: 'Edge Cloud & Databases',
+    icon: '☁️',
+    description: 'Serverless cloud infrastructure, database management, and extreme performance optimization.',
+    skills: ['Cloudflare Workers & Workers AI', 'Cloudflare D1 & KV', 'MySQL & PostgreSQL', 'Firebase Realtime Database', 'MongoDB & SQLite', 'SEO & Web Security Hardening']
+  },
+  {
+    title: 'Scientific Analysis & Rigor',
+    icon: '🔬',
+    description: 'Master of Science analytical mindset applied to software architecture and problem solving.',
+    skills: ['M.Sc. Industrial Chemistry', 'Green Synthesis & Nanomaterials', 'FTIR, UV-Vis, SEM, XRD Analysis', 'Corrosion Gravimetric Analysis', 'Data Modeling (Origin/Prism/Excel)']
+  }
+];
+
+export const EXPERIENCE_TIMELINE: ExperienceItem[] = [
+  {
+    role: 'Founder & Lead Developer',
+    company: 'Afigo-Sam Technology',
+    period: '2015 – Present',
+    description: [
+      'Founded and manage a full-service web and mobile development studio producing hotel booking, appointment booking, and e-commerce platforms.',
+      'Engineered intelligent AI systems with n8n, Make, and Zapier bridging third-party APIs and eliminating manual business workflow bottlenecks.',
+      'Crafted bespoke WordPress solutions using custom PHP with robust security hardening and scalable hosting administration.',
+      'Built cross-platform mobile apps in React Native with fluid navigation and offline-first functionality.'
+    ]
+  },
+  {
+    role: 'Freelance Web Developer (Pro Seller)',
+    company: 'Fiverr & Upwork',
+    period: '2018 – Present',
+    description: [
+      'Delivered 15+ production client websites for businesses across USA, UK, Spain, Colombia, Morocco, Slovakia, Vanuatu, and Nigeria.',
+      'Specialized in advanced booking systems (MotoPress, Guesty channel integration) and end-to-end multi-currency payment processing.',
+      'Maintained a top-rated seller record with a 100% client satisfaction score and repeat international client roster.'
+    ]
+  },
+  {
+    role: 'Workflow Template Creator',
+    company: 'n8n Community (@sampidia)',
+    period: '2025 – Present',
+    description: [
+      'Published 5 public automation templates on n8n.io used by hundreds of automation builders worldwide.',
+      'Engineered Telegram storefront workflows selling products via Paystack/Flutterwave backed by Google Sheets inventory.',
+      'Built automated AI content pipelines auto-generating and publishing trending social media posts (X, Facebook, Threads) using Apify, Gemini, FLUX, and Buffer.'
+    ]
+  }
+];
+
+export const EDUCATION_TIMELINE: EducationItem[] = [
+  {
+    degree: 'M.Sc. Industrial Chemistry',
+    institution: 'University of Ilorin, Kwara State, Nigeria',
+    period: '2019 – 2023',
+    thesisOrDissertation: 'Thesis: Green synthesis of copper oxide nanoparticles using Luffa cylindrica leaf extract and antimicrobial activities assessment.',
+    supervisor: 'Prof. Dosumu O. O.'
+  },
+  {
+    degree: 'B.Tech. Industrial Chemistry',
+    institution: 'Federal University of Technology Akure, Ondo State, Nigeria',
+    period: '2010 – 2015',
+    thesisOrDissertation: 'Dissertation: Assessment of corrosion rate of dissimilar welded metals: gravimetric analysis.'
+  }
+];
+
 
 export const PRODUCTS: Product[] = [
   {

@@ -1,146 +1,620 @@
-
-import React from 'react';
-import ProductCard from '../components/ProductCard';
-import { PRODUCTS, BRAIN_LOGO } from '../constants';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
+import ProductCard from '../components/ProductCard';
+import { 
+  PRODUCTS, 
+  MOBILE_APPS, 
+  CLIENT_PROJECTS, 
+  SKILL_CATEGORIES, 
+  EXPERIENCE_TIMELINE, 
+  EDUCATION_TIMELINE,
+  FIVERR_URL,
+  UPWORK_URL,
+  N8N_CREATOR_URL,
+  CV_DOWNLOAD_URL,
+  EMAIL_MAIN,
+  EMAIL_SUPPORT,
+  PHONE_MAIN,
+  LOCATION_MAIN,
+  BRAIN_LOGO
+} from '../constants';
+import { ClientProjectCategory } from '../types';
 
 const LandingPage: React.FC = () => {
-  const scrollToProducts = () => {
-    document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [selectedProjectModal, setSelectedProjectModal] = useState<typeof CLIENT_PROJECTS[0] | null>(null);
+
+  const categories: (ClientProjectCategory | 'All')[] = [
+    'All',
+    'Hotel Booking',
+    'E-commerce',
+    'Appointment Booking',
+    'AI & Web3'
+  ];
+
+  const filteredProjects = activeCategory === 'All' 
+    ? CLIENT_PROJECTS 
+    : CLIENT_PROJECTS.filter(p => p.category === activeCategory);
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
-    <div className="hero-pattern">
+    <div className="bg-slate-50 text-slate-800 antialiased selection:bg-red-500 selection:text-white">
       <SEO
-        title="Afigo-Sam | Premium WordPress Plugins, Themes & Mobile Apps"
-        description="Elevate your web publishing and mobile experience. Explore Afigo-Sam's premium plugins (AI Content Generator, License Manager), templates, and games built for ultimate performance and massive scale."
-        keywords="WordPress AI plugins, AI Content Generator, license manager, booking theme, Ayo board game, Mancala mobile, Afro Short, NAFDAC batch scanner, premium wordpress solutions"
+        title="Oghenekaro Samson Afigo | Full-Stack Developer, AI Automation Engineer & Industrial Chemist"
+        description="Official portfolio of Oghenekaro Samson Afigo (Afigo Sam) - Full-Stack Web & Mobile Developer, published n8n workflow creator, AI automation engineer, and M.Sc. Industrial Chemist."
+        keywords="Oghenekaro Samson Afigo, Afigo Sam, SamPidia, AI automation engineer, n8n creator, WordPress developer, React Native developer, Solana Rust developer, Industrial Chemist"
         ogImage="/assets/ai-generator-logo.webp"
       />
-      {/* Hero Section */}
-      <section className="relative pt-20 pb-16 md:pt-32 md:pb-24 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto flex flex-col items-center">
-            <Link 
-              to="/product/ai-content-generator" 
-              className="inline-flex items-center space-x-2 text-red-600 font-bold hover:text-red-700 transition-colors mb-6 border-b-2 border-red-100 hover:border-red-600 pb-1"
-            >
-              <span>Explore our #1 AI Plugin</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
 
-            <div className="inline-flex items-center space-x-2 bg-red-50 text-red-600 px-4 py-1.5 rounded-full mb-8 border border-red-100">
-              <span className="flex h-2 w-2 rounded-full bg-red-600 animate-pulse"></span>
-              <span className="text-xs font-bold uppercase tracking-widest">New: AI Content V2.0 Out Now</span>
+      {/* HERO SECTION */}
+      <section className="relative min-h-[90vh] flex items-center pt-16 pb-20 overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white">
+        {/* Background Decorative Grid & Glows */}
+        <div className="absolute inset-0 bg-[radial-gradient(#ef444415_1px,transparent_1px)] [background-size:24px_24px] opacity-60"></div>
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-600/15 rounded-full blur-[140px] pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Left Column Text */}
+            <div className="lg:col-span-7 flex flex-col items-start">
+              
+              {/* Status Badge */}
+              <div className="inline-flex items-center space-x-2 bg-slate-800/80 border border-slate-700/80 px-4 py-2 rounded-full mb-6 backdrop-blur-md">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                  Available for Projects & AI Consulting
+                </span>
+              </div>
+
+              {/* Name & Title */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-4">
+                Oghenekaro <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-400 to-rose-300">Samson Afigo</span>
+              </h1>
+              
+              <div className="text-lg sm:text-xl font-medium text-red-400 mb-6 flex flex-wrap gap-2 items-center">
+                <span>Full-Stack Web & Mobile Developer</span>
+                <span className="text-slate-600">•</span>
+                <span>AI Automation Engineer</span>
+                <span className="text-slate-600">•</span>
+                <span className="text-slate-300">Industrial Chemist (M.Sc.)</span>
+              </div>
+
+              {/* Bio Summary */}
+              <p className="text-base sm:text-lg text-slate-300 mb-8 leading-relaxed max-w-2xl font-normal">
+                Founder of <strong className="text-white">Afigo-Sam Technology</strong> & co-founder of <strong className="text-white">SamPidia</strong>. Published <strong className="text-red-400">n8n workflow creator</strong> with 8+ years of engineering experience delivering hotel booking engines, e-commerce stores, custom WordPress plugins, React Native apps, and Solana dApps.
+              </p>
+
+              {/* CTAs */}
+              <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto mb-10">
+                <button
+                  onClick={() => scrollToSection('projects')}
+                  className="w-full sm:w-auto px-7 py-3.5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-600/30 hover:shadow-red-600/50 flex items-center justify-center space-x-2 text-base"
+                >
+                  <span>Explore Client Work</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                <a
+                  href={CV_DOWNLOAD_URL}
+                  download="Oghenekaro_Samson_Afigo_CV.pdf"
+                  className="w-full sm:w-auto px-7 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold rounded-xl border border-slate-700 transition-all flex items-center justify-center space-x-2 text-base"
+                >
+                  <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  <span>Download CV</span>
+                </a>
+              </div>
+
+              {/* Social / Profile Badges */}
+              <div className="flex items-center gap-4 pt-4 border-t border-slate-800/80 w-full">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Profiles:</span>
+                <div className="flex flex-wrap items-center gap-3">
+                  <a href={FIVERR_URL} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-slate-800/80 hover:bg-emerald-950/60 hover:border-emerald-500/50 text-emerald-400 text-xs font-bold rounded-lg border border-slate-700 transition-colors">
+                    Fiverr Pro Seller
+                  </a>
+                  <a href={UPWORK_URL} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-slate-800/80 hover:bg-emerald-950/60 hover:border-emerald-500/50 text-emerald-300 text-xs font-bold rounded-lg border border-slate-700 transition-colors">
+                    Upwork
+                  </a>
+                  <a href={N8N_CREATOR_URL} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-slate-800/80 hover:bg-rose-950/60 hover:border-rose-500/50 text-rose-400 text-xs font-bold rounded-lg border border-slate-700 transition-colors">
+                    n8n Creator Profile
+                  </a>
+                </div>
+              </div>
+
             </div>
-            <h1 className="text-5xl md:text-7xl font-black text-gray-900 leading-[1.1] mb-6 tracking-tight">
-              Premium <span className="gradient-text">WordPress</span> Solutions for Pros.
-            </h1>
-            <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed">
-              Elevate your website with powerful plugins, templates, and scripts designed for performance, SEO, and massive scaling.
+
+            {/* Right Column Visual Card */}
+            <div className="lg:col-span-5 relative">
+              <div className="relative mx-auto max-w-md lg:max-w-none">
+                <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-rose-600 rounded-3xl blur opacity-30"></div>
+                
+                <div className="relative bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+                  {/* Header Badge */}
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-xl bg-red-950 border border-red-800/50 flex items-center justify-center text-red-500 font-black text-xl">
+                        A
+                      </div>
+                      <div>
+                        <h3 className="text-white font-bold text-base">Afigo-Sam Studio</h3>
+                        <p className="text-xs text-slate-400">Established 2015</p>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold rounded-full">
+                      M.Sc. Rigor
+                    </span>
+                  </div>
+
+                  {/* Highlights Grid */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-slate-800/50 border border-slate-800 p-4 rounded-2xl">
+                      <div className="text-2xl font-black text-white mb-1">8+</div>
+                      <div className="text-xs text-slate-400 font-medium">Years Active Experience</div>
+                    </div>
+                    <div className="bg-slate-800/50 border border-slate-800 p-4 rounded-2xl">
+                      <div className="text-2xl font-black text-red-400 mb-1">15+</div>
+                      <div className="text-xs text-slate-400 font-medium">Global Client Websites</div>
+                    </div>
+                    <div className="bg-slate-800/50 border border-slate-800 p-4 rounded-2xl">
+                      <div className="text-2xl font-black text-emerald-400 mb-1">5+</div>
+                      <div className="text-xs text-slate-400 font-medium">Published n8n Workflows</div>
+                    </div>
+                    <div className="bg-slate-800/50 border border-slate-800 p-4 rounded-2xl">
+                      <div className="text-2xl font-black text-amber-400 mb-1">6+</div>
+                      <div className="text-xs text-slate-400 font-medium">In-House Apps & Plugins</div>
+                    </div>
+                  </div>
+
+                  {/* Scientific & Engineering Quote */}
+                  <div className="bg-gradient-to-r from-red-950/40 to-slate-800/40 border border-red-900/30 rounded-2xl p-4 text-xs text-slate-300 italic leading-relaxed">
+                    "Combining a scientist's analytical rigor (M.Sc. Industrial Chemistry, nanomaterials research) with hands-on software engineering across WordPress, React Native, Framer, and Rust on Solana."
+                  </div>
+
+                  {/* Contact Direct */}
+                  <div className="pt-2 flex items-center justify-between text-xs text-slate-400">
+                    <span>📍 {LOCATION_MAIN}</span>
+                    <a href={`mailto:${EMAIL_MAIN}`} className="text-red-400 font-medium hover:underline">
+                      {EMAIL_MAIN}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ABOUT & ANALYTICAL EDGE SECTION */}
+      <section id="about" className="py-20 bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-red-600 bg-red-50 border border-red-100 px-3.5 py-1.5 rounded-full">
+              About Me
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-4 tracking-tight">
+              A Scientist's Mind Meets <span className="gradient-text">Software Engineering</span>
+            </h2>
+            <p className="text-slate-600 mt-4 text-lg leading-relaxed">
+              With a Master of Science in Industrial Chemistry and over a decade of programming expertise, I build robust, high-performance digital products backed by scientific precision and creative vision.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <button 
-                onClick={scrollToProducts}
-                className="w-full sm:w-auto px-8 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-black hover:shadow-2xl transition-all text-lg"
-              >
-                Browse Plugins
-              </button>
-              <Link 
-                to="/product/ai-content-generator"
-                className="w-full sm:w-auto px-8 py-4 bg-red-600 text-white font-bold rounded-2xl hover:bg-red-700 hover:shadow-2xl hover:shadow-red-200 transition-all text-lg shadow-sm"
-              >
-                Get AI Generator
-              </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-slate-50 border border-slate-200/80 p-8 rounded-3xl hover:shadow-lg transition-all">
+              <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center text-red-600 font-bold text-xl mb-6">
+                🔬
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">Analytical Rigor</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                M.Sc. research on green synthesis of copper oxide nanoparticles and antimicrobial activities. Applies systematic data modeling, gravimetric analysis, and precision to code security and architecture.
+              </p>
+            </div>
+
+            <div className="bg-slate-50 border border-slate-200/80 p-8 rounded-3xl hover:shadow-lg transition-all">
+              <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center text-red-600 font-bold text-xl mb-6">
+                ⚡
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">AI & Automation Architect</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                Published creator on n8n.io. Builds autonomous multi-agent pipelines integrating OpenAI, Gemini, Claude, FLUX image generation, Telegram storefront bots, and API webhooks for seamless business ops.
+              </p>
+            </div>
+
+            <div className="bg-slate-50 border border-slate-200/80 p-8 rounded-3xl hover:shadow-lg transition-all">
+              <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center text-red-600 font-bold text-xl mb-6">
+                🌐
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">Full-Stack & Web3 Systems</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                Delivered 15+ production systems across USA, UK, Europe, Africa & Asia. Expert in WordPress booking plugins, payment gateways (Paystack/Flutterwave), React Native, Cloudflare edge, and Rust smart contracts.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Product Grid Section */}
-      <section id="products" className="py-24 bg-white">
+      {/* SKILLS MATRIX SECTION */}
+      <section id="skills" className="py-24 bg-slate-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-            <div className="max-w-2xl">
-              <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">
-                Available Plugins & Themes
-              </h2>
-              <p className="text-gray-500">
-                Explore our curated list of high-performance WordPress tools, built to handle millions of visitors.
-              </p>
-            </div>
-            <div className="flex items-center space-x-4 text-sm font-semibold text-gray-400">
-              <span>Verified Secure</span>
-              <span className="h-1 w-1 bg-gray-300 rounded-full"></span>
-              <span>24/7 Support</span>
-            </div>
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-red-400 bg-red-950/60 border border-red-800/60 px-3.5 py-1.5 rounded-full">
+              Core Technical Stack
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-4 tracking-tight">
+              Skill Matrix & Technical Capabilities
+            </h2>
+            <p className="text-slate-400 mt-4 text-base">
+              A comprehensive toolkit honed across 8+ years of commercial development and academic research.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {PRODUCTS.map((product) => (
-              <ProductCard key={product.id} product={product} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {SKILL_CATEGORIES.map((cat, idx) => (
+              <div key={cat.title} className="bg-slate-800/80 border border-slate-700/80 p-6 rounded-3xl hover:border-red-500/50 transition-all flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center space-x-3 mb-4">
+                    <span className="text-3xl">{cat.icon}</span>
+                    <h3 className="text-lg font-bold text-white">{cat.title}</h3>
+                  </div>
+                  <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+                    {cat.description}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-700/60">
+                  {cat.skills.map((skill) => (
+                    <span key={skill} className="px-2.5 py-1 bg-slate-900/90 text-slate-300 text-xs font-medium rounded-lg border border-slate-700">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Trust Section */}
-      <section className="py-20 bg-gray-50">
+      {/* CLIENT PROJECTS SHOWCASE (FILTERABLE) */}
+      <section id="projects" className="py-24 bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-            <div>
-              <div className="bg-red-600 w-12 h-12 flex items-center justify-center rounded-2xl shadow-xl shadow-red-200 mb-8">
-                {BRAIN_LOGO}
-              </div>
-              <h2 className="text-4xl font-black text-gray-900 mb-6">Built for Scaling Content</h2>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                Our AI-Powered Automatic Content Generator doesn't just write; it optimizes. By utilizing the world's best LLMs, we ensure your site stays fresh, relevant, and authoritative.
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div className="max-w-2xl">
+              <span className="text-xs font-extrabold uppercase tracking-widest text-red-600 bg-red-50 border border-red-100 px-3.5 py-1.5 rounded-full">
+                Featured Work
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-4 tracking-tight">
+                Selected Client Projects
+              </h2>
+              <p className="text-slate-600 mt-2 text-base">
+                Production platforms delivered for businesses in the USA, UK, Colombia, Slovakia, Morocco, Vanuatu, and Nigeria.
               </p>
-              <ul className="space-y-4">
-                {['Multi-Model Architecture', 'Auto-SEO Checkpoint', 'Plagiarism Resistant'].map((f) => (
-                  <li key={f} className="flex items-center space-x-3 text-gray-700 font-medium">
-                    <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
-            <div className="relative group">
-              <div className="absolute -inset-4 bg-gradient-to-r from-red-500 to-orange-500 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-              <img 
-                src="https://picsum.photos/seed/tech/800/600" 
-                alt="Productivity Dashboard" 
-                className="relative rounded-[2rem] shadow-2xl border border-white/20"
-              />
+
+            {/* Category Filter Tabs */}
+            <div className="flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    activeCategory === cat
+                      ? 'bg-red-600 text-white shadow-md shadow-red-600/30'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
             </div>
+          </div>
+
+          {/* Projects Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredProjects.map((project) => (
+              <div 
+                key={project.id}
+                className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+              >
+                <div>
+                  {/* Image Container */}
+                  <div className="relative h-48 bg-slate-100 overflow-hidden">
+                    <img 
+                      src={project.imageUrl} 
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full border border-white/20">
+                      {project.category}
+                    </div>
+                  </div>
+
+                  {/* Content Box */}
+                  <div className="p-6">
+                    <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
+                      <span>Client: <strong className="text-slate-700 font-semibold">{project.client}</strong></span>
+                      {project.date && <span>{project.date}</span>}
+                    </div>
+
+                    <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-red-600 transition-colors">
+                      {project.title}
+                    </h3>
+
+                    {project.location && (
+                      <p className="text-xs text-red-600 font-medium mb-3">
+                        📍 {project.location}
+                      </p>
+                    )}
+
+                    <p className="text-slate-600 text-sm leading-relaxed mb-6">
+                      {project.description}
+                    </p>
+
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {project.tags.map(t => (
+                        <span key={t} className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[11px] font-semibold rounded">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Action */}
+                <div className="px-6 pb-6">
+                  {project.websiteUrl && (
+                    <a
+                      href={project.websiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-2.5 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center space-x-2"
+                    >
+                      <span>Visit Live Website</span>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center bg-gray-900 rounded-[3rem] py-16 text-white relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 p-8 opacity-10">
-             {BRAIN_LOGO}
+      {/* PROPRIETARY PRODUCTS & MOBILE APPS (AFIGO-SAM ECOSYSTEM) */}
+      <section id="products" className="py-24 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-red-600 bg-red-100 border border-red-200 px-3.5 py-1.5 rounded-full">
+              In-House Innovations
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-4 tracking-tight">
+              Plugins, Tools & Mobile Apps
+            </h2>
+            <p className="text-slate-600 mt-4 text-base">
+              Proprietary software solutions engineered by Afigo-Sam Technology and used by thousands of global creators.
+            </p>
           </div>
-          <h2 className="text-3xl md:text-5xl font-black mb-6">Ready to automate your blog?</h2>
-          <p className="text-gray-400 text-lg mb-10 max-w-2xl mx-auto">
-            Join 1,000+ publishers using our AI-Powered Content Generator to drive millions of page views.
-          </p>
-          <Link 
-            to="/product/ai-content-generator"
-            className="inline-block px-10 py-5 bg-red-600 text-white font-bold rounded-2xl hover:bg-red-700 transition-all text-xl shadow-xl shadow-red-900/40"
-          >
-            Get It Now for $25
-          </Link>
-          <p className="mt-6 text-sm text-gray-500">Limited time offer. Normal price $49.</p>
+
+          {/* Plugins Grid */}
+          <div className="mb-16">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-2xl font-bold text-slate-900">Featured WordPress Plugins</h3>
+              <Link to="/products" className="text-sm font-bold text-red-600 hover:underline flex items-center space-x-1">
+                <span>View All Plugins</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {PRODUCTS.map(product => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+
+          {/* Mobile Apps Row */}
+          <div>
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-2xl font-bold text-slate-900">Published Mobile Apps</h3>
+              <Link to="/apps" className="text-sm font-bold text-red-600 hover:underline flex items-center space-x-1">
+                <span>View All Mobile Apps</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {MOBILE_APPS.map(app => (
+                <div key={app.id} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="h-40 bg-slate-100 rounded-2xl overflow-hidden mb-4 relative">
+                      <img src={app.imageUrl} alt={app.name} className="w-full h-full object-cover" />
+                      <span className="absolute top-3 left-3 bg-slate-900 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                        {app.category}
+                      </span>
+                    </div>
+                    <h4 className="text-lg font-bold text-slate-900 mb-2">{app.name}</h4>
+                    <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed mb-4">
+                      {app.description}
+                    </p>
+                  </div>
+                  <Link 
+                    to={`/app/${app.id}`}
+                    className="w-full py-2.5 bg-slate-100 hover:bg-red-600 hover:text-white text-slate-900 font-bold text-xs rounded-xl transition-colors text-center block"
+                  >
+                    App Details & Google Play Link
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
       </section>
+
+      {/* EXPERIENCE & EDUCATION TIMELINE */}
+      <section id="experience" className="py-24 bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            
+            {/* Work Experience */}
+            <div>
+              <div className="flex items-center space-x-3 mb-8">
+                <div className="w-10 h-10 bg-red-100 text-red-600 rounded-xl flex items-center justify-center font-bold text-lg">
+                  💼
+                </div>
+                <h2 className="text-2xl font-extrabold text-slate-900">Professional Experience</h2>
+              </div>
+
+              <div className="space-y-8 border-l-2 border-slate-200 pl-6 ml-4">
+                {EXPERIENCE_TIMELINE.map((exp, idx) => (
+                  <div key={idx} className="relative group">
+                    <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-red-600 border-4 border-white shadow"></div>
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="text-lg font-bold text-slate-900">{exp.role}</h3>
+                      <span className="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-100">
+                        {exp.period}
+                      </span>
+                    </div>
+                    <p className="text-sm font-semibold text-slate-700 mb-3">{exp.company}</p>
+                    <ul className="space-y-2 text-xs text-slate-600 leading-relaxed">
+                      {exp.description.map((d, i) => (
+                        <li key={i} className="flex items-start space-x-2">
+                          <span className="text-red-500 font-bold mt-0.5">•</span>
+                          <span>{d}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Academic & Research Background */}
+            <div>
+              <div className="flex items-center space-x-3 mb-8">
+                <div className="w-10 h-10 bg-red-100 text-red-600 rounded-xl flex items-center justify-center font-bold text-lg">
+                  🎓
+                </div>
+                <h2 className="text-2xl font-extrabold text-slate-900">Education & Research</h2>
+              </div>
+
+              <div className="space-y-8 border-l-2 border-slate-200 pl-6 ml-4 mb-12">
+                {EDUCATION_TIMELINE.map((edu, idx) => (
+                  <div key={idx} className="relative">
+                    <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-slate-900 border-4 border-white shadow"></div>
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="text-lg font-bold text-slate-900">{edu.degree}</h3>
+                      <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">
+                        {edu.period}
+                      </span>
+                    </div>
+                    <p className="text-sm font-semibold text-slate-700 mb-2">{edu.institution}</p>
+                    <p className="text-xs text-slate-600 italic bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                      {edu.thesisOrDissertation}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Research & Publications Box */}
+              <div className="bg-slate-900 text-white rounded-3xl p-6 border border-slate-800">
+                <h4 className="text-base font-bold text-red-400 mb-3 flex items-center space-x-2">
+                  <span>📚 Publications & Peer Review</span>
+                </h4>
+                <ul className="space-y-3 text-xs text-slate-300">
+                  <li className="flex items-start space-x-2">
+                    <span className="text-emerald-400 font-bold">•</span>
+                    <span><strong>Reviewer</strong> — IOPScience: Advances in Natural Sciences: Nanoscience and Nanotechnology (2022).</span>
+                  </li>
+                  <li className="flex items-start space-x-2">
+                    <span className="text-emerald-400 font-bold">•</span>
+                    <span><strong>Author</strong> — Academia: Assessment of Corrosion Rate of Dissimilar Welded Metals: Gravimetric Analysis (2015).</span>
+                  </li>
+                </ul>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* CONTACT & CALL TO ACTION */}
+      <section id="contact" className="py-24 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
+          {BRAIN_LOGO}
+        </div>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <span className="text-xs font-extrabold uppercase tracking-widest text-red-400 bg-red-950/80 border border-red-800/80 px-4 py-1.5 rounded-full inline-block mb-6">
+            Get In Touch
+          </span>
+
+          <h2 className="text-3xl sm:text-5xl font-extrabold mb-6 tracking-tight">
+            Have a Project or AI Automation Need?
+          </h2>
+
+          <p className="text-slate-300 text-base sm:text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
+            Whether you need custom WordPress plugin development, hotel/appointment booking portals, React Native mobile apps, or high-level n8n multi-agent AI workflows — let's build something remarkable.
+          </p>
+
+          {/* Contact Details Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto mb-12">
+            <a href={`mailto:${EMAIL_MAIN}`} className="bg-slate-800/90 border border-slate-700/80 p-5 rounded-2xl hover:border-red-500 transition-colors text-center group">
+              <div className="text-2xl mb-2">✉️</div>
+              <div className="text-xs text-slate-400 font-semibold uppercase mb-1">Direct Email</div>
+              <div className="text-xs font-bold text-white group-hover:text-red-400 truncate">{EMAIL_MAIN}</div>
+            </a>
+
+            <a href={`tel:${PHONE_MAIN}`} className="bg-slate-800/90 border border-slate-700/80 p-5 rounded-2xl hover:border-red-500 transition-colors text-center group">
+              <div className="text-2xl mb-2">📞</div>
+              <div className="text-xs text-slate-400 font-semibold uppercase mb-1">Phone / WhatsApp</div>
+              <div className="text-xs font-bold text-white group-hover:text-red-400">{PHONE_MAIN}</div>
+            </a>
+
+            <a href={FIVERR_URL} target="_blank" rel="noopener noreferrer" className="bg-slate-800/90 border border-slate-700/80 p-5 rounded-2xl hover:border-emerald-500 transition-colors text-center group">
+              <div className="text-2xl mb-2">⭐</div>
+              <div className="text-xs text-slate-400 font-semibold uppercase mb-1">Hire on Fiverr Pro</div>
+              <div className="text-xs font-bold text-emerald-400">Top-Rated Freelancer</div>
+            </a>
+          </div>
+
+          {/* Direct Buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <a
+              href={`mailto:${EMAIL_MAIN}`}
+              className="px-8 py-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded-2xl transition-all shadow-xl shadow-red-900/40 text-lg"
+            >
+              Send an Inquiry
+            </a>
+            <a
+              href={N8N_CREATOR_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-4 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-2xl border border-slate-700 transition-all text-lg"
+            >
+              Explore n8n Workflows
+            </a>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 };
