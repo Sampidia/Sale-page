@@ -1,0 +1,57 @@
+# Oghenekaro Samson Afigo (Afigo Sam) — Portfolio & Services
+
+> Full-Stack Web & Mobile Developer | Published n8n AI Automation Engineer | M.Sc. Industrial Chemist
+
+## Executive Summary
+Oghenekaro Samson Afigo (also known as Afigo Sam or Sampidia) is a full-stack software developer, published n8n workflow creator, WordPress plugin developer, Solana dApp engineer, and M.Sc. Industrial Chemist based in Ilorin, Kwara State, Nigeria. He is the founder of Afigo-Sam Technology and co-founder of SamPidia. With 8+ years of commercial development experience, he has delivered over 15 production websites and booking/e-commerce platforms for clients across the USA, UK, Europe, Africa, and Asia.
+
+## Key Information & Domain
+- **Official Website**: https://afigo.sampidia.com/
+- **Portfolio Showcase**: https://portfolio.sampidia.com/
+- **Email**: oghenekaroafigo@gmail.com
+- **Support Email**: admin@sampidia.com
+- **Phone / WhatsApp**: +234 706 345 3903 / +234 903 717 2693
+- **Primary Location**: Ilorin, Kwara State, Nigeria (Services delivered worldwide)
+
+## Core Technical Specializations
+
+### 1. AI Automation & Workflow Architecture
+- **n8n Creator Profile**: https://n8n.io/creators/sampidia/
+- Published n8n workflow creator used by hundreds of automation builders worldwide.
+- **LLM Integrations**: OpenAI GPT-4o, Google Gemini, Anthropic Claude 3.5, DeepSeek, and FLUX image generation.
+- **Key Automation Projects**:
+  - *AI Multi-Agent Content Pipeline*: Auto-posts trending X/Twitter content with AI-generated FLUX images and Buffer scheduling (https://n8n.io/workflows/14768-auto-post-trending-x-tweets-with-gemini-ai-images-flux-and-buffer/).
+  - *Telegram Storefront & Payment Bot*: Turns Telegram bots into complete storefronts with Paystack/Flutterwave payments and Google Sheets inventory.
+
+### 2. Full-Stack Web & E-Commerce Engineering
+- **WordPress Custom Development**: Custom plugin engineering, bespoke PHP themes, MotoPress booking, Guesty channel management.
+- **Payment Gateways**: Paystack, Flutterwave, Stripe, PayPal, and international payment processing.
+- **Frontend & Edge**: React, Tailwind CSS, Framer, Webflow, Cloudflare Workers, Cloudflare Workers AI, Cloudflare D1.
+
+### 3. Mobile & Web3 Development
+- **React Native**: Cross-platform iOS and Android mobile development with offline data sync.
+- **Native Android**: Published games on Google Play Store.
+- **Solana Web3**: Smart contracts programmed in Rust; dApps including community-savings (Ajo/ESUSU) dApp (https://ajo.sampidia.com/).
+
+### 4. Scientific Rigor & Industrial Chemistry
+- **M.Sc. Industrial Chemistry**: University of Ilorin (2019–2023). Thesis: *Green synthesis of copper oxide nanoparticles using Luffa cylindrica leaf extract and antimicrobial activities assessment*.
+- **B.Tech. Industrial Chemistry**: Federal University of Technology Akure (2010–2015). Dissertation: *Assessment of corrosion rate of dissimilar welded metals: gravimetric analysis*.
+- **Peer Review & Publications**: Reviewer for IOPScience (*Advances in Natural Sciences: Nanoscience and Nanotechnology*); Author on Academia.
+
+## Featured Proprietary Products
+
+1. **WordPress AI-Powered Automatic Content Generator ($25)**
+   - *URL*: https://afigo.sampidia.com/#/product/ai-content-generator
+   - *Features*: Bulk AI article generation using GPT-4o, Gemini, Claude, and DeepSeek. Automatic SEO optimization, DALL-E 3 featured image generation, and campaign publishing.
+2. **My Licenses Manager (Free)**
+   - *URL*: https://afigo.sampidia.com/#/product/my-licenses-manager
+   - *Features*: Central license server to remotely manage digital software assets. Integrates with Envato API, WP Express Checkout, and WP eStore.
+3. **Naija Ayo Worldwide (Mobile Game)**
+   - *URL*: https://afigo.sampidia.com/#/app/naija-ayo-worldwide
+   - *Google Play*: https://play.google.com/store/apps/details?id=com.naijaayo.worldwide
+   - *Features*: Digital adaptation of Nigeria's traditional Ayo/Mancala board game with smart AI and local score.
+
+## Verified Freelance Roster & Booking Profiles
+- **Fiverr Pro Seller**: https://pro.fiverr.com/freelancers/afigo2211
+- **Upwork Top-Rated Freelancer**: https://www.upwork.com/freelancers/~01aec98a5a87d3096e
+- **n8n Community Creator**: https://n8n.io/creators/sampidia/

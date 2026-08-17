@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+    http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- Homepage / Portfolio -->
+  <url>
+    <loc>https://afigo.sampidia.com/</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Products Listing -->
+  <url>
+    <loc>https://afigo.sampidia.com/#/products</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- AI Content Generator Product Page -->
+  <url>
+    <loc>https://afigo.sampidia.com/#/product/ai-content-generator</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- AI Content Generator Documentation -->
+  <url>
+    <loc>https://afigo.sampidia.com/#/product/ai-content-generator/documentation</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- My Licenses Manager Product Page -->
+  <url>
+    <loc>https://afigo.sampidia.com/#/product/my-licenses-manager</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Booking Theme Pro Product Page -->
+  <url>
+    <loc>https://afigo.sampidia.com/#/product/booking-theme</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Mobile Apps Listing -->
+  <url>
+    <loc>https://afigo.sampidia.com/#/apps</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Naija Ayo Worldwide App Page -->
+  <url>
+    <loc>https://afigo.sampidia.com/#/app/naija-ayo-worldwide</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Afro Short App Page -->
+  <url>
+    <loc>https://afigo.sampidia.com/#/app/afro-short</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Fake Detector App Page -->
+  <url>
+    <loc>https://afigo.sampidia.com/#/app/fake-detector</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Privacy Policy -->
+  <url>
+    <loc>https://afigo.sampidia.com/#/privacy-policy</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <!-- Delete Account Page -->
+  <url>
+    <loc>https://afigo.sampidia.com/#/delete-account</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+</urlset>

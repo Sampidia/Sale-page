@@ -111,12 +111,13 @@ export const CLIENT_PROJECTS: ClientProject[] = [
   },
   {
     id: 'solana-community-dapp',
-    title: 'Solana Savings dApp',
+    title: 'Solana Savings dApp (ESUSU)',
     category: 'AI & Web3',
     client: 'Web3 Community',
     date: '2024',
-    description: 'Decentralized community-savings dApp engineered on Solana utilizing Rust smart contracts for transparent financial pools.',
-    imageUrl: 'https://picsum.photos/seed/solana-dapp/800/600',
+    description: 'Decentralized community-savings (Ajo/ESUSU) dApp engineered on Solana utilizing Rust smart contracts for transparent, trustless financial pools.',
+    imageUrl: 'assets/Solana Savings dApp ESUSU.webp',
+    websiteUrl: 'https://ajo.sampidia.com/',
     tags: ['Rust', 'Solana', 'Smart Contracts', 'Web3', 'dApp']
   },
   {
@@ -125,9 +126,21 @@ export const CLIENT_PROJECTS: ClientProject[] = [
     category: 'AI & Web3',
     client: 'Gaming & Creator Studio',
     date: '2025',
-    description: 'Autonomous multi-agent workflow for game developers and VTubers integrating Seedance, Claude 3.5, GPT Image, and FLUX visual generation.',
-    imageUrl: 'https://picsum.photos/seed/ai-workflow/800/600',
-    tags: ['n8n Creator', 'LLM Agents', 'FLUX Image Gen', 'Apify', 'Buffer API']
+    description: 'Autonomous multi-agent workflow for game developers and VTubers — auto-posts trending X/Twitter content with AI-generated FLUX images and Buffer scheduling.',
+    imageUrl: 'assets/AI Multi-Agent Content Pipeline.webp',
+    websiteUrl: 'https://n8n.io/workflows/14768-auto-post-trending-x-tweets-with-gemini-ai-images-flux-and-buffer/',
+    tags: ['n8n Creator', 'Gemini AI', 'FLUX Image Gen', 'Apify', 'Buffer API', 'X/Twitter']
+  },
+  {
+    id: 'telegram-storefront-bot',
+    title: 'Telegram Storefront & Payment Bot',
+    category: 'AI & Web3',
+    client: 'SME Merchants',
+    date: '2025',
+    description: 'Full n8n workflow that turns a Telegram bot into a complete storefront — product browsing, cart, Paystack/Flutterwave checkout, and Google Sheets inventory sync. Published on n8n.io.',
+    imageUrl: 'assets/Workflow Automation (n8n, Make, Zapier Expert).webp',
+    websiteUrl: 'https://n8n.io/creators/sampidia/',
+    tags: ['n8n Creator', 'Telegram Bot', 'Paystack', 'Flutterwave', 'Google Sheets']
   }
 ];
 

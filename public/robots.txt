@@ -1,0 +1,34 @@
+User-agent: *
+Allow: /
+
+# Sitemap & LLM Context for GEO/AEO Search Engines
+Sitemap: https://afigo.sampidia.com/sitemap.xml
+
+# Allow AI Search Crawlers (Generative Engine Optimization)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+# Disallow internal worker endpoints
+Disallow: /claim-prize
+Disallow: /get-code
+Disallow: /#/claim-prize
+Disallow: /#/get-code
+
+# Allow all public assets and LLM file
+Allow: /assets/
+Allow: /llms.txt
