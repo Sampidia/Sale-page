@@ -381,12 +381,7 @@ export const PRODUCTS: Product[] = [
   }
 ];
 
-export const NAV_ITEMS: NavItem[] = [
-  { label: 'Home', href: '/' },
-  { label: 'Products', href: '/products' },
-  { label: 'Mobile App', href: '/apps' },
-  { label: 'Support', href: 'mailto:admin@sampidia.com' }
-];
+
 
 export const MOBILE_APPS: MobileApp[] = [
   {
