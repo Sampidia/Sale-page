@@ -230,7 +230,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div>
               <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-4">Quick Navigation</h4>
               <ul className="space-y-2.5 text-sm">
-                {NAV_ITEMS.map((item) => {
+                {NAV_ITEMS.filter(item => !['Products', 'Mobile Apps', 'Experience'].includes(item.label)).map((item) => {
                   const isHash = item.href.startsWith('/#');
                   if (isHash) {
                     return (
