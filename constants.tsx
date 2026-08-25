@@ -5,10 +5,11 @@ import { Product, NavItem, MobileApp, ClientProject, SkillCategory, ExperienceIt
 export const FLUTTERWAVE_URL = "https://flutterwave.com/pay/wordpressai";
 export const CODECANYON_URL = "#";
 
-export const FIVERR_URL = "https://pro.fiverr.com/freelancers/afigo2211?";
+export const FIVERR_URL = "https://www.fiverr.com/sampdiablog";
 export const UPWORK_URL = "https://www.upwork.com/freelancers/~01aec98a5a87d3096e?s=1044578476142100494";
+export const CONTRA_URL = "https://contra.com/sam_afigo";
 export const N8N_CREATOR_URL = "https://n8n.io/creators/sampidia/";
-export const PORTFOLIO_URL = "https://portfolio.sampidia.com/";
+export const PORTFOLIO_URL = "https://contra.com/sam_afigo";
 export const CV_DOWNLOAD_URL = "assets/Oghenekaro_Samson_Afigo_CV.pdf";
 
 export const EMAIL_MAIN = "oghenekaroafigo@gmail.com";

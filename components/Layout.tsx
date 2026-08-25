@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { NAV_ITEMS, BRAIN_LOGO, EMAIL_MAIN, EMAIL_SUPPORT, FIVERR_URL, UPWORK_URL } from '../constants';
+import { NAV_ITEMS, BRAIN_LOGO, EMAIL_MAIN, EMAIL_SUPPORT, FIVERR_URL, UPWORK_URL, CONTRA_URL } from '../constants';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -223,7 +223,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <span>•</span>
                 <a href={UPWORK_URL} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">Upwork</a>
                 <span>•</span>
-                <a href="https://portfolio.sampidia.com/" target="_blank" rel="noopener noreferrer" className="hover:text-red-400 transition-colors">portfolio.sampidia.com</a>
+                <a href={CONTRA_URL} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">Contra</a>
               </div>
             </div>
 

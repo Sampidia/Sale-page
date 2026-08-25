@@ -7,7 +7,7 @@ Oghenekaro Samson Afigo (also known as Afigo Sam or Sampidia) is a full-stack so
 
 ## Key Information & Domain
 - **Official Website**: https://afigo.sampidia.com/
-- **Portfolio Showcase**: https://portfolio.sampidia.com/
+- **Contra Profile**: https://contra.com/sam_afigo
 - **Email**: oghenekaroafigo@gmail.com
 - **Support Email**: admin@sampidia.com
 - **Phone / WhatsApp**: +234 706 345 3903 / +234 903 717 2693
@@ -52,6 +52,6 @@ Oghenekaro Samson Afigo (also known as Afigo Sam or Sampidia) is a full-stack so
    - *Features*: Digital adaptation of Nigeria's traditional Ayo/Mancala board game with smart AI and local score.
 
 ## Verified Freelance Roster & Booking Profiles
-- **Fiverr Pro Seller**: https://pro.fiverr.com/freelancers/afigo2211
+- **Fiverr Pro Seller**: https://www.fiverr.com/sampdiablog
 - **Upwork Top-Rated Freelancer**: https://www.upwork.com/freelancers/~01aec98a5a87d3096e
 - **n8n Community Creator**: https://n8n.io/creators/sampidia/
