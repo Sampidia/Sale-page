@@ -254,6 +254,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <li>
                   <Link to="/privacy-policy" className="text-slate-400 hover:text-red-400 transition-colors">Privacy Policy</Link>
                 </li>
+                <li>
+                  <Link to="/refund-policy" className="text-slate-400 hover:text-red-400 transition-colors">Refund Policy</Link>
+                </li>
               </ul>
             </div>
 

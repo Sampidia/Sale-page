@@ -3,4 +3,8 @@ main = "src/index.ts"
 compatibility_date = "2024-01-01"
 
 [vars]
-ALLOWED_ORIGIN = "*" # Set to your actual domain in production (e.g. "https://yourdomain.com")
+ALLOWED_ORIGIN = "*" # Set to your actual domain in production (e.g. "https://afigo.sampidia.com")
+
+[[r2_buckets]]
+binding = "COURSE_PDFS"
+bucket_name = "sampidia-course-pdfs"

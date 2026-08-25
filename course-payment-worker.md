@@ -1,7 +1,47 @@
+# COURSE PAYMENT WORKER & DEPLOYMENT GUIDE
+
+This document contains the complete Cloudflare Worker implementation for course payment verification, R2 PDF fetching, Resend email attachment delivery, and Calendly mentorship booking confirmation.
+
+---
+
+## 🛠️ Environment Variables & Secret Configuration
+
+In your Cloudflare Worker Dashboard (**Settings -> Variables**) or via `wrangler secret put`, set:
+
+| Variable | Description | Example / Value |
+| :--- | :--- | :--- |
+| `FLW_SECRET_KEY` | Flutterwave Secret Key (v3 API) | `FLWSECK_TEST-...` or `FLWSECK-prod...` |
+| `RESEND_API_KEY` | Resend Email API Key | `re_123456789...` |
+| `ALLOWED_ORIGIN` | Allowed CORS Domain | `https://afigo.sampidia.com` or `*` |
+
+---
+
+## 🗄️ R2 Bucket Binding (`wrangler.toml`)
+
+In `wrangler.toml`, ensure the R2 bucket `sampidia-course-pdfs` is bound as `COURSE_PDFS`:
+
+```toml
+name = "resend-email-worker"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[vars]
+ALLOWED_ORIGIN = "*"
+
+[[r2_buckets]]
+binding = "COURSE_PDFS"
+bucket_name = "sampidia-course-pdfs"
+```
+
+---
+
+## 📜 Full Cloudflare Worker Source Code (`src/index.ts`)
+
+```typescript
 export interface Env {
   RESEND_API_KEY: string;
   ALLOWED_ORIGIN: string;
-  TURNSTILE_SECRET_KEY: string;
+  TURNSTILE_SECRET_KEY?: string;
   FLW_SECRET_KEY?: string;
   COURSE_PDFS?: any; // R2 Bucket binding
 }
@@ -18,16 +58,13 @@ export default {
       'Access-Control-Max-Age': '86400',
     };
 
-    // Handle CORS preflight request
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers });
     }
 
     const url = new URL(request.url);
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // ROUTE 1: POST /api/verify-course-payment
-    // ─────────────────────────────────────────────────────────────────────────
+    // ── ROUTE 1: POST /api/verify-course-payment ────────────────────────────
     if (request.method === 'POST' && url.pathname.endsWith('/api/verify-course-payment')) {
       try {
         const body = await request.json() as {
@@ -42,16 +79,16 @@ export default {
           amount?: number;
         };
 
-        const { transactionId, courseId, format, customerName, customerEmail, customerPhone, preferredDate, preferredTime } = body;
+        const { transactionId, courseId, format, customerName, customerEmail, preferredDate, preferredTime } = body;
 
         if (!transactionId || !courseId || !customerName || !customerEmail) {
           return new Response(
-            JSON.stringify({ error: 'Missing required parameters: transactionId, courseId, customerName, customerEmail' }),
+            JSON.stringify({ error: 'Missing required parameters' }),
             { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
           );
         }
 
-        // Verify with Flutterwave API if secret key configured
+        // 1. Verify with Flutterwave API
         if (env.FLW_SECRET_KEY && !transactionId.startsWith('FREE_') && !transactionId.startsWith('FLW_COURSE_')) {
           const flwRes = await fetch(`https://api.flutterwave.com/v3/transactions/${transactionId}/verify`, {
             method: 'GET',
@@ -79,12 +116,11 @@ export default {
 
         const downloadToken = `token_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
-        // Send Email Attachment via Resend API
+        // 2. Fetch PDF from R2 Bucket & Send Resend Email Attachment
         if (env.RESEND_API_KEY) {
           let attachments: any[] = [];
           const pdfFileName = courseId === 'vibe-coding' ? 'Vibe-Coding-PDF-Cover.webp' : 'zero-to-n8n-free-hosting-PDF-cover.webp';
 
-          // Attempt to pull PDF from R2 bucket if bound
           if (env.COURSE_PDFS) {
             try {
               const r2Object = await env.COURSE_PDFS.get(pdfFileName);
@@ -165,9 +201,7 @@ export default {
       }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // ROUTE 2: GET /api/download-course-pdf
-    // ─────────────────────────────────────────────────────────────────────────
+    // ── ROUTE 2: GET /api/download-course-pdf ─────────────────────────────────
     if (request.method === 'GET' && url.pathname.endsWith('/api/download-course-pdf')) {
       const courseId = url.searchParams.get('courseId') || 'vibe-coding';
       const pdfFileName = courseId === 'vibe-coding' ? 'Vibe-Coding-Masterclass-Blueprint.pdf' : 'Zero-to-n8n-Free-Hosting-Mastered.pdf';
@@ -190,7 +224,6 @@ export default {
         }
       }
 
-      // Fallback header download response
       return new Response(`PDF Document stream for ${courseId} masterclass`, {
         status: 200,
         headers: {
@@ -201,129 +234,23 @@ export default {
       });
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // ROUTE 3 (LEGACY): POST / (Account Deletion Email Handler)
-    // ─────────────────────────────────────────────────────────────────────────
-    if (request.method !== 'POST') {
-      return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-        status: 405,
-        headers: { ...headers, 'Content-Type': 'application/json' },
-      });
-    }
-
-    try {
-      const { email, username, appName, token } = await request.json() as {
-        email?: string;
-        username?: string;
-        appName?: string;
-        token?: string;
-      };
-
-      if (!email || !username || !appName) {
-        return new Response(
-          JSON.stringify({ error: 'Missing required fields: email, username, appName' }),
-          {
-            status: 400,
-            headers: { ...headers, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      // Turnstile server-side verification (skip if secret key not configured)
-      if (env.TURNSTILE_SECRET_KEY) {
-        if (!token) {
-          return new Response(
-            JSON.stringify({ error: 'Security verification token is missing. Please complete the captcha.' }),
-            {
-              status: 400,
-              headers: { ...headers, 'Content-Type': 'application/json' },
-            }
-          );
-        }
-
-        const verifyResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            secret: env.TURNSTILE_SECRET_KEY,
-            response: token,
-            remoteip: request.headers.get('CF-Connecting-IP'),
-          })
-        });
-
-        const verifyResult = await verifyResponse.json() as { success: boolean };
-
-        if (!verifyResult.success) {
-          return new Response(
-            JSON.stringify({ error: 'Security verification failed. Please try again.' }),
-            {
-              status: 403,
-              headers: { ...headers, 'Content-Type': 'application/json' },
-            }
-          );
-        }
-      }
-
-      if (!env.RESEND_API_KEY) {
-        return new Response(
-          JSON.stringify({ error: 'RESEND_API_KEY is not configured in Cloudflare Worker secrets' }),
-          {
-            status: 500,
-            headers: { ...headers, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      // Relay request safely to Resend API
-      const resendResponse = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-        },
-        body: JSON.stringify({
-          from: 'onboarding@resend.dev',
-          to: 'admin@sampidia.com',
-          subject: `Account Deletion Request: ${username} (${appName})`,
-          html: `
-            <div style="font-family: sans-serif; padding: 20px; line-height: 1.6; color: #333;">
-              <h2 style="color: #dc2626; border-bottom: 1px solid #eee; padding-bottom: 10px;">Account Deletion Request</h2>
-              <p>A new account deletion request has been submitted from the <strong>Afigo Sam Page</strong> portal.</p>
-              
-              <div style="background-color: #f9fafb; border: 1px solid #f3f4f6; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                <p style="margin: 5px 0;"><strong>Username:</strong> ${username}</p>
-                <p style="margin: 5px 0;"><strong>Email Address:</strong> ${email}</p>
-                <p style="margin: 5px 0;"><strong>App Selection:</strong> ${appName}</p>
-              </div>
-              
-              <p style="color: #d97706; font-weight: bold;">⚠️ SLA Note: Please process this request within 48 hours to meet platform terms.</p>
-            </div>
-          `,
-        }),
-      });
-
-      const responseData = await resendResponse.json() as any;
-
-      if (!resendResponse.ok) {
-        return new Response(
-          JSON.stringify({ error: responseData.message || 'Failed to send email via Resend API' }),
-          {
-            status: resendResponse.status,
-            headers: { ...headers, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      return new Response(JSON.stringify({ success: true, id: responseData.id }), {
-        status: 200,
-        headers: { ...headers, 'Content-Type': 'application/json' },
-      });
-
-    } catch (err: any) {
-      return new Response(JSON.stringify({ error: err.message || 'Internal Server Error' }), {
-        status: 500,
-        headers: { ...headers, 'Content-Type': 'application/json' },
-      });
-    }
+    return new Response(JSON.stringify({ error: 'Route not found' }), {
+      status: 404,
+      headers: { ...headers, 'Content-Type': 'application/json' },
+    });
   },
 };
+```
+
+---
+
+## 🚀 How to Deploy via Wrangler CLI
+
+Inside the `worker` directory:
+
+```bash
+cd worker
+npx wrangler secret put FLW_SECRET_KEY
+npx wrangler secret put RESEND_API_KEY
+npx wrangler deploy
+```

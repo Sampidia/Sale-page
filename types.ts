@@ -78,3 +78,31 @@ export interface EducationItem {
   supervisor?: string;
 }
 
+export type CourseFormat = 'pdf' | 'one-on-one';
+
+export interface CourseCurriculumModule {
+  moduleTitle: string;
+  duration: string;
+  lessons: string[];
+}
+
+export interface Course {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  price: number; // 30000 NGN
+  currency: string; // 'NGN'
+  selarUrl: string;
+  pdfCoverUrl: string;
+  oneOnOneCoverUrl: string;
+  badge?: string;
+  level: string; // e.g. 'Beginner to Advanced'
+  duration: string;
+  features: string[];
+  detailedFeatures?: { title: string; desc: string; icon: string; }[];
+  curriculum: CourseCurriculumModule[];
+  pdfFileName: string; // e.g. 'Vibe-Coding-Masterclass.pdf'
+  calendlyUrl: string; // e.g. 'https://calendly.com/oghenekaroafigo/meeting'
+  perfectFor: { title: string; desc: string; metric: string; }[];
+}

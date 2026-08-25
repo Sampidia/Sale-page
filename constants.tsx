@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Product, NavItem, MobileApp, ClientProject, SkillCategory, ExperienceItem, EducationItem } from './types';
+import { Product, NavItem, MobileApp, ClientProject, SkillCategory, ExperienceItem, EducationItem, Course } from './types';
 
 export const FLUTTERWAVE_URL = "https://flutterwave.com/pay/wordpressai";
 export const CODECANYON_URL = "#";
@@ -24,6 +24,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Skills', href: '/#skills' },
   { label: 'Projects', href: '/#projects' },
   { label: 'Products', href: '/#products' },
+  { label: 'Courses', href: '/courses' },
   { label: 'Mobile Apps', href: '/apps' },
   { label: 'Experience', href: '/#experience' },
   { label: 'Contact', href: '/#contact' }
@@ -541,6 +542,193 @@ export const MOBILE_APPS: MobileApp[] = [
   }
 ];
 
+export const COURSES: Course[] = [
+  {
+    id: 'vibe-coding',
+    title: 'Vibe Coding: Building High-End Android Apps with Android Studio & Antigravity + AI',
+    subtitle: 'Master AI-Assisted Native Android App Engineering from Scratch',
+    description: 'Learn how to leverage AI tools (Antigravity, Gemini, LLMs) inside Android Studio to build, debug, and publish high-performance production Android applications at lightning speed.',
+    price: 30000,
+    currency: 'NGN',
+    selarUrl: 'https://sampidia.selar.com/7p931r2953',
+    pdfCoverUrl: 'assets/Vibe-Coding-PDF-Cover.webp',
+    oneOnOneCoverUrl: 'assets/vibe-coding-building-high-cover.webp',
+    badge: 'Hot Masterclass',
+    level: 'Beginner to Advanced',
+    duration: 'Comprehensive Blueprint / 2-Hour Live Mentorship',
+    features: [
+      'Complete Antigravity + AI Vibe Coding workflow setup',
+      'Android Studio project architecture & Gradle optimization',
+      'Prompting AI for errorless Kotlin/Java code & UI layouts',
+      'Building offline-first databases & API integrations',
+      'Google Play Console deployment & monetization strategies',
+      'Full PDF Guide + Direct 1-on-1 Q&A Mentorship Session'
+    ],
+    detailedFeatures: [
+      {
+        title: 'Antigravity AI Agent Setup',
+        desc: 'Set up Android Studio with Antigravity AI to pair-program, write clean code, and debug instantly.',
+        icon: '⚡'
+      },
+      {
+        title: 'High-End Android UI & UX',
+        desc: 'Craft smooth glassmorphic, animated native Android user interfaces using Kotlin and modern design standards.',
+        icon: '📱'
+      },
+      {
+        title: 'Production API & DB Sync',
+        desc: 'Integrate Cloudflare Workers, Firebase Realtime DB, and SQLite for robust offline-first applications.',
+        icon: '☁️'
+      },
+      {
+        title: 'Google Play Publishing',
+        desc: 'Learn exact compliance, app bundle signing, store listing optimization, and ad integration strategies.',
+        icon: '🚀'
+      }
+    ],
+    curriculum: [
+      {
+        moduleTitle: 'Module 1: Foundations & AI Tooling Setup',
+        duration: '30 Mins',
+        lessons: [
+          'Setting up Android Studio, Antigravity AI, and LLM coding assistants',
+          'Configuring workspace parameters for error-free code generation',
+          'Creating your first Android project structure using modern Gradle'
+        ]
+      },
+      {
+        moduleTitle: 'Module 2: Building Core App Logic & UI',
+        duration: '45 Mins',
+        lessons: [
+          'Prompting AI for complex UI layouts and custom views',
+          'Handling state management and local SQLite/Room data persistence',
+          'Connecting REST APIs and edge Cloudflare worker endpoints'
+        ]
+      },
+      {
+        moduleTitle: 'Module 3: Testing, Debugging & Publishing',
+        duration: '45 Mins',
+        lessons: [
+          'Automated error diagnosis and crash resolution with AI',
+          'Generating signed App Bundles (.aab) and Play Console deployment',
+          'Monetization setup (Flutterwave, Google AdMob, In-App Purchases)'
+        ]
+      }
+    ],
+    pdfFileName: 'Vibe-Coding-Masterclass-Blueprint.pdf',
+    calendlyUrl: 'https://calendly.com/oghenekaroafigo/meeting',
+    perfectFor: [
+      {
+        title: 'Aspiring Mobile Developers',
+        desc: 'Build native Android apps fast without getting stuck in syntax or debugging traps.',
+        metric: '10x Dev Speed'
+      },
+      {
+        title: 'Entrepreneurs & Solopreneurs',
+        desc: 'Turn your app idea into a live, published Google Play app in days instead of months.',
+        metric: 'Fast Time to Market'
+      },
+      {
+        title: 'Web Developers Expanding to Mobile',
+        desc: 'Leverage AI assistance to comfortably write native mobile code and deploy to Android.',
+        metric: 'Skill Expansion'
+      }
+    ]
+  },
+  {
+    id: 'zero-to-n8n',
+    title: 'Zero to n8n — Free Hosting Mastered',
+    subtitle: 'Self-Host Enterprise AI Automation Pipelines for ₦0/Month',
+    description: 'Master self-hosting n8n workflow automation engine on free cloud tiers (Oracle Cloud, Render, Railway, Docker) with SSL, domain configuration, and automated AI LLM pipelines.',
+    price: 30000,
+    currency: 'NGN',
+    selarUrl: 'https://sampidia.selar.com/9k83328174',
+    pdfCoverUrl: 'assets/zero-to-n8n-free-hosting-PDF-cover.webp',
+    oneOnOneCoverUrl: 'assets/zero-to-n8n-free-hosting-cover.webp',
+    badge: 'Popular Masterclass',
+    level: 'Beginner to Intermediate',
+    duration: 'Complete Blueprint / 2-Hour Live Mentorship',
+    features: [
+      'Step-by-step 100% free server provisioning (Oracle / Cloudflare / Docker)',
+      'Configuring custom domain name & free automatic SSL HTTPS certificates',
+      'Building automated multi-agent AI pipelines (OpenAI, Gemini, Telegram, X)',
+      'Connecting Paystack & Flutterwave payment webhooks directly to n8n',
+      'Database backup strategies & zero-downtime maintenance',
+      'Full PDF Guide + Direct 1-on-1 Q&A Mentorship Session'
+    ],
+    detailedFeatures: [
+      {
+        title: 'Free Hosting Infrastructure',
+        desc: 'Deploy n8n on Oracle Always-Free VPS or cloud containers with zero monthly hosting bills.',
+        icon: '🌐'
+      },
+      {
+        title: 'HTTPS & Custom Domain Setup',
+        desc: 'Configure DNS records, Caddy/Nginx reverse proxy, and automatic SSL encryption.',
+        icon: '🔒'
+      },
+      {
+        title: 'AI Multi-Agent Workflows',
+        desc: 'Build self-operating LLM bots that generate images (FLUX), post tweets, and handle client inquiries.',
+        icon: '🤖'
+      },
+      {
+        title: 'Payment Gateway Webhooks',
+        desc: 'Connect Flutterwave/Paystack webhooks to trigger instant customer fulfillment and Google Sheets logging.',
+        icon: '💳'
+      }
+    ],
+    curriculum: [
+      {
+        moduleTitle: 'Module 1: Free Server Provisioning & Docker Setup',
+        duration: '40 Mins',
+        lessons: [
+          'Setting up Oracle Always-Free Cloud VPS instance',
+          'Installing Docker & Docker Compose environment',
+          'Deploying n8n container with persistent volume storage'
+        ]
+      },
+      {
+        moduleTitle: 'Module 2: Custom Domain, SSL & Security',
+        duration: '35 Mins',
+        lessons: [
+          'Pointing custom domain DNS records to your free VPS',
+          'Automating HTTPS SSL certificate renewal via Caddy / Let\'s Encrypt',
+          'Securing n8n webhooks and setting environment variables'
+        ]
+      },
+      {
+        moduleTitle: 'Module 3: Advanced AI Workflows & Payment Webhooks',
+        duration: '45 Mins',
+        lessons: [
+          'Connecting OpenAI, Gemini, and Telegram bot APIs inside n8n',
+          'Creating payment webhook handlers for Flutterwave/Paystack',
+          'Exporting, backing up, and restoring workflow templates'
+        ]
+      }
+    ],
+    pdfFileName: 'Zero-to-n8n-Free-Hosting-Mastered.pdf',
+    calendlyUrl: 'https://calendly.com/oghenekaroafigo/meeting',
+    perfectFor: [
+      {
+        title: 'AI Automation Enthusiasts',
+        desc: 'Stop paying high monthly subscription fees for Zapier/Make by self-hosting n8n for free.',
+        metric: 'Save $500+/Year'
+      },
+      {
+        title: 'Freelancers & Agencies',
+        desc: 'Offer AI workflow automation solutions to business clients with zero hosting overhead.',
+        metric: 'High Profit Margin'
+      },
+      {
+        title: 'Developers & Tech Hobbyists',
+        desc: 'Master Linux server administration, Docker, reverse proxies, and webhook pipelines.',
+        metric: 'Full System Control'
+      }
+    ]
+  }
+];
+
 export const BRAIN_LOGO = (
   <svg viewBox="0 0 100 100" className="w-10 h-10 text-red-600 fill-current" xmlns="http://www.w3.org/2000/svg">
     <path d="M50 5C25.147 5 5 25.147 5 50s20.147 45 45 45 45-20.147 45-45S74.853 5 50 5zm0 80c-19.33 0-35-15.67-35-35s15.67-35 35-35 35 15.67 35 35-15.67 35-35 35zm-5-55v15h-10v5h10v10h5v-10h10v-5h-10v-15h-5zm0 35v5h5v-5h-5z" />
@@ -550,3 +738,4 @@ export const BRAIN_LOGO = (
     <path d="M40 40 L60 40 M40 50 L60 50 M40 60 L60 60" stroke="currentColor" strokeWidth="2" />
   </svg>
 );
+
