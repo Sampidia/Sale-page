@@ -1,34 +1,3 @@
-# COURSE PAYMENT CLOUDFLARE WORKER DEPLOYMENT GUIDE
-
-To deploy your Course Payment Backend to Cloudflare Workers, you can copy and paste the pure JavaScript code below directly into your **Cloudflare Dashboard → Workers → Edit Code** editor.
-
-Alternatively, you can open the standalone file [course-payment-worker-deploy.js](file:///home/afigo/Documents/My-App/Afigo%20Sam%20Page/sale-page/course-payment-worker-deploy.js) and copy its entire contents.
-
----
-
-## 🛠️ Required Worker Secrets & Environment Variables
-
-In your Cloudflare Worker Dashboard (**Settings → Variables → Environment Variables**), add:
-
-| Variable Name | Description | Value Example |
-| :--- | :--- | :--- |
-| `FLW_SECRET_KEY` | Flutterwave Secret Key (v3 API) | `FLWSECK_TEST-...` or `FLWSECK-prod...` |
-| `RESEND_API_KEY` | Resend Email API Key | `re_123456789...` |
-| `ALLOWED_ORIGIN` | CORS Allowed Domain | `https://afigo.sampidia.com` or `*` |
-
----
-
-## 🗄️ R2 Bucket Binding (`wrangler.toml`)
-
-Under **Settings → Variables → R2 Bucket Bindings**, add:
-- **Variable name**: `COURSE_PDFS`
-- **R2 bucket**: `sampidia-course-pdfs`
-
----
-
-## 📜 Full Production Code (Copy & Paste Entire Snippet)
-
-```javascript
 // ============================================================
 // COURSE PAYMENT CLOUDFLARE WORKER — PASTE THIS ENTIRE FILE
 // into Cloudflare Dashboard → Workers → your-worker → Edit
@@ -339,4 +308,3 @@ export default {
     }
   },
 };
-```

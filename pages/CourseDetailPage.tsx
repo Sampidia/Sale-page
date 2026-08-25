@@ -77,9 +77,9 @@ const CourseDetailPage: React.FC = () => {
     setError(null);
 
     try {
-      const workerUrl = import.meta.env.VITE_WORKER_URL || 'https://deleteaccount.sampidiablog.workers.dev/';
+      const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://lingering-glitter-7023.sampidiablog.workers.dev/';
 
-      const res = await fetch(`${workerUrl}api/verify-course-payment`, {
+      const res = await fetch(`${workerUrl.endsWith('/') ? workerUrl : workerUrl + '/'}api/verify-course-payment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -227,7 +227,7 @@ const CourseDetailPage: React.FC = () => {
 
                 <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-center">
                   <a
-                    href={`${import.meta.env.VITE_WORKER_URL || 'https://deleteaccount.sampidiablog.workers.dev/'}api/download-course-pdf?token=${downloadToken}&courseId=${course.id}`}
+                    href={`${(import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://lingering-glitter-7023.sampidiablog.workers.dev/').replace(/\/$/, '')}/api/download-course-pdf?token=${downloadToken}&courseId=${course.id}`}
                     download={course.pdfFileName}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm px-8 py-4 rounded-2xl transition-all shadow-xl shadow-emerald-950/40 flex items-center justify-center gap-2"
                   >
