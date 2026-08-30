@@ -32,6 +32,28 @@ const MobileAppsPage: React.FC = () => {
     return colors[category];
   };
 
+  const appsItemListSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    'name': 'Afigo-Sam Mobile Applications Directory',
+    'description': 'Native Android and web applications created by Afigo-Sam including Naija Ayo Worldwide, Afro Short, and Fake Detector.',
+    'itemListElement': MOBILE_APPS.map((app, index) => ({
+      '@type': 'ListItem',
+      'position': index + 1,
+      'item': {
+        '@type': 'SoftwareApplication',
+        'name': app.name,
+        'operatingSystem': 'Android',
+        'applicationCategory': app.category,
+        'description': app.description,
+        'author': {
+          '@type': 'Person',
+          'name': 'Afigo Sam'
+        }
+      }
+    }))
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0e27]">
       <SEO
@@ -39,6 +61,7 @@ const MobileAppsPage: React.FC = () => {
         description="Discover Afigo-Sam's premium mobile app portfolio, including Naija Ayo Worldwide strategy board game, Afro Short inspiring podcasts/media, and Fake Detector product scanner."
         keywords="mancala games, ayo board game android, afro short entertainment, fake product detector nafdac, afigo sam apps"
         ogImage="/assets/Naija Ayo Worldwide banner (1).webp"
+        jsonLd={appsItemListSchema}
       />
       {/* Hero Section */}
       <section className="relative pt-20 pb-12 md:pt-32 md:pb-16 bg-gradient-to-b from-[#0a0e27] to-[#0d1230]">

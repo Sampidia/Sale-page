@@ -91,26 +91,34 @@ const CourseDetailPage: React.FC = () => {
     }))
   };
 
-  // ── Load Flutterwave SDK ──────────────────────────────────────────────────
-  useEffect(() => {
+  // ── Load Flutterwave SDK (VPN-Resilient with Auto-Retry) ─────────────────
+  const loadFlutterwaveSdk = (attempt = 1) => {
+    setError(null);
     const existing = document.querySelector('script[src*="flutterwave"]');
     if (existing) {
-      setSdkReady(true);
-      return;
+      existing.remove();
     }
 
     const script = document.createElement('script');
     script.src = 'https://checkout.flutterwave.com/v3.js';
     script.async = true;
-    script.onload = () => setSdkReady(true);
-    script.onerror = () => setError('Payment SDK failed to load. Please refresh the page.');
+    script.onload = () => {
+      setSdkReady(true);
+      setError(null);
+    };
+    script.onerror = () => {
+      if (attempt < 3) {
+        setTimeout(() => loadFlutterwaveSdk(attempt + 1), attempt * 1500);
+      } else {
+        setError('⚠️ Payment Gateway SDK failed to load. If you are using a VPN or AdBlocker, please pause it or click retry below.');
+      }
+    };
 
     document.body.appendChild(script);
+  };
 
-    return () => {
-      const s = document.querySelector('script[src*="flutterwave"]');
-      if (s) document.body.removeChild(s);
-    };
+  useEffect(() => {
+    loadFlutterwaveSdk(1);
   }, []);
 
   // ── Track Facebook Ads Purchase Event ONLY on Confirmed Payment ───────────
@@ -144,7 +152,7 @@ const CourseDetailPage: React.FC = () => {
     setError(null);
 
     try {
-      const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://lingering-glitter-7023.sampidiablog.workers.dev/';
+      const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course-worker.sampidiablog.workers.dev';
 
       const res = await fetch(`${workerUrl.endsWith('/') ? workerUrl : workerUrl + '/'}api/verify-course-payment`, {
         method: 'POST',
@@ -198,7 +206,7 @@ const CourseDetailPage: React.FC = () => {
     }
 
     if (!(window as any).FlutterwaveCheckout) {
-      setError('Payment gateway SDK is loading. Please wait a moment and try again.');
+      setError('Payment Gateway SDK is loading or blocked by VPN. Please click "Retry Loading Gateway" below.');
       return;
     }
 
@@ -220,7 +228,7 @@ const CourseDetailPage: React.FC = () => {
       },
       customizations: {
         title: course.title,
-        description: `Enrollment for ${format === 'one-on-one' ? '1-on-1 Live Coaching' : 'PDF Digital Course'}`,
+        description: `Enrollment for ${format === 'one-on-one' ? '1-on-1 Live Coaching (30 Min)' : 'PDF Digital Course'}`,
         logo: 'https://afigo.sampidia.com/assets/favicon-32x32.png',
       },
       callback: (data: any) => {
@@ -273,7 +281,7 @@ const CourseDetailPage: React.FC = () => {
 
               {/* Facebook Pixel Debug Notice */}
               <div className="mt-3 text-[11px] text-emerald-400 font-bold">
-                ✓ Facebook Pixel Purchase Event Tracked (Value: ₦{course.price.toLocaleString()} NGN)
+                ✓ Facebook Pixel Purchase Event Tracked (Value: $20 USD)
               </div>
             </div>
 
@@ -357,7 +365,7 @@ const CourseDetailPage: React.FC = () => {
         jsonLd={[courseSchema, faqSchema]}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow flex flex-col">
         
         {/* Navigation back */}
         <div className="mb-6 flex items-center justify-between">
@@ -374,8 +382,8 @@ const CourseDetailPage: React.FC = () => {
           </a>
         </div>
 
-        {/* 1. Header Title & Subtitle FIRST */}
-        <div className="mb-8">
+        {/* 1. Header Title & Subtitle (order-1 on mobile) */}
+        <div className="mb-6 order-1">
           <div className="flex gap-2 mb-3 flex-wrap">
             <span className="bg-red-600 text-white font-black text-xs px-3.5 py-1 rounded-full uppercase tracking-wider shadow-md">
               {course.badge}
@@ -402,50 +410,89 @@ const CourseDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 2. Format Switcher Card SECOND */}
-        <div className="bg-slate-900/80 border border-slate-800 p-5 sm:p-6 rounded-3xl backdrop-blur-md mb-8">
+        {/* 2. Cover Image Banner (order-2 on mobile — comes BEFORE format switcher card!) */}
+        <div className="rounded-3xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl aspect-[16/9] relative group mb-8 order-2">
+          <img
+            src={currentCover}
+            alt={course.title}
+            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
+          <div className="absolute bottom-4 left-4 right-4">
+            <span className="bg-slate-900/90 text-red-400 border border-slate-700 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
+              {format === 'one-on-one' ? '1-on-1 Mentorship Version' : 'PDF Blueprint Version'}
+            </span>
+          </div>
+        </div>
+
+        {/* 3. Format Switcher Card (order-3 on mobile) */}
+        <div className="bg-slate-900/80 border border-slate-800 p-5 sm:p-6 rounded-3xl backdrop-blur-md mb-8 order-3">
           <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
             Select Course Learning Format:
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* PDF Format Option */}
             <button
               type="button"
               onClick={() => setFormat('pdf')}
-              className={`p-4 sm:p-5 rounded-2xl text-left border transition-all flex flex-col justify-between cursor-pointer ${
+              className={`p-4 sm:p-5 rounded-2xl text-left border transition-all flex items-start gap-3 cursor-pointer ${
                 format === 'pdf'
                   ? 'bg-red-950/40 border-red-500 text-white ring-1 ring-red-500/50 shadow-xl'
                   : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700'
               }`}
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xl">📘</span>
-                <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${format === 'pdf' ? 'bg-red-500 text-white' : 'bg-slate-800 text-slate-400'}`}>
-                  Selected
-                </span>
+              {/* Radio Indicator */}
+              <div className="mt-0.5 shrink-0">
+                {format === 'pdf' ? (
+                  <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shadow-md">
+                    ✓
+                  </div>
+                ) : (
+                  <div className="w-6 h-6 rounded-full border-2 border-slate-700" />
+                )}
               </div>
-              <div>
+
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-lg">📘</span>
+                  <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${format === 'pdf' ? 'bg-red-500/20 text-red-300 border border-red-500/30' : 'bg-slate-800 text-slate-500'}`}>
+                    {format === 'pdf' ? 'Selected' : 'Format Option'}
+                  </span>
+                </div>
                 <h4 className="font-extrabold text-sm text-white mb-1">PDF Digital Masterclass</h4>
                 <p className="text-xs text-slate-400">Instant PDF download + Resend automated email delivery.</p>
               </div>
             </button>
 
+            {/* 1-on-1 Format Option */}
             <button
               type="button"
               onClick={() => setFormat('one-on-one')}
-              className={`p-4 sm:p-5 rounded-2xl text-left border transition-all flex flex-col justify-between cursor-pointer ${
+              className={`p-4 sm:p-5 rounded-2xl text-left border transition-all flex items-start gap-3 cursor-pointer ${
                 format === 'one-on-one'
                   ? 'bg-purple-950/40 border-purple-500 text-white ring-1 ring-purple-500/50 shadow-xl'
                   : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700'
               }`}
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xl">🤝</span>
-                <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${format === 'one-on-one' ? 'bg-purple-500 text-white' : 'bg-slate-800 text-slate-400'}`}>
-                  Selected
-                </span>
+              {/* Radio Indicator */}
+              <div className="mt-0.5 shrink-0">
+                {format === 'one-on-one' ? (
+                  <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shadow-md">
+                    ✓
+                  </div>
+                ) : (
+                  <div className="w-6 h-6 rounded-full border-2 border-slate-700" />
+                )}
               </div>
-              <div>
+
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-lg">🤝</span>
+                  <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${format === 'one-on-one' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-slate-800 text-slate-500'}`}>
+                    {format === 'one-on-one' ? 'Selected' : 'Format Option'}
+                  </span>
+                </div>
                 <h4 className="font-extrabold text-sm text-white mb-1">1-on-1 Live Mentorship</h4>
                 <p className="text-xs text-slate-400">Live 1-on-1 video coaching with Afigo Sam. <strong className="text-purple-300">Each session is 30 minutes.</strong> You can purchase multiple sessions.</p>
               </div>
@@ -453,78 +500,11 @@ const CourseDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* MAIN GRID: Image, Description, and Checkout Form */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        {/* 4 & 5. MAIN GRID: Checkout Card (order-4 on mobile) & Description/Curriculum (order-5 on mobile) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start order-4 lg:order-none">
           
-          {/* LEFT COLUMN: Cover Image, Features, and Curriculum */}
-          <div className="lg:col-span-7 space-y-10">
-            
-            {/* 3. Cover Image THIRD (After Title & Format Switcher) */}
-            <div className="rounded-3xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl aspect-[16/9] relative group">
-              <img
-                src={currentCover}
-                alt={course.title}
-                className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
-              <div className="absolute bottom-4 left-4 right-4">
-                <span className="bg-slate-900/90 text-red-400 border border-slate-700 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
-                  {format === 'one-on-one' ? '1-on-1 Mentorship Version' : 'PDF Blueprint Version'}
-                </span>
-              </div>
-            </div>
-
-            {/* Description */}
-            <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 sm:p-8">
-              <h3 className="text-xl font-black text-white mb-3">About This Masterclass</h3>
-              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                {course.description}
-              </p>
-            </div>
-
-            {/* Detailed Features */}
-            {course.detailedFeatures && (
-              <div className="space-y-4">
-                <h3 className="text-xl font-black text-white">What You Will Master</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {course.detailedFeatures.map((feat, idx) => (
-                    <div key={idx} className="bg-slate-900/50 border border-slate-800/80 p-5 rounded-2xl">
-                      <span className="text-2xl mb-2 block">{feat.icon}</span>
-                      <h4 className="font-bold text-white text-sm mb-1">{feat.title}</h4>
-                      <p className="text-slate-400 text-xs leading-relaxed">{feat.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Curriculum Modules */}
-            <div className="space-y-4">
-              <h3 className="text-xl font-black text-white">Course Curriculum Outline</h3>
-              <div className="space-y-4">
-                {course.curriculum.map((mod, idx) => (
-                  <div key={idx} className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
-                    <div className="flex justify-between items-center mb-3">
-                      <h4 className="font-bold text-white text-sm sm:text-base">{mod.moduleTitle}</h4>
-                      <span className="text-xs font-bold bg-slate-800 text-slate-400 px-3 py-1 rounded-full">{mod.duration}</span>
-                    </div>
-                    <ul className="space-y-2 text-xs text-slate-300">
-                      {mod.lessons.map((lesson, lIdx) => (
-                        <li key={lIdx} className="flex items-start gap-2">
-                          <span className="text-red-500 font-bold">•</span>
-                          <span>{lesson}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-          </div>
-
-          {/* RIGHT COLUMN: CHECKOUT FORM & TOTAL COURSE FEE CARD */}
-          <div className="lg:col-span-5 lg:sticky lg:top-24">
+          {/* RIGHT COLUMN ON DESKTOP / ORDER-4 ON MOBILE: CHECKOUT FORM & TOTAL COURSE FEE CARD */}
+          <div className="lg:col-span-5 lg:sticky lg:top-24 order-1 lg:order-2">
             <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl">
               
               <div className="border-b border-slate-800 pb-6 mb-6">
@@ -545,9 +525,28 @@ const CourseDetailPage: React.FC = () => {
               </div>
 
               {error && (
-                <div className="bg-red-500/10 border border-red-500/40 rounded-xl p-4 mb-6 text-red-400 text-xs font-bold flex items-center gap-2">
-                  <span>⚠️</span>
-                  <span>{error}</span>
+                <div className="bg-red-500/10 border border-red-500/40 rounded-xl p-4 mb-6 text-red-400 text-xs font-bold space-y-3">
+                  <div className="flex items-start gap-2">
+                    <span className="text-base">⚠️</span>
+                    <span className="leading-relaxed">{error}</span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => loadFlutterwaveSdk(1)}
+                      className="bg-red-600 hover:bg-red-700 text-white px-3.5 py-2 rounded-xl text-xs font-black transition-all shadow-md cursor-pointer"
+                    >
+                      🔄 Retry Loading Gateway
+                    </button>
+                    <a
+                      href={course.selarUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-bold underline transition-all"
+                    >
+                      🛒 Pay via Selar Store Backup
+                    </a>
+                  </div>
                 </div>
               )}
 
@@ -652,10 +651,62 @@ const CourseDetailPage: React.FC = () => {
             </div>
           </div>
 
+          {/* LEFT COLUMN ON DESKTOP / ORDER-5 ON MOBILE: Description, Features, and Curriculum */}
+          <div className="lg:col-span-7 space-y-10 order-2 lg:order-1">
+            
+            {/* Description */}
+            <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 sm:p-8">
+              <h3 className="text-xl font-black text-white mb-3">About This Masterclass</h3>
+              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+                {course.description}
+              </p>
+            </div>
+
+            {/* Detailed Features */}
+            {course.detailedFeatures && (
+              <div className="space-y-4">
+                <h3 className="text-xl font-black text-white">What You Will Master</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {course.detailedFeatures.map((feat, idx) => (
+                    <div key={idx} className="bg-slate-900/50 border border-slate-800/80 p-5 rounded-2xl">
+                      <span className="text-2xl mb-2 block">{feat.icon}</span>
+                      <h4 className="font-bold text-white text-sm mb-1">{feat.title}</h4>
+                      <p className="text-slate-400 text-xs leading-relaxed">{feat.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Curriculum Modules */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-black text-white">Course Curriculum Outline</h3>
+              <div className="space-y-4">
+                {course.curriculum.map((mod, idx) => (
+                  <div key={idx} className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
+                    <div className="flex justify-between items-center mb-3">
+                      <h4 className="font-bold text-white text-sm sm:text-base">{mod.moduleTitle}</h4>
+                      <span className="text-xs font-bold bg-slate-800 text-slate-400 px-3 py-1 rounded-full">{mod.duration}</span>
+                    </div>
+                    <ul className="space-y-2 text-xs text-slate-300">
+                      {mod.lessons.map((lesson, lIdx) => (
+                        <li key={lIdx} className="flex items-start gap-2">
+                          <span className="text-red-500 font-bold">•</span>
+                          <span>{lesson}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
         </div>
 
-        {/* ── FAQ SECTION (Optimized for AEO & GEO Search Engines) ───────────────────── */}
-        <div className="mt-16 border-t border-slate-800/80 pt-12">
+        {/* ── FAQ SECTION (Optimized for AEO & GEO Search Engines — order-6 on mobile) ───────────────────── */}
+        <div className="mt-16 border-t border-slate-800/80 pt-12 order-5">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <span className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
               Frequently Asked Questions

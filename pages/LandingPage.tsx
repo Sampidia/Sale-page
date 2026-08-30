@@ -24,6 +24,11 @@ import { ClientProjectCategory } from '../types';
 const LandingPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [selectedProjectModal, setSelectedProjectModal] = useState<typeof CLIENT_PROJECTS[0] | null>(null);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+
+  const toggleFaq = (index: number) => {
+    setOpenFaqIndex(openFaqIndex === index ? null : index);
+  };
 
   const categories: (ClientProjectCategory | 'All')[] = [
     'All',
@@ -44,6 +49,71 @@ const LandingPage: React.FC = () => {
     }
   };
 
+  // Structured Data (JSON-LD) for Search & AI Engines
+  const personSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    'name': 'Oghenekaro Samson Afigo',
+    'alternateName': 'Afigo Sam',
+    'url': 'https://afigo.sampidia.com',
+    'jobTitle': 'Full-Stack Web & Mobile Developer, AI Automation Engineer',
+    'almaMater': 'M.Sc. Industrial Chemistry',
+    'sameAs': [
+      FIVERR_URL,
+      UPWORK_URL,
+      N8N_CREATOR_URL
+    ]
+  };
+
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    'name': 'Afigo-Sam Technology & SamPidia',
+    'url': 'https://afigo.sampidia.com'
+  };
+
+  const professionalServiceSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ProfessionalService',
+    'name': 'Afigo-Sam Technology Solutions',
+    'description': 'Custom WordPress plugins, hotel booking engines, React Native Android apps, and n8n AI multi-agent automation workflows.',
+    'url': 'https://afigo.sampidia.com',
+    'address': {
+      '@type': 'PostalAddress',
+      'addressLocality': 'Ilorin',
+      'addressRegion': 'Kwara State',
+      'addressCountry': 'Nigeria'
+    }
+  };
+
+  const landingFaqQuestions = [
+    {
+      q: 'Who is Oghenekaro Samson Afigo (Afigo Sam)?',
+      a: 'Oghenekaro Samson Afigo (Afigo Sam) is a Full-Stack Web & Mobile Developer, published n8n AI workflow creator, and M.Sc. Industrial Chemist with over 8 years of active commercial software development experience.'
+    },
+    {
+      q: 'What technical services does Afigo-Sam Technology provide?',
+      a: 'We specialize in custom WordPress booking plugins, hotel/e-commerce platforms, native Android app development (React Native & Android Studio), Solana Rust smart contracts, and n8n AI multi-agent automation workflows.'
+    },
+    {
+      q: 'How can I hire Afigo Sam for custom development projects?',
+      a: 'You can reach out directly via email at admin@sampidia.com, phone/WhatsApp at +234 903 717 2693, or hire via our verified Fiverr Pro Seller and Upwork profiles.'
+    }
+  ];
+
+  const landingFaqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': landingFaqQuestions.map(item => ({
+      '@type': 'Question',
+      'name': item.q,
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': item.a
+      }
+    }))
+  };
+
   return (
     <div className="bg-slate-50 text-slate-800 antialiased selection:bg-red-500 selection:text-white">
       <SEO
@@ -51,6 +121,7 @@ const LandingPage: React.FC = () => {
         description="Official portfolio of Oghenekaro Samson Afigo (Afigo Sam) - Full-Stack Web & Mobile Developer, published n8n workflow creator, AI automation engineer, and M.Sc. Industrial Chemist."
         keywords="Oghenekaro Samson Afigo, Afigo Sam, SamPidia, AI automation engineer, n8n creator, WordPress developer, React Native developer, Solana Rust developer, Industrial Chemist"
         ogImage="/assets/ai-generator-logo.webp"
+        jsonLd={[personSchema, websiteSchema, professionalServiceSchema, landingFaqSchema]}
       />
 
       {/* HERO SECTION */}
@@ -552,6 +623,54 @@ const LandingPage: React.FC = () => {
 
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ SECTION (AEO & GEO Search Engine Optimization) */}
+      <section className="py-20 bg-slate-50 border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-red-600 bg-red-100 border border-red-200 px-3.5 py-1.5 rounded-full">
+              Frequently Asked Questions
+            </span>
+            <h2 className="text-3xl font-extrabold text-slate-900 mt-4 tracking-tight">
+              Services & Engineering FAQ
+            </h2>
+            <p className="text-slate-600 text-sm mt-2">
+              Direct answers about working with Afigo Sam and Afigo-Sam Technology.
+            </p>
+          </div>
+
+          <div className="max-w-3xl mx-auto space-y-4">
+            {landingFaqQuestions.map((item, idx) => {
+              const isOpen = openFaqIndex === idx;
+              return (
+                <div
+                  key={idx}
+                  className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm transition-all"
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleFaq(idx)}
+                    className="w-full text-left px-6 py-5 flex justify-between items-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors"
+                  >
+                    <span className="font-bold text-sm sm:text-base text-slate-900">
+                      {item.q}
+                    </span>
+                    <span className="text-red-600 text-lg font-black shrink-0">
+                      {isOpen ? '−' : '+'}
+                    </span>
+                  </button>
+
+                  {isOpen && (
+                    <div className="px-6 pb-5 pt-0 text-slate-600 text-xs sm:text-sm leading-relaxed border-t border-slate-100">
+                      <p className="pt-3">{item.a}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

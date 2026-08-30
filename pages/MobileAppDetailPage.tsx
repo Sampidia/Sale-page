@@ -28,6 +28,25 @@ const MobileAppDetailPage: React.FC = () => {
     );
   }
 
+  const appSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    'name': app.name,
+    'operatingSystem': 'Android',
+    'applicationCategory': app.category,
+    'description': app.description,
+    'author': {
+      '@type': 'Person',
+      'name': 'Afigo Sam',
+      'url': 'https://afigo.sampidia.com'
+    },
+    'offers': {
+      '@type': 'Offer',
+      'price': '0.00',
+      'priceCurrency': 'USD'
+    }
+  };
+
   return (
     <div className="bg-white">
       <SEO
@@ -36,6 +55,7 @@ const MobileAppDetailPage: React.FC = () => {
         keywords={`${app.name}, mobile app ${app.category.toLowerCase()}, android download, ${app.features.join(', ')}`}
         ogImage={app.imageUrl}
         ogType="website"
+        jsonLd={appSchema}
       />
       {/* Enhanced Hero Section */}
       <section className="relative pt-12 pb-20 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-red-50">

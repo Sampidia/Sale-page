@@ -4,12 +4,25 @@ import SEO from '../components/SEO';
 import { EMAIL_MAIN, EMAIL_SUPPORT } from '../constants';
 
 const RefundPolicyPage: React.FC = () => {
+  const refundSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    'name': 'Refund & Cancellation Policy | Afigo-Sam Masterclasses',
+    'description': 'Official Refund, Cancellation, and Exchange Policy for Afigo-Sam PDF Digital Masterclasses and 1-on-1 Mentorship Sessions.',
+    'publisher': {
+      '@type': 'Person',
+      'name': 'Afigo Sam',
+      'url': 'https://afigo.sampidia.com'
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between">
       <SEO
         title="Refund & Cancellation Policy | Afigo-Sam Masterclasses"
         description="Official Refund, Cancellation, and Exchange Policy for Afigo-Sam PDF Digital Masterclasses and 1-on-1 Mentorship Sessions."
         keywords="refund policy, course cancellation, digital product refund, 1-on-1 coaching terms, afigo sam policy"
+        jsonLd={refundSchema}
       />
 
       {/* Header Banner */}

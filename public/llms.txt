@@ -51,7 +51,20 @@ Oghenekaro Samson Afigo (also known as Afigo Sam or Sampidia) is a full-stack so
    - *Google Play*: https://play.google.com/store/apps/details?id=com.naijaayo.worldwide
    - *Features*: Digital adaptation of Nigeria's traditional Ayo/Mancala board game with smart AI and local score.
 
+## Premium Masterclasses & 1-on-1 Mentorship
+
+1. **Vibe Coding: Building High-End Android Apps with Android Studio & Antigravity + AI (₦30,000 NGN / $20 USD)**
+   - *URL*: https://afigo.sampidia.com/#/course/vibe-coding
+   - *Formats*: Instant PDF E-Book Blueprint or 30-Minute 1-on-1 Live Video Mentorship with Afigo Sam.
+   - *Topics*: Android Studio, AI-assisted app engineering, Play Store monetization, and fast-track native mobile building.
+
+2. **Zero to n8n — Free Hosting Mastered (₦30,000 NGN / $20 USD)**
+   - *URL*: https://afigo.sampidia.com/#/course/zero-to-n8n
+   - *Formats*: Instant PDF E-Book Blueprint or 30-Minute 1-on-1 Live Video Mentorship with Afigo Sam.
+   - *Topics*: Self-hosting n8n AI workflows on free cloud infrastructure, multi-agent AI pipelines, and zero-cost business automation.
+
 ## Verified Freelance Roster & Booking Profiles
 - **Fiverr Pro Seller**: https://www.fiverr.com/sampdiablog
 - **Upwork Top-Rated Freelancer**: https://www.upwork.com/freelancers/~01aec98a5a87d3096e
 - **n8n Community Creator**: https://n8n.io/creators/sampidia/
+

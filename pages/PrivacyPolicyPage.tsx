@@ -35,6 +35,18 @@ const PrivacyPolicyPage: React.FC = () => {
     }
   };
 
+  const privacySchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    'name': 'Privacy Policy | Afigo-Sam Digital Ecosystem',
+    'description': 'Transparent data practices, GDPR compliance, and Google Play Data Safety details for all Afigo-Sam products and mobile apps.',
+    'publisher': {
+      '@type': 'Person',
+      'name': 'Afigo Sam',
+      'url': 'https://afigo.sampidia.com'
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
       <SEO
@@ -42,6 +54,7 @@ const PrivacyPolicyPage: React.FC = () => {
         description="Comprehensive and transparent privacy policy for Afigo-Sam WordPress plugins, premium themes, and native Android applications. Learn about our Google Play Data Safety compliance, data protection standards, and GDPR account deletion."
         keywords="privacy policy, data safety, android privacy policy, GDPR compliance, account deletion, wordpress plugin security"
         ogImage="/assets/favicon-32x32.png"
+        jsonLd={privacySchema}
       />
 
       {/* Hero Header */}
