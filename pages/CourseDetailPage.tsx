@@ -161,7 +161,8 @@ const CourseDetailPage: React.FC = () => {
       },
       callback: (data: any) => {
         if (data.status === 'successful' || data.transaction_id || data.tx_ref) {
-          verifyCoursePayment(data.transaction_id || data.tx_ref || txRef);
+          const validTxRef = String(data.transaction_id || data.tx_ref || txRef);
+          verifyCoursePayment(validTxRef);
         } else {
           setError('Payment was not completed. Please try again.');
           setIsLoading(false);

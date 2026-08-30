@@ -38,9 +38,11 @@ export default {
           );
         }
 
+        const txStr = String(transactionId || '');
+
         // 1. Verify payment with Flutterwave API (if FLW_SECRET_KEY is configured in Worker secrets)
-        if (env.FLW_SECRET_KEY && !transactionId.startsWith('FREE_') && !transactionId.startsWith('FLW_COURSE_')) {
-          const flwRes = await fetch(`https://api.flutterwave.com/v3/transactions/${transactionId}/verify`, {
+        if (env.FLW_SECRET_KEY && !txStr.startsWith('FREE_') && !txStr.startsWith('FLW_COURSE_')) {
+          const flwRes = await fetch(`https://api.flutterwave.com/v3/transactions/${txStr}/verify`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${env.FLW_SECRET_KEY}`,
