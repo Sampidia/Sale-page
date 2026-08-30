@@ -68,32 +68,12 @@ export default {
 
         const downloadToken = `token_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
-        // 2. Fetch PDF from R2 Bucket & Send Resend Email Attachment
+        // 2. Build R2 download URL from this Worker's own origin (same URL used on the success page)
+        const workerOrigin = new URL(request.url).origin;
+        const r2DownloadLink = `${workerOrigin}/api/download-course-pdf?token=${downloadToken}&courseId=${courseId}`;
+
+        // 3. Send Resend confirmation email with R2 download button (no attachment)
         if (env.RESEND_API_KEY) {
-          let attachments = [];
-          const pdfR2Key = courseId === 'vibe-coding' ? 'Vibe-Coding-Masterclass-Blueprint.pdf' : 'Zero-to-n8n-Free-Hosting-Mastered.pdf';
-
-          if (env.COURSE_PDFS) {
-            try {
-              const r2Object = await env.COURSE_PDFS.get(pdfR2Key);
-              if (r2Object) {
-                const arrayBuf = await r2Object.arrayBuffer();
-                const bytes = new Uint8Array(arrayBuf);
-                let binary = '';
-                for (let i = 0; i < bytes.byteLength; i++) {
-                  binary += String.fromCharCode(bytes[i]);
-                }
-                const base64Content = btoa(binary);
-                attachments.push({
-                  filename: `${courseId}-masterclass.pdf`,
-                  content: base64Content,
-                });
-              }
-            } catch (r2Err) {
-              console.error('R2 fetch error:', r2Err);
-            }
-          }
-
           const courseTitle = courseId === 'vibe-coding'
             ? 'Vibe Coding: Building High-End Android Apps with Android Studio & Antigravity + AI'
             : 'Zero to n8n — Free Hosting Mastered';
@@ -109,22 +89,38 @@ export default {
               </h2>
               <p>Hi <strong>${customerName}</strong>,</p>
               <p>Thank you for enrolling in <strong>${courseTitle}</strong> (${format === 'one-on-one' ? '1-on-1 Mentorship' : 'PDF Blueprint'}). Your payment of <strong>₦30,000 NGN</strong> has been verified.</p>
-              
+
               ${format === 'one-on-one' ? `
                 <div style="background-color: #f3e8ff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 20px; margin: 20px 0;">
-                  <h3 style="color: #6b21a8; margin-top: 0;">🗓️ Mentorship Details</h3>
-                  <p><strong>Preferred Window:</strong> ${preferredDate || 'Selected on Calendly'} at ${preferredTime || '10:00 AM'}</p>
-                  <p><strong>Schedule/Modify Meeting:</strong> <a href="https://calendly.com/oghenekaroafigo/meeting" style="color: #7c3aed; font-weight: bold;">Click here to pick your Calendly slot</a></p>
+                  <h3 style="color: #6b21a8; margin-top: 0;">🗓️ Book Your Live Session</h3>
+                  <p>Use the link below to pick your exact date and time slot on Calendly:</p>
+                  <div style="text-align: center; margin: 16px 0;">
+                    <a href="https://calendly.com/oghenekaroafigo/meeting"
+                       style="background:#7c3aed; color:#ffffff; padding:14px 28px; border-radius:10px;
+                              font-size:15px; font-weight:bold; text-decoration:none; display:inline-block;">
+                      📅 Pick Your Calendly Slot
+                    </a>
+                  </div>
                 </div>
               ` : `
                 <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin: 20px 0;">
-                  <h3 style="color: #166534; margin-top: 0;">📘 Your PDF Masterclass Attachment</h3>
-                  <p>Your PDF course guide is attached to this email! You can also download it anytime from our website portal.</p>
+                  <h3 style="color: #166534; margin-top: 0;">📘 Download Your PDF Masterclass</h3>
+                  <p>Your course guide is ready. Click the button below to download it directly from our secure storage:</p>
+                  <div style="text-align: center; margin: 16px 0;">
+                    <a href="${r2DownloadLink}"
+                       style="background:#16a34a; color:#ffffff; padding:14px 28px; border-radius:10px;
+                              font-size:15px; font-weight:bold; text-decoration:none; display:inline-block;">
+                      📥 Download Your PDF Masterclass
+                    </a>
+                  </div>
+                  <p style="font-size: 12px; color: #64748b; margin-top: 8px; text-align: center;">
+                    This link is unique to your order. Save this email for future re-downloads.
+                  </p>
                 </div>
               `}
 
               <p style="font-size: 12px; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 24px;">
-                Transaction Ref: ${transactionId} | Contact support: admin@sampidia.com
+                Transaction Ref: ${txStr} | Contact support: admin@sampidia.com
               </p>
             </div>
           `;
@@ -135,7 +131,6 @@ export default {
               to: [customerEmail, 'admin@sampidia.com'],
               subject: emailSubject,
               html: emailHtml,
-              ...(attachments.length > 0 ? { attachments } : {}),
             });
 
             let resendRes = await fetch('https://api.resend.com/emails', {
@@ -158,13 +153,16 @@ export default {
                 body: JSON.stringify(sendEmailPayload('onboarding@resend.dev')),
               });
             }
+
+            const resendData = await resendRes.json();
+            console.log('Resend email result:', resendData);
           } catch (emailErr) {
             console.error('Failed to send Resend email:', emailErr);
           }
         }
 
         return new Response(
-          JSON.stringify({ success: true, verified: true, downloadToken, transactionId }),
+          JSON.stringify({ success: true, verified: true, downloadToken, transactionId: txStr }),
           { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
         );
 

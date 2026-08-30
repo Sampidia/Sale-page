@@ -14,12 +14,75 @@ const CoursesPage: React.FC = () => {
     setSelectedFormat((prev) => ({ ...prev, [courseId]: format }));
   };
 
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+
+  const toggleFaq = (index: number) => {
+    setOpenFaqIndex(openFaqIndex === index ? null : index);
+  };
+
+  // Structured Data (JSON-LD) for Search & AI Engines
+  const itemListSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    'name': 'Afigo-Sam Tech Masterclasses & Live Mentorship',
+    'description': 'Master AI-assisted Android app engineering (Vibe Coding) and zero-cost self-hosting for n8n AI workflows.',
+    'itemListElement': COURSES.map((course, index) => ({
+      '@type': 'ListItem',
+      'position': index + 1,
+      'item': {
+        '@type': 'Course',
+        'name': course.title,
+        'description': course.description,
+        'provider': {
+          '@type': 'Person',
+          'name': 'Afigo Sam',
+          'url': 'https://afigo.sampidia.com'
+        },
+        'offers': {
+          '@type': 'Offer',
+          'price': course.price,
+          'priceCurrency': course.currency
+        }
+      }
+    }))
+  };
+
+  const catalogFaqQuestions = [
+    {
+      q: 'What masterclasses are offered by Afigo Sam?',
+      a: 'We offer two core masterclasses: (1) Vibe Coding — Building High-End Android Apps with Android Studio & Antigravity + AI, and (2) Zero to n8n — Self-Host Enterprise AI Automation Pipelines for ₦0/Month.'
+    },
+    {
+      q: 'What is the price of the masterclasses?',
+      a: 'Each masterclass is priced at ₦30,000 NGN. You can choose between the PDF E-Book Blueprint or 30-minute 1-on-1 Live Video Mentorship.'
+    },
+    {
+      q: 'Can I purchase multiple 1-on-1 mentorship sessions?',
+      a: 'Yes! Each 1-on-1 mentorship purchase grants one 30-minute live video session. You can complete checkout multiple times to book consecutive or additional 30-minute slots.'
+    }
+  ];
+
+  const catalogFaqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': catalogFaqQuestions.map(item => ({
+      '@type': 'Question',
+      'name': item.q,
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': item.a
+      }
+    }))
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between">
       <SEO
         title="Masterclasses & 1-on-1 Mentorship | Afigo-Sam Tech Courses"
         description="Master Vibe Coding with Android Studio & AI, and Zero to n8n Free Hosting. Available as instant PDF E-Books and 1-on-1 Live Coaching Sessions for ₦30,000 NGN."
         keywords="vibe coding course, android studio ai masterclass, zero to n8n free hosting, n8n self hosting course, afigo sam courses"
+        ogType="website"
+        jsonLd={[itemListSchema, catalogFaqSchema]}
       />
 
       {/* Hero Header Section */}
@@ -144,7 +207,7 @@ const CoursesPage: React.FC = () => {
                               : 'text-slate-400 hover:text-white'
                           }`}
                         >
-                          <span>🤝</span> 1-on-1 Mentorship
+                          <span>🤝</span> 1-on-1 (30 min)
                         </button>
                       </div>
                     </div>
@@ -238,6 +301,52 @@ const CoursesPage: React.FC = () => {
             <p className="text-slate-400 text-xs leading-relaxed">
               Secured by Flutterwave supporting cards, bank transfer, and USSD.
             </p>
+          </div>
+        </div>
+
+        {/* ── CATALOG FAQ SECTION (AEO & GEO Search Engine Optimization) ───────────────── */}
+        <div className="mt-16 border-t border-slate-800/80 pt-12">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <span className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
+              Course Catalog FAQ
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-black text-white mt-3 mb-2">
+              Common Questions Answered
+            </h3>
+            <p className="text-slate-400 text-xs sm:text-sm">
+              Quick answers about masterclass formats, instant fulfillment, and 1-on-1 mentorship.
+            </p>
+          </div>
+
+          <div className="max-w-3xl mx-auto space-y-4">
+            {catalogFaqQuestions.map((item, idx) => {
+              const isOpen = openFaqIndex === idx;
+              return (
+                <div
+                  key={idx}
+                  className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden transition-colors"
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleFaq(idx)}
+                    className="w-full text-left px-6 py-5 flex justify-between items-center gap-4 cursor-pointer hover:bg-slate-800/30 transition-colors"
+                  >
+                    <span className="font-bold text-sm sm:text-base text-white">
+                      {item.q}
+                    </span>
+                    <span className="text-red-400 text-lg font-black shrink-0">
+                      {isOpen ? '−' : '+'}
+                    </span>
+                  </button>
+
+                  {isOpen && (
+                    <div className="px-6 pb-5 pt-0 text-slate-300 text-xs sm:text-sm leading-relaxed border-t border-slate-800/50">
+                      <p className="pt-3">{item.a}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 

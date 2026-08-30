@@ -27,6 +27,70 @@ const CourseDetailPage: React.FC = () => {
   // Dynamic Cover Image depending on format selection
   const currentCover = format === 'one-on-one' ? course.oneOnOneCoverUrl : course.pdfCoverUrl;
 
+  // FAQ Accordion state
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+
+  const toggleFaq = (index: number) => {
+    setOpenFaqIndex(openFaqIndex === index ? null : index);
+  };
+
+  // Structured Data (JSON-LD) for Search Engines & AI Assistants (AEO / GEO)
+  const courseSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    'name': course.title,
+    'description': course.description,
+    'provider': {
+      '@type': 'Person',
+      'name': 'Afigo Sam',
+      'url': 'https://afigo.sampidia.com'
+    },
+    'offers': {
+      '@type': 'Offer',
+      'price': course.price,
+      'priceCurrency': course.currency,
+      'availability': 'https://schema.org/InStock',
+      'url': typeof window !== 'undefined' ? window.location.href : 'https://afigo.sampidia.com'
+    },
+    'hasCourseInstance': {
+      '@type': 'CourseInstance',
+      'courseMode': ['online', 'blended'],
+      'courseWorkload': 'PT2H'
+    }
+  };
+
+  const faqQuestions = [
+    {
+      q: `What is included in the ${course.title} masterclass?`,
+      a: `Enrolling grants instant full access to the comprehensive PDF Digital Blueprint and guide, plus the option to book a live 30-minute 1-on-1 video mentorship session with Afigo Sam.`
+    },
+    {
+      q: `How does the 30-minute 1-on-1 Live Mentorship session work?`,
+      a: `Each live mentorship session is 30 minutes of direct video coaching. After completing your payment, you will immediately unlock our embedded Calendly scheduler to pick your date and time slot. You can also purchase multiple 30-minute sessions if you need more time.`
+    },
+    {
+      q: `How do I download the PDF course blueprint?`,
+      a: `After verified checkout, an Instant Download PDF button appears directly on your order confirmation screen. A backup download link is also emailed to your inbox via Resend API.`
+    },
+    {
+      q: `What payment options are available?`,
+      a: `Payments are processed securely via Flutterwave (256-bit encryption), supporting Debit/Credit Cards, Bank Transfer, USSD, and Mobile Money in Nigerian Naira (₦30,000 NGN).`
+    }
+  ];
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': faqQuestions.map(item => ({
+      '@type': 'Question',
+      'name': item.q,
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': item.a
+      }
+    }))
+  };
+
   // ── Load Flutterwave SDK ──────────────────────────────────────────────────
   useEffect(() => {
     const existing = document.querySelector('script[src*="flutterwave"]');
@@ -57,11 +121,11 @@ const CourseDetailPage: React.FC = () => {
         if (fbqFunc) {
           try {
             fbqFunc('track', 'Purchase', {
-              value: course.price,
-              currency: course.currency,
+              value: 20,               // ₦30,000 NGN ≈ $20 USD
+              currency: 'USD',         // Meta-accepted ISO 4217 code (NGN is not supported)
+              content_ids: [course.id],
               content_name: course.title,
-              content_type: format,
-              transaction_id: transactionRef,
+              content_type: 'product',
             });
             console.log('[Facebook Pixel] Purchase event tracked successfully:', transactionRef);
           } catch (err) {
@@ -178,7 +242,9 @@ const CourseDetailPage: React.FC = () => {
   // VIEW: POST-PAYMENT THANK YOU / SUCCESS SCREEN
   // ───────────────────────────────────────────────────────────────────────────
   if (isPaid) {
-    const directPdfUrl = course.pdfDownloadUrl || `${(import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://lingering-glitter-7023.sampidiablog.workers.dev/').replace(/\/$/, '')}/api/download-course-pdf?token=${downloadToken}&courseId=${course.id}`;
+    const workerBase = (import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course-worker.sampidiablog.workers.dev').replace(/\/$/, '');
+    // Always use R2 Worker route — token is only issued after verified payment
+    const directPdfUrl = `${workerBase}/api/download-course-pdf?token=${downloadToken}&courseId=${course.id}`;
 
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 py-16 px-4 sm:px-6">
@@ -285,7 +351,10 @@ const CourseDetailPage: React.FC = () => {
       <SEO
         title={`${course.title} | Afigo-Sam Masterclass`}
         description={course.description}
-        keywords={`${course.title}, pdf course, 1-on-1 mentorship, afigo sam masterclass`}
+        keywords={`${course.title}, pdf course, 1-on-1 mentorship, vibe coding, n8n free hosting, afigo sam masterclass`}
+        ogType="product"
+        ogImage={currentCover}
+        jsonLd={[courseSchema, faqSchema]}
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
@@ -378,7 +447,7 @@ const CourseDetailPage: React.FC = () => {
               </div>
               <div>
                 <h4 className="font-extrabold text-sm text-white mb-1">1-on-1 Live Mentorship</h4>
-                <p className="text-xs text-slate-400">Direct live video coaching session + Calendly booking.</p>
+                <p className="text-xs text-slate-400">Live 1-on-1 video coaching with Afigo Sam. <strong className="text-purple-300">Each session is 30 minutes.</strong> You can purchase multiple sessions.</p>
               </div>
             </button>
           </div>
@@ -464,9 +533,15 @@ const CourseDetailPage: React.FC = () => {
                   <span className="text-3xl sm:text-4xl font-black text-white">₦{course.price.toLocaleString()}</span>
                   <span className="text-slate-400 font-bold text-sm">NGN</span>
                 </div>
-                <p className="text-xs text-emerald-400 font-bold mt-1">
-                  ✓ Includes instant access ({format === 'one-on-one' ? '1-on-1 Mentorship' : 'PDF Blueprint'})
-                </p>
+                {format === 'one-on-one' ? (
+                  <p className="text-xs text-purple-400 font-bold mt-1">
+                    ✓ 1 × 30-min Live Session — buy multiple sessions to go deeper
+                  </p>
+                ) : (
+                  <p className="text-xs text-emerald-400 font-bold mt-1">
+                    ✓ Includes instant access (PDF Blueprint + Email Delivery)
+                  </p>
+                )}
               </div>
 
               {error && (
@@ -521,15 +596,26 @@ const CourseDetailPage: React.FC = () => {
                   />
                 </div>
 
-                {/* 1-on-1 Reminder Banner instead of time/date input */}
+                {/* 1-on-1 Session Info Banner */}
                 {format === 'one-on-one' && (
-                  <div className="bg-purple-950/30 border border-purple-800/50 p-4 rounded-2xl text-xs text-purple-200 space-y-1">
-                    <span className="font-bold flex items-center gap-1 text-purple-300">
-                      <span>📅</span> Live Session Scheduling
+                  <div className="bg-purple-950/30 border border-purple-800/50 p-4 rounded-2xl space-y-2.5">
+                    <span className="font-bold flex items-center gap-1.5 text-purple-300 text-xs">
+                      <span>🎥</span> 1-on-1 Live Mentorship — Session Details
                     </span>
-                    <p className="leading-relaxed text-slate-300">
-                      Once your payment is verified, you will pick your exact session date and time directly on our embedded Calendly calendar!
-                    </p>
+                    <ul className="space-y-1.5 text-xs text-slate-300">
+                      <li className="flex items-start gap-2">
+                        <span className="text-purple-400 font-bold shrink-0">⏱️</span>
+                        <span>Each session is <strong className="text-white">30 minutes</strong> of focused 1-on-1 live coaching.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-purple-400 font-bold shrink-0">🔁</span>
+                        <span>Need more time? <strong className="text-white">Purchase multiple sessions</strong> — each checkout books one 30-min slot.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-purple-400 font-bold shrink-0">📅</span>
+                        <span>After payment, you'll schedule your slot directly on our <strong className="text-white">Calendly calendar</strong>.</span>
+                      </li>
+                    </ul>
                   </div>
                 )}
 
@@ -566,6 +652,52 @@ const CourseDetailPage: React.FC = () => {
             </div>
           </div>
 
+        </div>
+
+        {/* ── FAQ SECTION (Optimized for AEO & GEO Search Engines) ───────────────────── */}
+        <div className="mt-16 border-t border-slate-800/80 pt-12">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <span className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
+              Frequently Asked Questions
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-black text-white mt-3 mb-2">
+              Everything You Need to Know
+            </h3>
+            <p className="text-slate-400 text-xs sm:text-sm">
+              Direct answers about course delivery, 1-on-1 mentorship format, and payment security.
+            </p>
+          </div>
+
+          <div className="max-w-3xl mx-auto space-y-4">
+            {faqQuestions.map((item, idx) => {
+              const isOpen = openFaqIndex === idx;
+              return (
+                <div
+                  key={idx}
+                  className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden transition-colors"
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleFaq(idx)}
+                    className="w-full text-left px-6 py-5 flex justify-between items-center gap-4 cursor-pointer hover:bg-slate-800/30 transition-colors"
+                  >
+                    <span className="font-bold text-sm sm:text-base text-white">
+                      {item.q}
+                    </span>
+                    <span className="text-red-400 text-lg font-black shrink-0">
+                      {isOpen ? '−' : '+'}
+                    </span>
+                  </button>
+
+                  {isOpen && (
+                    <div className="px-6 pb-5 pt-0 text-slate-300 text-xs sm:text-sm leading-relaxed border-t border-slate-800/50">
+                      <p className="pt-3">{item.a}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
       </main>

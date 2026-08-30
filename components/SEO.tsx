@@ -11,6 +11,7 @@ interface SEOProps {
   geoRegion?: string;
   geoPlacename?: string;
   geoPosition?: string;
+  jsonLd?: Record<string, any> | Record<string, any>[];
 }
 
 const SEO: React.FC<SEOProps> = ({
@@ -24,6 +25,7 @@ const SEO: React.FC<SEOProps> = ({
   geoRegion = 'NG-LA',
   geoPlacename = 'Lagos',
   geoPosition = '6.5244;3.3792',
+  jsonLd,
 }) => {
   useEffect(() => {
     // 1. Set Title
@@ -92,7 +94,21 @@ const SEO: React.FC<SEOProps> = ({
     }
     linkElement.setAttribute('href', canonical);
 
-  }, [title, description, keywords, ogType, ogImage, ogUrl, canonicalUrl, geoRegion, geoPlacename, geoPosition]);
+    // 7. Schema.org JSON-LD Injection (Crucial for AI Search Engines & Google Rich Snippets)
+    let jsonLdScript = document.querySelector('script[id="json-ld-schema"]');
+    if (jsonLd) {
+      if (!jsonLdScript) {
+        jsonLdScript = document.createElement('script');
+        jsonLdScript.setAttribute('id', 'json-ld-schema');
+        jsonLdScript.setAttribute('type', 'application/ld+json');
+        document.head.appendChild(jsonLdScript);
+      }
+      jsonLdScript.textContent = JSON.stringify(jsonLd, null, 2);
+    } else if (jsonLdScript) {
+      jsonLdScript.remove();
+    }
+
+  }, [title, description, keywords, ogType, ogImage, ogUrl, canonicalUrl, geoRegion, geoPlacename, geoPosition, jsonLd]);
 
   return null;
 };

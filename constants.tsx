@@ -21,12 +21,10 @@ export const LOCATION_MAIN = "Ilorin, Kwara State, Nigeria";
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/#about' },
-  { label: 'Skills', href: '/#skills' },
   { label: 'Projects', href: '/#projects' },
   { label: 'Products', href: '/#products' },
   { label: 'Courses', href: '/courses' },
   { label: 'Mobile Apps', href: '/apps' },
-  { label: 'Experience', href: '/#experience' },
   { label: 'Contact', href: '/#contact' }
 ];
 
@@ -708,7 +706,6 @@ export const COURSES: Course[] = [
       }
     ],
     pdfFileName: 'Zero-to-n8n-Free-Hosting-Mastered.pdf',
-    pdfDownloadUrl: 'https://efedazivgdlaojmbqczt.supabase.co/storage/v1/object/sign/Naija%20Ayo%20WorldWide/Sales%20Page/zero-to-n8n-masterclass.pdf?token=eyJraWQiOiI0ZGEyZWZiYS02MGRkLTQ3MTktYmZlNi0zZTJlMjJkNWJhMTEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJOYWlqYSBBeW8gV29ybGRXaWRlL1NhbGVzIFBhZ2UvemVyby10by1uOG4tbWFzdGVyY2xhc3MucGRmIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4ODA1Mzc5OSwiZXhwIjozMTU1Mzg4MDUzNzk5fQ.AeAOO0gpG0I9PsP-9OazGzliLrfaFYdJaccRcUMvBMk',
     calendlyUrl: 'https://calendly.com/oghenekaroafigo/meeting',
     perfectFor: [
       {
