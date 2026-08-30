@@ -127,20 +127,38 @@ export default {
             </div>
           `;
 
-          await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-            },
-            body: JSON.stringify({
-              from: 'admin@ajo-esusu.sampidia.com',
-              to: [customerEmail, 'admin@ajo-esusu.sampidia.com'],
+          try {
+            const sendEmailPayload = (fromAddress) => ({
+              from: fromAddress,
+              to: [customerEmail, 'admin@sampidia.com'],
               subject: emailSubject,
               html: emailHtml,
               ...(attachments.length > 0 ? { attachments } : {}),
-            }),
-          });
+            });
+
+            let resendRes = await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+              },
+              body: JSON.stringify(sendEmailPayload('admin@ajo-esusu.sampidia.com')),
+            });
+
+            if (!resendRes.ok) {
+              console.warn('Primary domain email failed, retrying with onboarding@resend.dev');
+              resendRes = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+                },
+                body: JSON.stringify(sendEmailPayload('onboarding@resend.dev')),
+              });
+            }
+          } catch (emailErr) {
+            console.error('Failed to send Resend email:', emailErr);
+          }
         }
 
         return new Response(

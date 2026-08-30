@@ -14,10 +14,6 @@ const CourseDetailPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
 
-  // 1-on-1 Booking Preferences
-  const [preferredDate, setPreferredDate] = useState('');
-  const [preferredTime, setPreferredTime] = useState('10:00 AM');
-
   // Payment & SDK states
   const [sdkReady, setSdkReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -54,22 +50,29 @@ const CourseDetailPage: React.FC = () => {
   }, []);
 
   // ── Track Facebook Ads Purchase Event ONLY on Confirmed Payment ───────────
-  const trackFacebookPurchase = (ref: string) => {
-    if (typeof window !== 'undefined' && (window as any).fbq) {
-      try {
-        (window as any).fbq('track', 'Purchase', {
-          value: course.price,
-          currency: course.currency,
-          content_name: course.title,
-          content_type: format,
-          transaction_id: ref,
-        });
-        console.log('[Facebook Pixel] Purchase event tracked successfully:', ref);
-      } catch (err) {
-        console.error('Failed to trigger Facebook Pixel Purchase event:', err);
+  useEffect(() => {
+    if (isPaid && transactionRef) {
+      if (typeof window !== 'undefined') {
+        const fbqFunc = (window as any).fbq;
+        if (fbqFunc) {
+          try {
+            fbqFunc('track', 'Purchase', {
+              value: course.price,
+              currency: course.currency,
+              content_name: course.title,
+              content_type: format,
+              transaction_id: transactionRef,
+            });
+            console.log('[Facebook Pixel] Purchase event tracked successfully:', transactionRef);
+          } catch (err) {
+            console.error('Failed to trigger Facebook Pixel Purchase event:', err);
+          }
+        } else {
+          console.warn('[Facebook Pixel] window.fbq is not defined on window object');
+        }
       }
     }
-  };
+  }, [isPaid, transactionRef, course, format]);
 
   // ── Verify Payment with Worker ────────────────────────────────────────────
   const verifyCoursePayment = async (txRef: string) => {
@@ -89,8 +92,6 @@ const CourseDetailPage: React.FC = () => {
           customerName: name,
           customerEmail: email,
           customerPhone: phone,
-          preferredDate,
-          preferredTime,
           amount: course.price,
         }),
       });
@@ -104,16 +105,12 @@ const CourseDetailPage: React.FC = () => {
       setDownloadToken(data.downloadToken || 'token-' + Date.now());
       setIsPaid(true);
 
-      // Trigger Facebook Ads Purchase tracking event
-      trackFacebookPurchase(txRef);
-
     } catch (err: any) {
       console.error('Course Payment Verification Error:', err);
       // Fallback for demonstration if worker endpoint is being deployed
       setTransactionRef(txRef);
       setDownloadToken('token-' + Date.now());
       setIsPaid(true);
-      trackFacebookPurchase(txRef);
     } finally {
       setIsLoading(false);
     }
@@ -125,11 +122,6 @@ const CourseDetailPage: React.FC = () => {
 
     if (!name || !email) {
       setError('Please provide your full name and email address.');
-      return;
-    }
-
-    if (format === 'one-on-one' && (!preferredDate || !preferredTime)) {
-      setError('Please select your preferred date and time for the 1-on-1 mentorship session.');
       return;
     }
 
@@ -185,6 +177,8 @@ const CourseDetailPage: React.FC = () => {
   // VIEW: POST-PAYMENT THANK YOU / SUCCESS SCREEN
   // ───────────────────────────────────────────────────────────────────────────
   if (isPaid) {
+    const directPdfUrl = course.pdfDownloadUrl || `${(import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://lingering-glitter-7023.sampidiablog.workers.dev/').replace(/\/$/, '')}/api/download-course-pdf?token=${downloadToken}&courseId=${course.id}`;
+
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 py-16 px-4 sm:px-6">
         <SEO
@@ -207,8 +201,13 @@ const CourseDetailPage: React.FC = () => {
                 Congratulations, {name}!
               </h1>
               <p className="text-slate-300 text-sm sm:text-base">
-                Your order reference is <code className="bg-slate-950 px-2 py-1 rounded text-red-400 font-mono">{transactionRef}</code>
+                Order Reference: <code className="bg-slate-950 px-2 py-1 rounded text-red-400 font-mono">{transactionRef}</code>
               </p>
+
+              {/* Facebook Pixel Debug Notice */}
+              <div className="mt-3 text-[11px] text-emerald-400 font-bold">
+                ✓ Facebook Pixel Purchase Event Tracked (Value: ₦{course.price.toLocaleString()} NGN)
+              </div>
             </div>
 
             {/* FORMAT A: PDF COURSE SUCCESS CONTENT */}
@@ -221,41 +220,34 @@ const CourseDetailPage: React.FC = () => {
                 <div>
                   <h3 className="text-xl font-bold text-white mb-2">{course.title} (PDF Blueprint)</h3>
                   <p className="text-slate-400 text-xs sm:text-sm max-w-lg mx-auto">
-                    We have sent a copy of the PDF masterclass to <strong className="text-white">{email}</strong> via Resend email API.
+                    A confirmation copy of the PDF masterclass has been emailed to <strong className="text-white">{email}</strong>.
                   </p>
                 </div>
 
-                <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-center">
+                <div className="pt-4 flex justify-center">
                   <a
-                    href={`${(import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://lingering-glitter-7023.sampidiablog.workers.dev/').replace(/\/$/, '')}/api/download-course-pdf?token=${downloadToken}&courseId=${course.id}`}
+                    href={directPdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     download={course.pdfFileName}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm px-8 py-4 rounded-2xl transition-all shadow-xl shadow-emerald-950/40 flex items-center justify-center gap-2"
                   >
                     <span>📥</span> Instant Download PDF
-                  </a>
-
-                  <a
-                    href={course.selarUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs px-6 py-4 rounded-2xl transition-all flex items-center justify-center gap-2"
-                  >
-                    <span>🔗</span> Open Selar Library Link
                   </a>
                 </div>
               </div>
             ) : (
               /* FORMAT B: 1-ON-1 MENTORSHIP CALENDLY EMBED */
               <div className="space-y-8">
-                <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-6 text-center">
+                <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-6 text-center space-y-2">
                   <span className="bg-purple-500/20 text-purple-300 text-xs font-black uppercase px-3 py-1 rounded-full border border-purple-500/30">
                     Mentorship Booking Confirmed
                   </span>
-                  <h3 className="text-xl font-bold text-white mt-3 mb-1">
-                    Your 1-on-1 Session with Afigo Sam
+                  <h3 className="text-xl font-bold text-white mt-2">
+                    Schedule Your 1-on-1 Session with Afigo Sam
                   </h3>
-                  <p className="text-slate-400 text-xs sm:text-sm">
-                    Preferred Window: <strong className="text-white">{preferredDate} at {preferredTime}</strong>
+                  <p className="text-purple-300 text-xs sm:text-sm font-semibold">
+                    👇 Please select your preferred date and time slot on the calendar widget below:
                   </p>
                 </div>
 
@@ -295,10 +287,10 @@ const CourseDetailPage: React.FC = () => {
         keywords={`${course.title}, pdf course, 1-on-1 mentorship, afigo sam masterclass`}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
         
         {/* Navigation back */}
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between">
           <Link to="/courses" className="text-slate-400 hover:text-white transition-colors text-xs font-extrabold flex items-center gap-1.5">
             <span>←</span> Back to All Courses
           </Link>
@@ -312,91 +304,92 @@ const CourseDetailPage: React.FC = () => {
           </a>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        {/* 1. Header Title & Subtitle FIRST */}
+        <div className="mb-8">
+          <div className="flex gap-2 mb-3 flex-wrap">
+            <span className="bg-red-600 text-white font-black text-xs px-3.5 py-1 rounded-full uppercase tracking-wider shadow-md">
+              {course.badge}
+            </span>
+            <span className="bg-slate-900 border border-slate-800 text-slate-300 text-xs font-bold px-3.5 py-1 rounded-full">
+              {course.level}
+            </span>
+          </div>
+
+          <h1 className="text-3xl sm:text-5xl font-black text-white mb-3 leading-tight">
+            {course.title}
+          </h1>
+
+          <p className="text-red-400 font-bold text-xs sm:text-sm uppercase tracking-wide mb-4">
+            {course.subtitle}
+          </p>
+
+          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400 font-bold">
+            <span>⏱️ {course.duration}</span>
+            <span>•</span>
+            <span>🌐 100% Practical</span>
+            <span>•</span>
+            <span className="text-emerald-400">✅ Lifetime Updates</span>
+          </div>
+        </div>
+
+        {/* 2. Format Switcher Card SECOND */}
+        <div className="bg-slate-900/80 border border-slate-800 p-5 sm:p-6 rounded-3xl backdrop-blur-md mb-8">
+          <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
+            Select Course Learning Format:
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <button
+              type="button"
+              onClick={() => setFormat('pdf')}
+              className={`p-4 sm:p-5 rounded-2xl text-left border transition-all flex flex-col justify-between cursor-pointer ${
+                format === 'pdf'
+                  ? 'bg-red-950/40 border-red-500 text-white ring-1 ring-red-500/50 shadow-xl'
+                  : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xl">📘</span>
+                <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${format === 'pdf' ? 'bg-red-500 text-white' : 'bg-slate-800 text-slate-400'}`}>
+                  Selected
+                </span>
+              </div>
+              <div>
+                <h4 className="font-extrabold text-sm text-white mb-1">PDF Digital Masterclass</h4>
+                <p className="text-xs text-slate-400">Instant PDF download + Resend automated email delivery.</p>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setFormat('one-on-one')}
+              className={`p-4 sm:p-5 rounded-2xl text-left border transition-all flex flex-col justify-between cursor-pointer ${
+                format === 'one-on-one'
+                  ? 'bg-purple-950/40 border-purple-500 text-white ring-1 ring-purple-500/50 shadow-xl'
+                  : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xl">🤝</span>
+                <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${format === 'one-on-one' ? 'bg-purple-500 text-white' : 'bg-slate-800 text-slate-400'}`}>
+                  Selected
+                </span>
+              </div>
+              <div>
+                <h4 className="font-extrabold text-sm text-white mb-1">1-on-1 Live Mentorship</h4>
+                <p className="text-xs text-slate-400">Direct live video coaching session + Calendly booking.</p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* MAIN GRID: Image, Description, and Checkout Form */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           
-          {/* LEFT COLUMN: COURSE CONTENT & CURRICULUM */}
+          {/* LEFT COLUMN: Cover Image, Features, and Curriculum */}
           <div className="lg:col-span-7 space-y-10">
             
-            {/* Header */}
-            <div>
-              <div className="flex gap-2 mb-4">
-                <span className="bg-red-600 text-white font-black text-xs px-3.5 py-1 rounded-full uppercase tracking-wider shadow-md">
-                  {course.badge}
-                </span>
-                <span className="bg-slate-900 border border-slate-800 text-slate-300 text-xs font-bold px-3.5 py-1 rounded-full">
-                  {course.level}
-                </span>
-              </div>
-
-              <h1 className="text-3xl sm:text-5xl font-black text-white mb-4 leading-tight">
-                {course.title}
-              </h1>
-
-              <p className="text-slate-300 text-base sm:text-lg leading-relaxed mb-6">
-                {course.description}
-              </p>
-
-              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400 font-bold">
-                <span>⏱️ {course.duration}</span>
-                <span>•</span>
-                <span>🌐 100% Practical</span>
-                <span>•</span>
-                <span className="text-emerald-400">✅ Lifetime Updates</span>
-              </div>
-            </div>
-
-            {/* Format Toggle Switcher */}
-            <div className="bg-slate-900/80 border border-slate-800 p-6 rounded-3xl backdrop-blur-md">
-              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
-                Select Course Learning Format:
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => setFormat('pdf')}
-                  className={`p-5 rounded-2xl text-left border transition-all flex flex-col justify-between ${
-                    format === 'pdf'
-                      ? 'bg-red-950/40 border-red-500 text-white ring-1 ring-red-500/50 shadow-xl'
-                      : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xl">📘</span>
-                    <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${format === 'pdf' ? 'bg-red-500 text-white' : 'bg-slate-800 text-slate-400'}`}>
-                      Selected
-                    </span>
-                  </div>
-                  <div>
-                    <h4 className="font-extrabold text-sm text-white mb-1">PDF Digital Masterclass</h4>
-                    <p className="text-xs text-slate-400">Instant PDF download + Resend automated email delivery.</p>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setFormat('one-on-one')}
-                  className={`p-5 rounded-2xl text-left border transition-all flex flex-col justify-between ${
-                    format === 'one-on-one'
-                      ? 'bg-purple-950/40 border-purple-500 text-white ring-1 ring-purple-500/50 shadow-xl'
-                      : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xl">🤝</span>
-                    <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${format === 'one-on-one' ? 'bg-purple-500 text-white' : 'bg-slate-800 text-slate-400'}`}>
-                      Selected
-                    </span>
-                  </div>
-                  <div>
-                    <h4 className="font-extrabold text-sm text-white mb-1">1-on-1 Live Mentorship</h4>
-                    <p className="text-xs text-slate-400">Direct live video coaching session + Calendly booking.</p>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            {/* Dynamic Cover Preview */}
+            {/* 3. Cover Image THIRD (After Title & Format Switcher) */}
             <div className="rounded-3xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl aspect-[16/9] relative group">
               <img
                 src={currentCover}
@@ -404,16 +397,24 @@ const CourseDetailPage: React.FC = () => {
                 className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
-              <div className="absolute bottom-6 left-6 right-6">
+              <div className="absolute bottom-4 left-4 right-4">
                 <span className="bg-slate-900/90 text-red-400 border border-slate-700 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
                   {format === 'one-on-one' ? '1-on-1 Mentorship Version' : 'PDF Blueprint Version'}
                 </span>
               </div>
             </div>
 
+            {/* Description */}
+            <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 sm:p-8">
+              <h3 className="text-xl font-black text-white mb-3">About This Masterclass</h3>
+              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+                {course.description}
+              </p>
+            </div>
+
             {/* Detailed Features */}
             {course.detailedFeatures && (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <h3 className="text-xl font-black text-white">What You Will Master</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {course.detailedFeatures.map((feat, idx) => (
@@ -428,7 +429,7 @@ const CourseDetailPage: React.FC = () => {
             )}
 
             {/* Curriculum Modules */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               <h3 className="text-xl font-black text-white">Course Curriculum Outline</h3>
               <div className="space-y-4">
                 {course.curriculum.map((mod, idx) => (
@@ -452,8 +453,8 @@ const CourseDetailPage: React.FC = () => {
 
           </div>
 
-          {/* RIGHT COLUMN: CHECKOUT FORM & PAYMENT */}
-          <div className="lg:col-span-5 sticky top-24">
+          {/* RIGHT COLUMN: CHECKOUT FORM & TOTAL COURSE FEE CARD */}
+          <div className="lg:col-span-5 lg:sticky lg:top-24">
             <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl">
               
               <div className="border-b border-slate-800 pb-6 mb-6">
@@ -463,7 +464,7 @@ const CourseDetailPage: React.FC = () => {
                   <span className="text-slate-400 font-bold text-sm">NGN</span>
                 </div>
                 <p className="text-xs text-emerald-400 font-bold mt-1">
-                  ✓ Includes instant full access ({format === 'one-on-one' ? '1-on-1 Mentorship' : 'PDF Blueprint'})
+                  ✓ Includes instant access ({format === 'one-on-one' ? '1-on-1 Mentorship' : 'PDF Blueprint'})
                 </p>
               </div>
 
@@ -519,44 +520,21 @@ const CourseDetailPage: React.FC = () => {
                   />
                 </div>
 
-                {/* 1-on-1 Date & Time Selectors */}
+                {/* 1-on-1 Reminder Banner instead of time/date input */}
                 {format === 'one-on-one' && (
-                  <div className="bg-purple-950/20 border border-purple-900/40 p-4 rounded-2xl space-y-4">
-                    <span className="text-xs font-black text-purple-300 uppercase tracking-wider block">
-                      📅 Mentorship Time Preference
+                  <div className="bg-purple-950/30 border border-purple-800/50 p-4 rounded-2xl text-xs text-purple-200 space-y-1">
+                    <span className="font-bold flex items-center gap-1 text-purple-300">
+                      <span>📅</span> Live Session Scheduling
                     </span>
-
-                    <div>
-                      <label htmlFor="pref-date" className="block text-xs text-slate-300 font-bold mb-1">Target Date</label>
-                      <input
-                        id="pref-date"
-                        type="date"
-                        required
-                        value={preferredDate}
-                        onChange={(e) => setPreferredDate(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="pref-time" className="block text-xs text-slate-300 font-bold mb-1">Preferred Time Window</label>
-                      <select
-                        id="pref-time"
-                        value={preferredTime}
-                        onChange={(e) => setPreferredTime(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
-                      >
-                        <option value="10:00 AM">Morning (10:00 AM WAT)</option>
-                        <option value="02:00 PM">Afternoon (02:00 PM WAT)</option>
-                        <option value="06:00 PM">Evening (06:00 PM WAT)</option>
-                      </select>
-                    </div>
+                    <p className="leading-relaxed text-slate-300">
+                      Once your payment is verified, you will pick your exact session date and time directly on our embedded Calendly calendar!
+                    </p>
                   </div>
                 )}
 
                 <button
                   type="submit"
-                  disabled={isLoading || (!import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY && false)}
+                  disabled={isLoading}
                   className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-black text-base py-4 rounded-2xl transition-all shadow-xl shadow-red-950/50 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isLoading ? (

@@ -103,6 +103,7 @@ export interface Course {
   detailedFeatures?: { title: string; desc: string; icon: string; }[];
   curriculum: CourseCurriculumModule[];
   pdfFileName: string; // e.g. 'Vibe-Coding-Masterclass.pdf'
+  pdfDownloadUrl?: string; // Direct Supabase or CDN PDF download URL
   calendlyUrl: string; // e.g. 'https://calendly.com/oghenekaroafigo/meeting'
   perfectFor: { title: string; desc: string; metric: string; }[];
 }

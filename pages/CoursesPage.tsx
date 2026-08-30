@@ -28,7 +28,7 @@ const CoursesPage: React.FC = () => {
           background: 'linear-gradient(135deg, #09080e 0%, #1c102e 50%, #0d0816 100%)',
           position: 'relative',
           overflow: 'hidden',
-          padding: '60px 24px 64px',
+          padding: '48px 20px 56px',
         }}
         className="border-b border-slate-800/80"
       >
@@ -58,7 +58,7 @@ const CoursesPage: React.FC = () => {
         />
 
         <div className="max-w-4xl mx-auto relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-full px-4 py-1.5 mb-5 shadow-lg shadow-red-950/20">
+          <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-full px-4 py-1.5 mb-4 shadow-lg shadow-red-950/20">
             <span className="text-base">🎓</span>
             <span className="text-red-300 text-xs font-black uppercase tracking-widest">
               Afigo-Sam Premium Masterclasses
@@ -66,7 +66,7 @@ const CoursesPage: React.FC = () => {
           </div>
 
           <h1
-            className="text-3xl sm:text-5xl font-black mb-4 tracking-tight leading-tight"
+            className="text-3xl sm:text-5xl font-black mb-3 tracking-tight leading-tight"
             style={{
               background: 'linear-gradient(135deg, #ffffff 30%, #fecaca 70%, #ddd6fe 100%)',
               WebkitBackgroundClip: 'text',
@@ -77,14 +77,14 @@ const CoursesPage: React.FC = () => {
             Level Up Your AI & Mobile Engineering
           </h1>
 
-          <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto mb-6 leading-relaxed">
+          <p className="text-slate-300 text-xs sm:text-base max-w-2xl mx-auto mb-4 leading-relaxed">
             Choose your learning format: <span className="text-red-400 font-bold">Instant PDF Blueprint</span> or <span className="text-purple-400 font-bold">1-on-1 Live Coaching</span>. Standard fee is ₦30,000 NGN with instant fulfillment.
           </p>
         </div>
       </section>
 
       {/* Course Catalog Grid */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
           {COURSES.map((course) => {
@@ -97,6 +97,22 @@ const CoursesPage: React.FC = () => {
                 className="bg-slate-900/70 border border-slate-800 hover:border-red-500/40 rounded-3xl overflow-hidden transition-all duration-300 shadow-2xl flex flex-col justify-between backdrop-blur-md group"
               >
                 <div>
+                  {/* Clean Top Info Bar (Prevents Mobile Collision) */}
+                  <div className="p-4 bg-slate-950 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="bg-red-600 text-white font-black text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-md">
+                        {course.badge}
+                      </span>
+                      <span className="bg-slate-900 text-slate-300 border border-slate-800 text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full">
+                        {course.level}
+                      </span>
+                    </div>
+
+                    <div className="bg-red-950/60 border border-red-800/60 text-red-400 font-black text-xs sm:text-sm px-3 py-0.5 rounded-full">
+                      ₦{course.price.toLocaleString()} NGN
+                    </div>
+                  </div>
+
                   {/* Image Showcase Container */}
                   <div className="relative aspect-[16/9] overflow-hidden bg-slate-950 border-b border-slate-800">
                     <img
@@ -105,29 +121,13 @@ const CoursesPage: React.FC = () => {
                       className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
                     />
 
-                    {/* Format Selector Overlay */}
-                    <div className="absolute top-3 left-3 right-3 flex justify-between items-center gap-2">
-                      <div className="flex gap-1.5">
-                        <span className="bg-red-600 text-white font-black text-[11px] px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
-                          {course.badge}
-                        </span>
-                        <span className="bg-slate-950/80 backdrop-blur-md text-slate-300 border border-slate-700/80 text-[11px] font-bold px-2.5 py-1 rounded-full">
-                          {course.level}
-                        </span>
-                      </div>
-
-                      <div className="bg-slate-950/90 border border-slate-700/80 rounded-2xl px-3.5 py-1 text-red-400 font-black text-sm backdrop-blur-md shadow-lg">
-                        ₦{course.price.toLocaleString()} NGN
-                      </div>
-                    </div>
-
-                    {/* Quick Format Switcher Pill Overlay */}
-                    <div className="absolute bottom-3 left-3 right-3 flex justify-center">
-                      <div className="bg-slate-950/90 border border-slate-800 p-1 rounded-xl flex gap-1 backdrop-blur-md shadow-xl">
+                    {/* Quick Format Switcher Pill Overlay at Bottom of Image */}
+                    <div className="absolute bottom-2.5 left-2 right-2 flex justify-center">
+                      <div className="bg-slate-950/90 border border-slate-800 p-1 rounded-xl flex gap-1 backdrop-blur-md shadow-xl max-w-full overflow-x-auto">
                         <button
                           type="button"
                           onClick={() => toggleCourseFormat(course.id, 'pdf')}
-                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                          className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1 shrink-0 ${
                             currentFormat === 'pdf'
                               ? 'bg-red-600 text-white shadow-md'
                               : 'text-slate-400 hover:text-white'
@@ -138,7 +138,7 @@ const CoursesPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => toggleCourseFormat(course.id, 'one-on-one')}
-                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                          className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1 shrink-0 ${
                             currentFormat === 'one-on-one'
                               ? 'bg-purple-600 text-white shadow-md'
                               : 'text-slate-400 hover:text-white'
@@ -151,8 +151,8 @@ const CoursesPage: React.FC = () => {
                   </div>
 
                   {/* Card Main Header & Instant Action Buttons (ABOVE THE FOLD) */}
-                  <div className="p-6 sm:p-7">
-                    <h2 className="text-xl sm:text-2xl font-black text-white mb-2 leading-tight group-hover:text-red-400 transition-colors">
+                  <div className="p-5 sm:p-7">
+                    <h2 className="text-lg sm:text-2xl font-black text-white mb-1.5 leading-tight group-hover:text-red-400 transition-colors">
                       {course.title}
                     </h2>
                     <p className="text-red-400/90 text-xs font-extrabold uppercase tracking-wide mb-4">
@@ -160,10 +160,10 @@ const CoursesPage: React.FC = () => {
                     </p>
 
                     {/* IMMEDIATE CTAs ABOVE CURRICULUM */}
-                    <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                    <div className="flex flex-col sm:flex-row gap-2.5 mb-5">
                       <Link
                         to={`/course/${course.id}`}
-                        className="flex-1 text-center bg-red-600 hover:bg-red-700 text-white font-black text-sm px-5 py-3.5 rounded-2xl transition-all shadow-lg shadow-red-950/50 flex items-center justify-center gap-2"
+                        className="flex-1 text-center bg-red-600 hover:bg-red-700 text-white font-black text-xs sm:text-sm px-4 py-3 rounded-2xl transition-all shadow-lg shadow-red-950/50 flex items-center justify-center gap-1.5"
                       >
                         <span>🎯</span> Enroll Now — ₦{course.price.toLocaleString()}
                       </Link>
@@ -172,14 +172,14 @@ const CoursesPage: React.FC = () => {
                         href={course.selarUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="sm:w-auto text-center bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs px-4 py-3.5 rounded-2xl transition-all flex items-center justify-center gap-1.5"
+                        className="sm:w-auto text-center bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs px-4 py-3 rounded-2xl transition-all flex items-center justify-center gap-1.5"
                         title="Buy directly via Selar"
                       >
                         <span>🛒</span> Buy on Selar
                       </a>
                     </div>
 
-                    <p className="text-slate-300 text-xs sm:text-sm leading-relaxed mb-5">
+                    <p className="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4">
                       {course.description}
                     </p>
 
@@ -199,15 +199,15 @@ const CoursesPage: React.FC = () => {
                 </div>
 
                 {/* Footer Action */}
-                <div className="px-6 sm:px-7 pb-6 pt-0 border-t border-slate-800/50 flex items-center justify-between text-xs text-slate-400">
-                  <span className="font-semibold text-emerald-400 flex items-center gap-1">
+                <div className="px-5 sm:px-7 pb-5 pt-0 border-t border-slate-800/50 flex items-center justify-between text-xs text-slate-400">
+                  <span className="font-semibold text-emerald-400 flex items-center gap-1 text-[11px]">
                     <span>⚡</span> Instant Delivery Guaranteed
                   </span>
                   <Link
                     to={`/course/${course.id}`}
-                    className="text-red-400 hover:text-red-300 font-bold flex items-center gap-1 transition-colors"
+                    className="text-red-400 hover:text-red-300 font-bold flex items-center gap-1 transition-colors text-[11px]"
                   >
-                    Full Details & Curriculum →
+                    Full Details →
                   </Link>
                 </div>
 
@@ -217,7 +217,7 @@ const CoursesPage: React.FC = () => {
         </div>
 
         {/* Value Props Strip */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-5 text-center">
             <span className="text-2xl mb-2 block">📩</span>
             <h3 className="text-white font-bold text-sm mb-1">Instant Resend Email Fulfillment</h3>
