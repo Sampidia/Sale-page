@@ -82,6 +82,7 @@ const CoursesPage: React.FC = () => {
         description="Master Vibe Coding with Android Studio & AI, and Zero to n8n Free Hosting. Available as instant PDF E-Books and 1-on-1 Live Coaching Sessions for ₦30,000 NGN."
         keywords="vibe coding course, android studio ai masterclass, zero to n8n free hosting, n8n self hosting course, afigo sam courses"
         ogType="website"
+        ogImage="/assets/og-preview.png"
         jsonLd={[itemListSchema, catalogFaqSchema]}
       />
 

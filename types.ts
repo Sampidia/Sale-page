@@ -96,6 +96,7 @@ export interface Course {
   selarUrl: string;
   pdfCoverUrl: string;
   oneOnOneCoverUrl: string;
+  ogImage?: string;
   badge?: string;
   level: string; // e.g. 'Beginner to Advanced'
   duration: string;

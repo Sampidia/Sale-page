@@ -19,7 +19,7 @@ const SEO: React.FC<SEOProps> = ({
   description,
   keywords,
   ogType = 'website',
-  ogImage,
+  ogImage = '/assets/og-preview.png',
   ogUrl,
   canonicalUrl,
   geoRegion = 'NG-LA',

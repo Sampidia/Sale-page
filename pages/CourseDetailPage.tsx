@@ -423,11 +423,6 @@ const CourseDetailPage: React.FC = () => {
               <p className="text-slate-300 text-sm sm:text-base">
                 Order Reference: <code className="bg-slate-950 px-2 py-1 rounded text-red-400 font-mono">{transactionRef}</code>
               </p>
-
-              {/* Facebook Pixel Debug Notice */}
-              <div className="mt-3 text-[11px] text-emerald-400 font-bold">
-                ✓ Facebook Pixel Purchase Event Tracked (Value: $20 USD)
-              </div>
             </div>
 
             {/* FORMAT A: PDF COURSE SUCCESS CONTENT */}
@@ -506,7 +501,7 @@ const CourseDetailPage: React.FC = () => {
         description={course.description}
         keywords={`${course.title}, pdf course, 1-on-1 mentorship, vibe coding, n8n free hosting, afigo sam masterclass`}
         ogType="product"
-        ogImage={currentCover}
+        ogImage={course.ogImage || currentCover}
         jsonLd={[courseSchema, faqSchema]}
       />
 

@@ -120,103 +120,105 @@ const LandingPage: React.FC = () => {
         title="Oghenekaro Samson Afigo | Full-Stack Developer, AI Automation Engineer & Industrial Chemist"
         description="Official portfolio of Oghenekaro Samson Afigo (Afigo Sam) - Full-Stack Web & Mobile Developer, published n8n workflow creator, AI automation engineer, and M.Sc. Industrial Chemist."
         keywords="Oghenekaro Samson Afigo, Afigo Sam, SamPidia, AI automation engineer, n8n creator, WordPress developer, React Native developer, Solana Rust developer, Industrial Chemist"
-        ogImage="/assets/ai-generator-logo.webp"
+        ogImage="/assets/og-preview.png"
         jsonLd={[personSchema, websiteSchema, professionalServiceSchema, landingFaqSchema]}
       />
 
       {/* HERO SECTION */}
-      <section className="relative min-h-[90vh] flex items-center pt-16 pb-20 overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white">
-        {/* Background Decorative Grid & Glows */}
-        <div className="absolute inset-0 bg-[radial-gradient(#ef444415_1px,transparent_1px)] [background-size:24px_24px] opacity-60"></div>
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-600/15 rounded-full blur-[140px] pointer-events-none"></div>
+      <section className="relative min-h-[90vh] flex items-center pt-20 pb-24 overflow-hidden bg-slate-950 text-white">
+        {/* Ambient Decorative Lighting */}
+        <div className="absolute inset-0 bg-[radial-gradient(#ef444410_1px,transparent_1px)] [background-size:32px_32px] opacity-40"></div>
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-red-600/10 rounded-full blur-[160px] pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             
-            {/* Left Column Text */}
+            {/* Left Column — Clean Luxury Typography */}
             <div className="lg:col-span-7 flex flex-col items-start">
               
-              {/* Status Badge */}
-              <div className="inline-flex items-center space-x-2 bg-slate-800/80 border border-slate-700/80 px-4 py-2 rounded-full mb-6 backdrop-blur-md">
+              {/* Live Status Badge */}
+              <div className="inline-flex items-center space-x-2.5 bg-slate-900/90 border border-slate-800/90 px-4 py-2 rounded-full mb-8 backdrop-blur-xl shadow-lg">
                 <span className="relative flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
                 <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                  Available for Projects & AI Consulting
+                  Available for Select Projects & AI Consulting
                 </span>
               </div>
 
-              {/* Name & Title */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-4">
-                Oghenekaro <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-400 to-rose-300">Samson Afigo</span>
+              {/* High-Impact Name */}
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.08] mb-6">
+                Oghenekaro Samson Afigo
               </h1>
               
-              <div className="text-lg sm:text-xl font-medium text-red-400 mb-6 flex flex-wrap gap-2 items-center">
-                <span>Full-Stack Web & Mobile Developer</span>
-                <span className="text-slate-600">•</span>
-                <span>AI Automation Engineer</span>
-                <span className="text-slate-600">•</span>
-                <span className="text-slate-300">Industrial Chemist (M.Sc.)</span>
+              {/* Role Subtitle Strip */}
+              <div className="text-base sm:text-lg font-semibold text-slate-300 mb-6 flex flex-wrap items-center gap-x-3 gap-y-2">
+                <span className="text-white">Full-Stack Web & Mobile Developer</span>
+                <span className="text-red-500 font-bold">•</span>
+                <span className="text-white">AI Automation Engineer</span>
+                <span className="text-red-500 font-bold">•</span>
+                <span className="text-slate-400 font-normal">Industrial Chemist (M.Sc.)</span>
               </div>
 
-              {/* Bio Summary */}
-              <p className="text-base sm:text-lg text-slate-300 mb-8 leading-relaxed max-w-2xl font-normal">
-                Founder of <strong className="text-white">Afigo-Sam Technology</strong> & co-founder of <strong className="text-white">SamPidia</strong>. Published <strong className="text-red-400">n8n workflow creator</strong> with 8+ years of engineering experience delivering hotel booking engines, e-commerce stores, custom WordPress plugins, React Native apps, and Solana dApps.
+              {/* Bio Paragraph */}
+              <p className="text-base sm:text-lg text-slate-300/90 mb-10 leading-relaxed max-w-2xl font-normal">
+                Founder of <strong className="text-white font-semibold">Afigo-Sam Technology</strong> & co-founder of <strong className="text-white font-semibold">SamPidia</strong>. Published n8n workflow creator with 8+ years of engineering experience delivering hotel booking engines, e-commerce stores, custom WordPress plugins, React Native apps, and Solana dApps.
               </p>
 
-              {/* CTAs */}
+              {/* CTA Buttons */}
               <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto mb-10">
                 <button
                   onClick={() => scrollToSection('projects')}
-                  className="w-full sm:w-auto px-7 py-3.5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-600/30 hover:shadow-red-600/50 flex items-center justify-center space-x-2 text-base"
+                  className="w-full sm:w-auto px-8 py-4 bg-red-600 hover:bg-red-500 text-white font-black text-sm tracking-wide rounded-2xl transition-all shadow-[0_0_30px_rgba(239,68,68,0.35)] hover:shadow-[0_0_40px_rgba(239,68,68,0.5)] transform hover:-translate-y-0.5 flex items-center justify-center space-x-2 cursor-pointer"
                 >
                   <span>Explore Client Work</span>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
 
                 <a
                   href={CV_DOWNLOAD_URL}
                   download="Oghenekaro_Samson_Afigo_CV.pdf"
-                  className="w-full sm:w-auto px-7 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold rounded-xl border border-slate-700 transition-all flex items-center justify-center space-x-2 text-base"
+                  className="w-full sm:w-auto px-8 py-4 bg-slate-900/90 hover:bg-slate-800 text-slate-200 font-bold text-sm rounded-2xl border border-slate-800 hover:border-slate-700 transition-all flex items-center justify-center space-x-2"
                 >
-                  <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
                   <span>Download CV</span>
                 </a>
               </div>
 
-              {/* Social / Profile Badges */}
-              <div className="flex items-center gap-4 pt-4 border-t border-slate-800/80 w-full">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Profiles:</span>
-                <div className="flex flex-wrap items-center gap-3">
-                  <a href={FIVERR_URL} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-slate-800/80 hover:bg-emerald-950/60 hover:border-emerald-500/50 text-emerald-400 text-xs font-bold rounded-lg border border-slate-700 transition-colors">
-                    Fiverr Pro Seller
-                  </a>
-                  <a href={UPWORK_URL} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-slate-800/80 hover:bg-emerald-950/60 hover:border-emerald-500/50 text-emerald-300 text-xs font-bold rounded-lg border border-slate-700 transition-colors">
-                    Upwork
-                  </a>
-                  <a href={N8N_CREATOR_URL} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-slate-800/80 hover:bg-rose-950/60 hover:border-rose-500/50 text-rose-400 text-xs font-bold rounded-lg border border-slate-700 transition-colors">
-                    n8n Creator Profile
-                  </a>
-                </div>
+              {/* Unified Profile Badges */}
+              <div className="flex flex-wrap items-center gap-3 pt-6 border-t border-slate-900 w-full">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 mr-2">Verified Profiles:</span>
+                <a href={FIVERR_URL} target="_blank" rel="noopener noreferrer" className="px-3.5 py-1.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800/80 hover:border-red-500/50 text-slate-300 hover:text-white text-xs font-semibold rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  Fiverr Pro Seller
+                </a>
+                <a href={UPWORK_URL} target="_blank" rel="noopener noreferrer" className="px-3.5 py-1.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800/80 hover:border-red-500/50 text-slate-300 hover:text-white text-xs font-semibold rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  Upwork Top-Rated
+                </a>
+                <a href={N8N_CREATOR_URL} target="_blank" rel="noopener noreferrer" className="px-3.5 py-1.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800/80 hover:border-red-500/50 text-slate-300 hover:text-white text-xs font-semibold rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                  n8n Creator Profile
+                </a>
               </div>
 
             </div>
 
-            {/* Right Column Visual Card */}
+            {/* Right Column Bento Card */}
             <div className="lg:col-span-5 relative">
               <div className="relative mx-auto max-w-md lg:max-w-none">
-                <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-rose-600 rounded-3xl blur opacity-30"></div>
+                <div className="absolute -inset-0.5 bg-gradient-to-b from-red-600/30 to-slate-800/20 rounded-3xl blur-md opacity-50"></div>
                 
-                <div className="relative bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
-                  {/* Header Badge */}
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div className="relative backdrop-blur-xl bg-slate-900/70 border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+                  {/* Header Studio Info */}
+                  <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-xl bg-red-950 border border-red-800/50 flex items-center justify-center text-red-500 font-black text-xl">
+                      <div className="w-10 h-10 rounded-xl bg-red-950/80 border border-red-800/50 flex items-center justify-center text-red-500 font-black text-xl shadow-inner">
                         A
                       </div>
                       <div>
@@ -224,40 +226,40 @@ const LandingPage: React.FC = () => {
                         <p className="text-xs text-slate-400">Established 2015</p>
                       </div>
                     </div>
-                    <span className="px-2.5 py-1 bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold rounded-full">
+                    <span className="px-3 py-1 bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold rounded-full">
                       M.Sc. Rigor
                     </span>
                   </div>
 
                   {/* Highlights Grid */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-800/50 border border-slate-800 p-4 rounded-2xl">
-                      <div className="text-2xl font-black text-white mb-1">8+</div>
-                      <div className="text-xs text-slate-400 font-medium">Years Active Experience</div>
+                  <div className="grid grid-cols-2 gap-3.5">
+                    <div className="bg-slate-950/50 border border-slate-800/70 p-4 rounded-2xl">
+                      <div className="text-2xl font-black text-white mb-0.5">8+</div>
+                      <div className="text-[11px] text-slate-400 font-medium">Years Active Experience</div>
                     </div>
-                    <div className="bg-slate-800/50 border border-slate-800 p-4 rounded-2xl">
-                      <div className="text-2xl font-black text-red-400 mb-1">15+</div>
-                      <div className="text-xs text-slate-400 font-medium">Global Client Websites</div>
+                    <div className="bg-slate-950/50 border border-slate-800/70 p-4 rounded-2xl">
+                      <div className="text-2xl font-black text-white mb-0.5">15+</div>
+                      <div className="text-[11px] text-slate-400 font-medium">Global Client Websites</div>
                     </div>
-                    <div className="bg-slate-800/50 border border-slate-800 p-4 rounded-2xl">
-                      <div className="text-2xl font-black text-emerald-400 mb-1">5+</div>
-                      <div className="text-xs text-slate-400 font-medium">Published n8n Workflows</div>
+                    <div className="bg-slate-950/50 border border-slate-800/70 p-4 rounded-2xl">
+                      <div className="text-2xl font-black text-white mb-0.5">5+</div>
+                      <div className="text-[11px] text-slate-400 font-medium">Published n8n Workflows</div>
                     </div>
-                    <div className="bg-slate-800/50 border border-slate-800 p-4 rounded-2xl">
-                      <div className="text-2xl font-black text-amber-400 mb-1">6+</div>
-                      <div className="text-xs text-slate-400 font-medium">In-House Apps & Plugins</div>
+                    <div className="bg-slate-950/50 border border-slate-800/70 p-4 rounded-2xl">
+                      <div className="text-2xl font-black text-white mb-0.5">6+</div>
+                      <div className="text-[11px] text-slate-400 font-medium">In-House Apps & Plugins</div>
                     </div>
                   </div>
 
-                  {/* Scientific & Engineering Quote */}
-                  <div className="bg-gradient-to-r from-red-950/40 to-slate-800/40 border border-red-900/30 rounded-2xl p-4 text-xs text-slate-300 italic leading-relaxed">
-                    "Combining a scientist's analytical rigor (M.Sc. Industrial Chemistry, nanomaterials research) with hands-on software engineering across WordPress, React Native, Framer, and Rust on Solana."
+                  {/* Quote */}
+                  <div className="bg-slate-950/60 border border-slate-800/60 rounded-2xl p-4 text-xs text-slate-300 italic leading-relaxed">
+                    "Combining a scientist's analytical rigor (M.Sc. Industrial Chemistry) with hands-on software engineering across WordPress, React Native, and Rust on Solana."
                   </div>
 
-                  {/* Contact Direct */}
-                  <div className="pt-2 flex items-center justify-between text-xs text-slate-400">
+                  {/* Contact Footer */}
+                  <div className="pt-1 flex items-center justify-between text-xs text-slate-400">
                     <span>📍 {LOCATION_MAIN}</span>
-                    <a href={`mailto:${EMAIL_MAIN}`} className="text-red-400 font-medium hover:underline">
+                    <a href={`mailto:${EMAIL_MAIN}`} className="text-red-400 font-semibold hover:underline">
                       {EMAIL_MAIN}
                     </a>
                   </div>

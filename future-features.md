@@ -56,3 +56,6 @@ Auto-generate a HTML receipt (order number, amount, date, course name) and send 
 ## 4. Course Access Dashboard (Post-Purchase Portal)
 
 A lightweight `/my-courses` page that lets buyers enter their email to retrieve their purchased course download links — backed by Cloudflare D1 (SQLite) storing `{ email, courseId, downloadToken, purchasedAt }`.
+
+## 5. Generate High-Res Social Preview image for products pages and implemenet it 
+
