@@ -3,11 +3,12 @@ export interface Env {
   ALLOWED_ORIGIN: string;
   TURNSTILE_SECRET_KEY: string;
   FLW_SECRET_KEY?: string;
+  FLW_WEBHOOK_HASH?: string;
   COURSE_PDFS?: any; // R2 Bucket binding
 }
 
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: any): Promise<Response> {
     const origin = request.headers.get('Origin') || '*';
     const allowedOrigin = (!env.ALLOWED_ORIGIN || env.ALLOWED_ORIGIN === '*') ? origin : env.ALLOWED_ORIGIN;
 
@@ -172,6 +173,157 @@ export default {
 
         return new Response(
           JSON.stringify({ success: true, verified: true, downloadToken, transactionId }),
+          { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+
+      } catch (err: any) {
+        return new Response(
+          JSON.stringify({ error: err.message || 'Internal Server Error' }),
+          { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 1.5: POST /api/flw-webhook (Flutterwave Webhook Verification)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'POST' && url.pathname.endsWith('/api/flw-webhook')) {
+      try {
+        // 1. Secret Hash Verification (verif-hash)
+        if (env.FLW_WEBHOOK_HASH) {
+          const signature = request.headers.get('verif-hash');
+          if (!signature || signature !== env.FLW_WEBHOOK_HASH) {
+            return new Response(
+              JSON.stringify({ error: 'Unauthorized: Invalid verif-hash signature' }),
+              { status: 401, headers: { ...headers, 'Content-Type': 'application/json' } }
+            );
+          }
+        }
+
+        const body = await request.json() as any;
+        const event = body?.event;
+        const data = body?.data || {};
+
+        // Only process successful charge events
+        if (event && event !== 'charge.completed' && data?.status !== 'successful') {
+          return new Response(
+            JSON.stringify({ message: 'Event ignored (not a successful charge)' }),
+            { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        if (data?.status !== 'successful') {
+          return new Response(
+            JSON.stringify({ message: 'Transaction status not successful' }),
+            { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const transactionId = String(data.id || data.tx_ref || 'FLW_WEBHOOK');
+        const customerName = data.customer?.name || 'Valued Student';
+        const customerEmail = data.customer?.email;
+        const meta = data.meta || {};
+        const courseId = meta.courseId || (String(data.tx_ref || '').includes('n8n') ? 'zero-to-n8n' : 'vibe-coding');
+        const format = meta.format || 'pdf';
+        const preferredDate = meta.preferredDate;
+        const preferredTime = meta.preferredTime;
+
+        if (!customerEmail) {
+          return new Response(
+            JSON.stringify({ error: 'Missing customer email in webhook payload' }),
+            { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const downloadToken = `token_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+        // Send Email Attachment / Download Link via Resend API
+        if (env.RESEND_API_KEY) {
+          const courseTitle = courseId === 'vibe-coding'
+            ? 'Vibe Coding: Building High-End Android Apps with Android Studio & Antigravity + AI'
+            : 'Zero to n8n — Free Hosting Mastered';
+
+          const workerOrigin = new URL(request.url).origin;
+          const r2DownloadLink = `${workerOrigin}/api/download-course-pdf?token=${downloadToken}&courseId=${courseId}`;
+
+          const emailSubject = format === 'one-on-one'
+            ? `🗓️ Mentorship Booking Confirmed: ${courseTitle}`
+            : `📘 Course Access & PDF Blueprint: ${courseTitle}`;
+
+          const emailHtml = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1e293b; line-height: 1.6;">
+              <h2 style="color: #dc2626; border-bottom: 2px solid #fee2e2; padding-bottom: 12px; margin-top: 0;">
+                🎉 Payment Confirmed via Webhook — ${courseTitle}
+              </h2>
+              <p>Hi <strong>${customerName}</strong>,</p>
+              <p>Thank you for enrolling in <strong>${courseTitle}</strong> (${format === 'one-on-one' ? '1-on-1 Mentorship' : 'PDF Blueprint'}). Your payment has been verified by our automated webhook handler.</p>
+              
+              ${format === 'one-on-one' ? `
+                <div style="background-color: #f3e8ff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                  <h3 style="color: #6b21a8; margin-top: 0;">🗓️ Book Your Live Session</h3>
+                  <p>Use the link below to pick your exact date and time slot on Calendly:</p>
+                  <div style="text-align: center; margin: 16px 0;">
+                    <a href="https://calendly.com/oghenekaroafigo/meeting"
+                       style="background:#7c3aed; color:#ffffff; padding:14px 28px; border-radius:10px;
+                              font-size:15px; font-weight:bold; text-decoration:none; display:inline-block;">
+                      📅 Pick Your Calendly Slot
+                    </a>
+                  </div>
+                </div>
+              ` : `
+                <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                  <h3 style="color: #166534; margin-top: 0;">📘 Download Your PDF Masterclass</h3>
+                  <p>Your course guide is ready. Click the button below to download it directly from our secure storage:</p>
+                  <div style="text-align: center; margin: 16px 0;">
+                    <a href="${r2DownloadLink}"
+                       style="background:#16a34a; color:#ffffff; padding:14px 28px; border-radius:10px;
+                              font-size:15px; font-weight:bold; text-decoration:none; display:inline-block;">
+                      📥 Download Your PDF Masterclass
+                    </a>
+                  </div>
+                </div>
+              `}
+
+              <p style="font-size: 12px; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 24px;">
+                Transaction Ref: ${transactionId} | Contact support: admin@sampidia.com
+              </p>
+            </div>
+          `;
+
+          try {
+            const sendEmailPayload = (fromAddress: string) => ({
+              from: fromAddress,
+              to: [customerEmail, 'admin@sampidia.com'],
+              subject: emailSubject,
+              html: emailHtml,
+            });
+
+            let resendRes = await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+              },
+              body: JSON.stringify(sendEmailPayload('admin@ajo-esusu.sampidia.com')),
+            });
+
+            if (!resendRes.ok) {
+              await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+                },
+                body: JSON.stringify(sendEmailPayload('onboarding@resend.dev')),
+              });
+            }
+          } catch (emailErr) {
+            console.error('Failed to send webhook fulfillment email:', emailErr);
+          }
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, message: 'Webhook processed successfully', transactionId }),
           { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
         );
 

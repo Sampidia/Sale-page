@@ -37,14 +37,25 @@ A future improvement would be to store tokens in Cloudflare KV and validate them
 
 ---
 
-## 2. Flutterwave Webhook Verification (Secondary Confirmation)
+## 2. Flutterwave Webhook Verification (Secondary Confirmation) — ✅ IMPLEMENTED
 
-Currently, payment is verified by calling Flutterwave's `/v3/transactions/{id}/verify` API directly from the Worker. A more robust pattern is to also verify the **`verif-hash`** header on incoming Flutterwave webhooks.
+In addition to synchronous payment verification via `/v3/transactions/{id}/verify`, the Worker now supports secondary server-to-server webhook confirmation at `POST /api/flw-webhook`.
 
-- Set up a Cloudflare Worker route as the Flutterwave webhook endpoint
-- Store a webhook secret hash in Worker secrets as `FLW_WEBHOOK_HASH`
-- On webhook receipt, compare `request.headers.get('verif-hash')` with the stored secret
+### How It Works & Setup
 
+1. **Endpoint**: `POST /api/flw-webhook`
+2. **Security**: Verifies the `verif-hash` header attached to incoming requests against `env.FLW_WEBHOOK_HASH`.
+3. **Flutterwave Setup**:
+   - Navigate to **Flutterwave Dashboard → Settings → Webhooks**.
+   - Set Secret Hash to a secure secret value.
+   - Set Secret Hash in Cloudflare Worker secret variables: `FLW_WEBHOOK_HASH`.
+   - Set Webhook URL to `https://<your-worker-domain>/api/flw-webhook`.
+
+### Benefits
+1. 🛡️ Security & Anti-Spoofing (`verif-hash` Validation)
+2. ⚡ Protection Against Client Drop-offs & Tab Closures
+3. ⏳ Support for Asynchronous & Delayed Payment Methods
+4. 🔄 Idempotency & Prevention of Double Fulfillments
 ---
 
 ## 3. Purchase Receipt PDF (Generated Receipts)
