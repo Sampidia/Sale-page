@@ -381,13 +381,32 @@ const CourseDetailPage: React.FC = () => {
         </button>
       </form>
 
-      {/* Policy disclaimers under checkout button */}
-      <div className="mt-6 border-t border-slate-800/80 pt-4 text-center text-[11px] text-slate-400 leading-relaxed">
-        By clicking pay, you agree to our{' '}
-        <Link to="/privacy-policy" className="text-slate-300 underline hover:text-white">Privacy Policy</Link>{' '}
-        and{' '}
-        <Link to="/refund-policy" className="text-slate-300 underline hover:text-white">Refund Policy</Link>.
-        Secured by Flutterwave 256-bit encryption.
+      {/* Social Share Section (WhatsApp OpenGraph Preview Enabled) */}
+      <div className="mt-6 border-t border-slate-800/80 pt-4 space-y-2">
+        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block text-center">
+          Share Course via WhatsApp
+        </span>
+        <div className="flex items-center gap-2">
+          <a
+            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out "${course.title}" by Afigo Sam: https://course-worker.sampidiablog.workers.dev/share?type=course&id=${course.id}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 text-xs font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5"
+          >
+            <span>💬</span> Share on WhatsApp
+          </a>
+          <button
+            type="button"
+            onClick={() => {
+              const link = `https://course-worker.sampidiablog.workers.dev/share?type=course&id=${course.id}`;
+              navigator.clipboard.writeText(link);
+              alert('WhatsApp share link copied to clipboard!');
+            }}
+            className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2.5 px-3 rounded-xl border border-slate-700 transition-all cursor-pointer"
+          >
+            📋 Copy Link
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { NAV_ITEMS, BRAIN_LOGO, EMAIL_MAIN, EMAIL_SUPPORT, FIVERR_URL, UPWORK_URL, CONTRA_URL } from '../constants';
 
@@ -10,6 +10,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Scroll to top on pathname change
+  useEffect(() => {
+    if (!location.hash) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [location.pathname]);
 
   const handleNavClick = (e: React.MouseEvent, href: string) => {
     if (href.startsWith('/#')) {
@@ -31,6 +38,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         }, 150);
       }
     }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -231,25 +242,25 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-4">Quick Navigation</h4>
               <ul className="space-y-2.5 text-sm">
                 <li>
-                  <Link to="/projects" className="text-slate-400 hover:text-red-400 transition-colors font-semibold">Client Projects (19)</Link>
+                  <Link to="/projects" onClick={scrollToTop} className="text-slate-400 hover:text-red-400 transition-colors font-semibold">Client Projects</Link>
                 </li>
                 <li>
-                  <Link to="/products" className="text-slate-400 hover:text-red-400 transition-colors">Plugins & Tools</Link>
+                  <Link to="/products" onClick={scrollToTop} className="text-slate-400 hover:text-red-400 transition-colors">Plugins & Tools</Link>
                 </li>
                 <li>
-                  <Link to="/courses" className="text-slate-400 hover:text-red-400 transition-colors">Masterclass Courses</Link>
+                  <Link to="/courses" onClick={scrollToTop} className="text-slate-400 hover:text-red-400 transition-colors">Masterclass Courses</Link>
                 </li>
                 <li>
-                  <Link to="/apps" className="text-slate-400 hover:text-red-400 transition-colors">Mobile Apps</Link>
+                  <Link to="/apps" onClick={scrollToTop} className="text-slate-400 hover:text-red-400 transition-colors">Mobile Apps</Link>
                 </li>
                 <li>
-                  <Link to="/my-downloads" className="text-slate-400 hover:text-red-400 transition-colors">Plugin & Asset Portal</Link>
+                  <Link to="/my-downloads" onClick={scrollToTop} className="text-slate-400 hover:text-red-400 transition-colors">Plugin & Asset Portal</Link>
                 </li>
                 <li>
-                  <Link to="/privacy-policy" className="text-slate-400 hover:text-red-400 transition-colors">Privacy Policy</Link>
+                  <Link to="/privacy-policy" onClick={scrollToTop} className="text-slate-400 hover:text-red-400 transition-colors">Privacy Policy</Link>
                 </li>
                 <li>
-                  <Link to="/refund-policy" className="text-slate-400 hover:text-red-400 transition-colors">Refund Policy</Link>
+                  <Link to="/refund-policy" onClick={scrollToTop} className="text-slate-400 hover:text-red-400 transition-colors">Refund Policy</Link>
                 </li>
               </ul>
             </div>

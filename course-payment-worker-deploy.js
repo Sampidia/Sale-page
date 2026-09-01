@@ -1448,6 +1448,101 @@ export default {
       }
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 8: GET /share or GET /api/share
+    // Server-Side OpenGraph HTML Generator for WhatsApp, iMessage, Facebook & Twitter
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'GET' && (url.pathname.includes('/share') || url.pathname.includes('/og'))) {
+      const type = url.searchParams.get('type') || 'course';
+      const id = url.searchParams.get('id') || 'vibe-coding';
+
+      const metadataMap = {
+        // Masterclasses
+        'course:vibe-coding': {
+          title: 'Vibe Coding: Building High-End Android Apps with Android Studio & Antigravity + AI',
+          description: 'Master AI-Assisted Native Android App Engineering from Scratch with Afigo Sam. Includes complete blueprint PDF + direct 1-on-1 mentorship.',
+          ogImage: 'https://afigo.sampidia.com/assets/og-vibe-coding.png',
+          targetUrl: 'https://afigo.sampidia.com/#/course/vibe-coding'
+        },
+        // Products / Plugins
+        'product:ai-content-generator': {
+          title: 'WordPress AI-Powered Automatic Content Generator ($25)',
+          description: 'Automatically generate, optimize, and publish high-ranking blog posts using GPT-4o, Gemini, Claude 3.5 & DeepSeek directly in WordPress.',
+          ogImage: 'https://afigo.sampidia.com/assets/wordpress-ai-content-generator.webp',
+          targetUrl: 'https://afigo.sampidia.com/#/product/ai-content-generator'
+        },
+        'product:my-licenses-manager': {
+          title: 'My Licenses Manager — Free WordPress Plugin',
+          description: 'Central license server to remotely manage WordPress plugins and digital assets with Envato Marketplace API integration.',
+          ogImage: 'https://afigo.sampidia.com/assets/banner-772x250.webp',
+          targetUrl: 'https://afigo.sampidia.com/#/product/my-licenses-manager'
+        },
+        // Mobile Apps
+        'app:naija-ayo-worldwide': {
+          title: 'Naija Ayo Worldwide — Traditional Board Game for Android',
+          description: 'Play the authentic traditional African Ayo/Mancala strategy game on mobile with smart AI opponents and pass-and-play multiplayer.',
+          ogImage: 'https://afigo.sampidia.com/assets/Naija%20Ayo%20Worldwide.webp',
+          targetUrl: 'https://afigo.sampidia.com/#/app/naija-ayo-worldwide'
+        }
+      };
+
+      const key = `${type}:${id}`;
+      const meta = metadataMap[key] || {
+        title: 'Oghenekaro Samson Afigo | Full-Stack Developer & AI Automation Engineer',
+        description: 'Full-Stack Web & Mobile Developer, Published n8n AI Workflow Creator, and M.Sc. Industrial Chemist.',
+        ogImage: 'https://afigo.sampidia.com/assets/og-preview.png',
+        targetUrl: `https://afigo.sampidia.com/#/${type}/${id}`
+      };
+
+      const html = `<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${meta.title}</title>
+  <meta name="description" content="${meta.description}">
+
+  <!-- Open Graph / WhatsApp / Facebook / LinkedIn / iMessage -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="${meta.targetUrl}">
+  <meta property="og:title" content="${meta.title}">
+  <meta property="og:description" content="${meta.description}">
+  <meta property="og:image" content="${meta.ogImage}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Afigo-Sam | SamPidia">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${meta.title}">
+  <meta name="twitter:description" content="${meta.description}">
+  <meta name="twitter:image" content="${meta.ogImage}">
+
+  <!-- Automatic Client Redirect -->
+  <script>
+    window.location.href = "${meta.targetUrl}";
+  </script>
+  <meta http-equiv="refresh" content="0;url=${meta.targetUrl}">
+</head>
+<body style="font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 60px 20px; background-color: #090d16; color: #f3f4f6;">
+  <div style="max-width: 500px; margin: 0 auto; background: #111827; padding: 30px; border-radius: 16px; border: 1px solid #1f2937;">
+    <h2 style="color: #ef4444; margin-bottom: 10px;">${meta.title}</h2>
+    <p style="color: #9ca3af; font-size: 14px; line-height: 1.5;">${meta.description}</p>
+    <p style="margin-top: 20px;"><a href="${meta.targetUrl}" style="display: inline-block; background: #dc2626; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Open Page →</a></p>
+  </div>
+</body>
+</html>`;
+
+      return new Response(html, {
+        status: 200,
+        headers: {
+          ...headers,
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'public, max-age=3600'
+        }
+      });
+    }
+
     // Default 404 Handler for Unmatched Endpoints
     return new Response(
       JSON.stringify({ error: 'Endpoint not found. Please verify the URL route.' }),
