@@ -991,7 +991,7 @@ const ClaimPrizePage: React.FC = () => {
                     { icon: '✅', text: 'Your claim has been logged in our system.' },
                     {
                       icon: '📬',
-                      text: 'Our admin team at admin@ajo-esusu.sampidia.com has been notified.',
+                      text: 'Our admin team at admin@afigo.sampidia.com has been notified.',
                     },
                     {
                       icon: '⏳',

@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS purchases (
   transaction_id TEXT UNIQUE NOT NULL,
   amount INTEGER NOT NULL DEFAULT 30000, -- Amount in NGN
   download_token TEXT NOT NULL,
+  session_booked INTEGER DEFAULT 0, -- 0 = not booked, 1 = booked on Calendly
+  session_booked_at DATETIME,
   purchased_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

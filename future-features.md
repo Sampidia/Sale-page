@@ -58,11 +58,13 @@ In addition to synchronous payment verification via `/v3/transactions/{id}/verif
 4. 🔄 Idempotency & Prevention of Double Fulfillments
 ---
 
-## 3. Purchase Receipt PDF (Generated Receipts)
+## 3. Purchase Receipt PDF (Generated Receipts) — ✅ IMPLEMENTED
 
-Auto-generate a branded HTML/PDF purchase receipt (order number, transaction ref, date, customer name & email, course item breakdown, amount paid in NGN/USD, merchant details) and deliver it as a downloadable PDF document or email attachment via Cloudflare Worker & Resend API.
+**Completed: September 2026** | Implemented via `GET /api/download-receipt` in `course-payment-worker-deploy.js`.
 
-### How It Would Work
+Auto-generates a fully branded, mobile-responsive HTML receipt (order number, transaction ref, date, customer name & email, course item breakdown, amount paid in NGN, merchant details) rendered directly by the Cloudflare Worker and delivered as a printable HTML page with `@media print` support.
+
+### What Was Built
 
 1. **Receipt Data Model & HTML Template**:
    - **Receipt Ref**: `REC-${Date.now()}-${transactionId.slice(-6)}`
@@ -103,15 +105,19 @@ Auto-generate a branded HTML/PDF purchase receipt (order number, transaction ref
 ### Benefits
 - 🧾 **Tax & Accounting Compliance**: Provides buyers with official proof of payment for business expense reimbursement.
 - 💼 **Professional Branding**: Builds trust and delivers an enterprise-grade post-purchase experience.
-- ⚡ **Automated Delivery**: Completely hands-free invoice generation and email dispatch.
+- ⚡ **Automated Delivery**: Completely hands-free invoice generation — no PDF library or third-party service required.
+- 📱 **Mobile-Responsive**: Full `@media (max-width: 600px)` CSS breakpoints ensure the receipt renders cleanly on all screen sizes.
+- 🖨️ **Print-Ready**: `@media print` styles hide action buttons and produce a clean, professional A4-style printed receipt.
 
 ---
 
-## 4. Course Access Dashboard (Post-Purchase Portal)
+## 4. Course Access Dashboard (Post-Purchase Portal) — ✅ IMPLEMENTED
 
-A lightweight post-purchase portal view (`/my-courses`) that allows students to enter their purchase email address, receive a passwordless magic verification link/OTP, and access all their purchased course downloads, Calendly mentorship booking links, and transaction receipts in one central place — backed by **Cloudflare D1 (SQLite)**.
+**Completed: September 2026** | Implemented as `components/CourseDashboard.tsx` (route `/my-courses`) + Worker routes `POST /api/portal/request-access` & `POST /api/portal/verify-access` backed by Cloudflare D1.
 
-### How It Would Work
+A fully functional post-purchase portal at `/my-courses` where students enter their purchase email, receive a 6-digit OTP code, and unlock all purchased course downloads, Calendly mentorship booking links, and transaction receipts in one central place — backed by **Cloudflare D1 (SQLite)**.
+
+### What Was Built
 
 1. **Database Schema (Cloudflare D1 - SQLite)**:
    Create a D1 SQLite database `course_portal_db` with tables for purchases and passwordless verification tokens:
@@ -194,9 +200,10 @@ A lightweight post-purchase portal view (`/my-courses`) that allows students to 
 
 ### Benefits
 - 🔑 **No Lost Purchases**: Buyers can retrieve their course materials anytime, even if they accidentally deleted their confirmation email.
-- 🔒 **Passwordless & Secure**: Zero friction (no password registration required) with short-lived OTP/magic links.
+- 🔒 **Passwordless & Secure**: Zero friction (no password registration required) with short-lived 6-digit OTP codes (15-minute expiry).
 - 📈 **Lifetime Access & Updates**: Allows students to download updated versions of PDF blueprints whenever new editions are published.
 - ⚡ **Zero Infrastructure Cost**: Cloudflare D1 free tier provides 5 million reads/day and 100,000 writes/day.
+- 🎨 **Premium UI**: Split-screen card layout with AI-generated hero artwork, matching the luxury design aesthetic of the main sales page.
 
 ---
 

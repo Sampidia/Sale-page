@@ -131,8 +131,8 @@ export default {
           'Authorization': `Bearer ${env.RESEND_API_KEY}`,
         },
         body: JSON.stringify({
-          from: 'admin@ajo-esusu.sampidia.com',
-          to: 'admin@ajo-esusu.sampidia.com',
+          from: 'admin@afigo.sampidia.com',
+          to: 'admin@afigo.sampidia.com',
           subject: `🏆 Prize Claim Request: ${username} (${currency})`,
           html: `
             <div style="font-family: sans-serif; padding: 24px; line-height: 1.7; color: #333; max-width: 600px;">

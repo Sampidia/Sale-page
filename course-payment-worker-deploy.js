@@ -94,6 +94,7 @@ export default {
         const workerOrigin = new URL(request.url).origin;
         const r2DownloadLink = `${workerOrigin}/api/download-course-pdf?token=${downloadToken}&courseId=${courseId}`;
         const receiptLink = `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(txStr)}&email=${encodeURIComponent(customerEmail)}&courseId=${encodeURIComponent(courseId)}`;
+        const calendlyLink = `${workerOrigin}/api/calendly-redirect?txId=${encodeURIComponent(txStr)}&email=${encodeURIComponent(customerEmail)}`;
 
         // 3. Save purchase to Cloudflare D1
         await recordPurchaseToDB({
@@ -129,7 +130,7 @@ export default {
                   <h3 style="color: #6b21a8; margin-top: 0;">🗓️ Book Your Live Session</h3>
                   <p>Use the link below to pick your exact date and time slot on Calendly:</p>
                   <div style="text-align: center; margin: 16px 0;">
-                    <a href="https://calendly.com/oghenekaroafigo/meeting"
+                    <a href="${calendlyLink}"
                        style="background:#7c3aed; color:#ffffff; padding:14px 28px; border-radius:10px;
                               font-size:15px; font-weight:bold; text-decoration:none; display:inline-block;">
                       📅 Pick Your Calendly Slot
@@ -180,7 +181,7 @@ export default {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${env.RESEND_API_KEY}`,
               },
-              body: JSON.stringify(sendEmailPayload('admin@ajo-esusu.sampidia.com')),
+              body: JSON.stringify(sendEmailPayload('admin@afigo.sampidia.com')),
             });
 
             if (!resendRes.ok) {
@@ -280,6 +281,7 @@ export default {
           const workerOrigin = new URL(request.url).origin;
           const r2DownloadLink = `${workerOrigin}/api/download-course-pdf?token=${downloadToken}&courseId=${courseId}`;
           const receiptLink = `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(transactionId)}&email=${encodeURIComponent(customerEmail)}&courseId=${encodeURIComponent(courseId)}`;
+          const calendlyLink = `${workerOrigin}/api/calendly-redirect?txId=${encodeURIComponent(transactionId)}&email=${encodeURIComponent(customerEmail)}`;
 
           const emailSubject = format === 'one-on-one'
             ? `🗓️ Mentorship Booking Confirmed: ${courseTitle}`
@@ -298,7 +300,7 @@ export default {
                   <h3 style="color: #6b21a8; margin-top: 0;">🗓️ Book Your Live Session</h3>
                   <p>Use the link below to pick your exact date and time slot on Calendly:</p>
                   <div style="text-align: center; margin: 16px 0;">
-                    <a href="https://calendly.com/oghenekaroafigo/meeting"
+                    <a href="${calendlyLink}"
                        style="background:#7c3aed; color:#ffffff; padding:14px 28px; border-radius:10px;
                               font-size:15px; font-weight:bold; text-decoration:none; display:inline-block;">
                       📅 Pick Your Calendly Slot
@@ -346,7 +348,7 @@ export default {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${env.RESEND_API_KEY}`,
               },
-              body: JSON.stringify(sendEmailPayload('admin@ajo-esusu.sampidia.com')),
+              body: JSON.stringify(sendEmailPayload('admin@afigo.sampidia.com')),
             });
 
             if (!resendRes.ok) {
@@ -717,6 +719,204 @@ export default {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 3.5: GET /api/calendly-redirect (Gatekeeper for Calendly Bookings)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'GET' && url.pathname.endsWith('/api/calendly-redirect')) {
+      const txId = url.searchParams.get('txId') || url.searchParams.get('transactionId') || '';
+      const email = url.searchParams.get('email') || '';
+
+      const targetCalendlyUrl = 'https://calendly.com/oghenekaroafigo/meeting';
+
+      if (env.DB && (txId || email)) {
+        try {
+          let record = null;
+          if (txId) {
+            record = await env.DB.prepare(`SELECT * FROM purchases WHERE transaction_id = ? OR id = ?`).bind(txId, txId).first();
+          }
+          if (!record && email) {
+            record = await env.DB.prepare(`SELECT * FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' ORDER BY purchased_at DESC`).bind(email.toLowerCase()).first();
+          }
+
+          if (record && Number(record.session_booked) === 1) {
+            const bookedHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session Already Scheduled - Afigo Sam Page</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 40px 16px; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; }
+    .card { max-width: 480px; width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 32px 24px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+    .icon { font-size: 48px; margin-bottom: 16px; }
+    h1 { font-size: 22px; font-weight: 800; color: #ffffff; margin: 0 0 12px 0; }
+    p { font-size: 14px; color: #94a3b8; line-height: 1.6; margin: 0 0 24px 0; }
+    .info-box { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 16px; font-size: 13px; color: #cbd5e1; text-align: left; margin-bottom: 24px; }
+    .btn { display: inline-block; background: #dc2626; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 12px 24px; border-radius: 12px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">✅</div>
+    <h1>Session Already Scheduled</h1>
+    <p>Your 1-on-1 mentorship session for this purchase has already been booked on Calendly.</p>
+    <div class="info-box">
+      <strong>Need to reschedule or view booking?</strong><br>
+      Please check the confirmation email sent directly by Calendly to your inbox, or contact support: <br>
+      <a href="mailto:admin@afigo.sampidia.com" style="color:#60a5fa;">admin@afigo.sampidia.com</a>
+    </div>
+    <a href="https://sampidia.com/my-courses" class="btn">Return to Student Portal</a>
+  </div>
+</body>
+</html>`;
+            return new Response(bookedHtml, { status: 200, headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' } });
+          }
+        } catch (dbErr) {
+          console.error('D1 check session_booked error:', dbErr);
+        }
+      }
+
+      // If not booked or DB record absent, 302 redirect to Calendly
+      return Response.redirect(targetCalendlyUrl, 302);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 3.6: POST /api/calendly-webhook (Receives Calendly Booking Webhooks)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'POST' && url.pathname.endsWith('/api/calendly-webhook')) {
+      try {
+        const body = await request.json();
+        const event = body && body.event;
+        const payload = (body && body.payload) || {};
+
+        if (event === 'invitee.created') {
+          const inviteeEmail = payload.email || (payload.invitee && payload.invitee.email);
+
+          if (inviteeEmail && env.DB) {
+            const normalizedEmail = String(inviteeEmail).trim().toLowerCase();
+            // Mark the oldest unbooked 1-on-1 purchase for this email as booked
+            await env.DB.prepare(`
+              UPDATE purchases
+              SET session_booked = 1, session_booked_at = datetime('now')
+              WHERE id = (
+                SELECT id FROM purchases
+                WHERE LOWER(email) = ? AND format = 'one-on-one' AND (session_booked = 0 OR session_booked IS NULL)
+                ORDER BY purchased_at ASC
+                LIMIT 1
+              )
+            `).bind(normalizedEmail).run();
+          }
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, message: 'Calendly webhook processed' }),
+          { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ error: err.message || 'Internal Server Error' }),
+          { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 3.7: GET /api/setup-calendly-webhook?pat=YOUR_CALENDLY_TOKEN
+    // Helper to register Calendly Webhook via Calendly API v2
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'GET' && url.pathname.endsWith('/api/setup-calendly-webhook')) {
+      const pat = url.searchParams.get('pat') || env.CALENDLY_PAT;
+      if (!pat) {
+        return new Response(
+          JSON.stringify({ error: 'Missing Calendly Personal Access Token. Usage: /api/setup-calendly-webhook?pat=YOUR_TOKEN' }),
+          { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      try {
+        // Step 1: Fetch current user & organization details from Calendly API
+        const userRes = await fetch('https://api.calendly.com/users/me', {
+          headers: {
+            'Authorization': `Bearer ${pat}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!userRes.ok) {
+          const userErr = await userRes.json();
+          return new Response(
+            JSON.stringify({ error: 'Failed to verify Calendly Personal Access Token', details: userErr }),
+            { status: userRes.status, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const userData = await userRes.json();
+        const orgUri = userData.resource && userData.resource.current_organization;
+        const userUri = userData.resource && userData.resource.uri;
+
+        if (!orgUri && !userUri) {
+          return new Response(
+            JSON.stringify({ error: 'Could not resolve Calendly organization or user URI' }),
+            { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Step 2: Register webhook subscription with Calendly API
+        const workerOrigin = new URL(request.url).origin;
+        const webhookCallbackUrl = `${workerOrigin}/api/calendly-webhook`;
+
+        let subRes = await fetch('https://api.calendly.com/webhook_subscriptions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${pat}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            url: webhookCallbackUrl,
+            events: ['invitee.created'],
+            organization: orgUri,
+            scope: 'organization',
+          }),
+        });
+
+        let subData = await subRes.json();
+        if (!subRes.ok) {
+          // If organization scope failed, retry with user scope
+          subRes = await fetch('https://api.calendly.com/webhook_subscriptions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${pat}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              url: webhookCallbackUrl,
+              events: ['invitee.created'],
+              user: userUri,
+              scope: 'user',
+            }),
+          });
+          subData = await subRes.json();
+          if (!subRes.ok) {
+            return new Response(
+              JSON.stringify({ error: 'Failed to create Calendly Webhook Subscription', details: subData }),
+              { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+            );
+          }
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, message: '🎉 Calendly Webhook registered successfully!', data: subData }),
+          { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ error: err.message || 'Internal Server Error' }),
+          { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // ROUTE 4: POST /api/portal/request-access (Request 6-Digit Verification Code)
     // ─────────────────────────────────────────────────────────────────────────
     if (request.method === 'POST' && url.pathname.endsWith('/api/portal/request-access')) {
@@ -798,7 +998,7 @@ export default {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${env.RESEND_API_KEY}`,
               },
-              body: JSON.stringify(sendPayload('admin@ajo-esusu.sampidia.com')),
+              body: JSON.stringify(sendPayload('admin@afigo.sampidia.com')),
             });
 
             if (!resendRes.ok) {
@@ -884,9 +1084,10 @@ export default {
                 customerName: p.customer_name,
                 transactionId: p.transaction_id,
                 purchasedAt: p.purchased_at,
+                sessionBooked: Number(p.session_booked) === 1,
                 r2DownloadLink: `${workerOrigin}/api/download-course-pdf?token=${p.download_token}&courseId=${p.course_id}`,
                 receiptLink: `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(p.transaction_id)}&email=${encodeURIComponent(normalizedEmail)}&courseId=${encodeURIComponent(p.course_id)}`,
-                calendlyUrl: p.format === 'one-on-one' ? 'https://calendly.com/oghenekaroafigo/meeting' : null
+                calendlyUrl: p.format === 'one-on-one' ? `${workerOrigin}/api/calendly-redirect?txId=${encodeURIComponent(p.transaction_id)}&email=${encodeURIComponent(normalizedEmail)}` : null
               }));
             }
           } catch (dbErr) {
@@ -992,7 +1193,7 @@ export default {
             'Authorization': `Bearer ${env.RESEND_API_KEY}`,
           },
           body: JSON.stringify({
-            from: 'admin@ajo-esusu.sampidia.com',
+            from: 'admin@afigo.sampidia.com',
             to: 'admin@sampidia.com',
             subject: `Account Deletion Request: ${username} (${appName})`,
             html: `

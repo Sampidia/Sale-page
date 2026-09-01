@@ -13,6 +13,7 @@ interface PurchasedCourseItem {
   r2DownloadLink: string;
   receiptLink: string;
   calendlyUrl?: string | null;
+  sessionBooked?: boolean;
 }
 
 const WORKER_BASE_URL = (import.meta as any).env?.VITE_COURSE_WORKER_URL || (import.meta as any).env?.VITE_WORKER_URL || 'https://course-worker.sampidiablog.workers.dev';
@@ -299,7 +300,7 @@ const CourseDashboard: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="space-y-4 max-h-[420px] overflow-y-auto pr-1">
+                <div className="space-y-4 max-h-[70vh] sm:max-h-[460px] overflow-y-auto pr-1">
                   {purchases.map((item) => {
                     const courseData = COURSES.find(c => c.id === item.courseId) || COURSES[0];
                     const formattedDate = item.purchasedAt
@@ -324,24 +325,32 @@ const CourseDashboard: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
-                          <a
-                            href={item.r2DownloadLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center"
-                          >
-                            <span>📥 Download PDF</span>
-                          </a>
-
-                          {item.format === 'one-on-one' && (
+                          {item.format !== 'one-on-one' && (
                             <a
-                              href={item.calendlyUrl || 'https://calendly.com/oghenekaroafigo/meeting'}
+                              href={item.r2DownloadLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center"
+                              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center"
                             >
-                              <span>🗓️ Schedule Live Session</span>
+                              <span>📥 Download PDF</span>
                             </a>
+                          )}
+
+                          {item.format === 'one-on-one' && (
+                            item.sessionBooked ? (
+                              <div className="bg-amber-950/80 border border-amber-800/60 text-amber-300 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 text-center">
+                                <span>✅ Session Scheduled</span>
+                              </div>
+                            ) : (
+                              <a
+                                href={item.calendlyUrl || `${WORKER_BASE_URL}/api/calendly-redirect?txId=${encodeURIComponent(item.transactionId)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center"
+                              >
+                                <span>🗓️ Schedule Live Session</span>
+                              </a>
+                            )
                           )}
 
                           <a
@@ -357,6 +366,12 @@ const CourseDashboard: React.FC = () => {
                     );
                   })}
                 </div>
+
+                {purchases.length > 1 && (
+                  <p className="text-[11px] text-slate-400 text-right pt-1 font-medium">
+                    Scroll to view all purchases ↓
+                  </p>
+                )}
               </div>
             )}
 

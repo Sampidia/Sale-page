@@ -74,8 +74,8 @@ export default {
           'Authorization': `Bearer ${env.RESEND_API_KEY}`,
         },
         body: JSON.stringify({
-          from: 'admin@ajo-esusu.sampidia.com',
-          to: 'admin@ajo-esusu.sampidia.com',
+          from: 'admin@afigo.sampidia.com',
+          to: 'admin@afigo.sampidia.com',
           subject: `Account Deletion Request: ${username} (${appName})`,
           html: `
             <div style="font-family: sans-serif; padding: 20px; line-height: 1.6; color: #333;">

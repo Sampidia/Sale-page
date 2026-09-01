@@ -152,7 +152,7 @@ export default {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${env.RESEND_API_KEY}`,
               },
-              body: JSON.stringify(sendEmailPayload('admin@ajo-esusu.sampidia.com')),
+              body: JSON.stringify(sendEmailPayload('admin@afigo.sampidia.com')),
             });
 
             if (!resendRes.ok) {
@@ -304,7 +304,7 @@ export default {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${env.RESEND_API_KEY}`,
               },
-              body: JSON.stringify(sendEmailPayload('admin@ajo-esusu.sampidia.com')),
+              body: JSON.stringify(sendEmailPayload('admin@afigo.sampidia.com')),
             });
 
             if (!resendRes.ok) {

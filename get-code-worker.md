@@ -608,8 +608,8 @@ export default {
             'Authorization': `Bearer ${env.RESEND_API_KEY}`,
           },
           body: JSON.stringify({
-            from: 'admin@ajo-esusu.sampidia.com',
-            to: [email, 'admin@ajo-esusu.sampidia.com'],
+            from: 'admin@afigo.sampidia.com',
+            to: [email, 'admin@afigo.sampidia.com'],
             subject: `🎟️ Tournament Passcode: ${username} (${tournamentType === 'weekend' ? 'Weekend' : 'Quick'})`,
             html: emailHtml,
           }),
