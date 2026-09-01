@@ -219,7 +219,7 @@ export default {
     if (request.method === 'POST' && url.pathname.endsWith('/api/verify-product-payment')) {
       try {
         const body = await request.json();
-        const { transactionId, productId = 'ai-content-generator', customerName, customerEmail } = body || {};
+        const { transactionId, productId = 'ai-content-generator', customerName, customerEmail, currency: paidCurrency, amountPaid: paidAmount } = body || {};
 
         if (!transactionId || !customerName || !customerEmail) {
           return new Response(
@@ -259,7 +259,9 @@ export default {
         const downloadToken = `token_prod_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
         const workerOrigin = new URL(request.url).origin;
         const r2DownloadLink = `${workerOrigin}/api/download-product-zip?token=${downloadToken}&productId=${productId}`;
-        const receiptLink = `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(txStr)}&email=${encodeURIComponent(customerEmail)}&courseId=${encodeURIComponent(productId)}`;
+        const receiptLink = `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(txStr)}&email=${encodeURIComponent(customerEmail)}&courseId=${encodeURIComponent(productId)}`
+          + (paidCurrency ? `&currency=${encodeURIComponent(paidCurrency)}` : '')
+          + (paidAmount ? `&amountPaid=${encodeURIComponent(paidAmount)}` : '');
 
         // 2. Save product purchase to Cloudflare D1
         await recordPurchaseToDB({
@@ -611,9 +613,13 @@ export default {
       const currencyParam = url.searchParams.get('currency') || null;
       const amountPaidParam = url.searchParams.get('amountPaid') || null;
 
+      // Determine if this receipt is for a product (USD) or a course (NGN) — used for defaults
+      const PRODUCT_IDS = ['ai-content-generator','my-licenses-manager','booking-theme','naija-ayo-worldwide','afro-short','fake-detector'];
+      const isProductReceipt = PRODUCT_IDS.includes(courseId);
+
       let customerName = 'Valued Student';
-      let format = 'pdf';
-      let amount = 30000;
+      let format = isProductReceipt ? 'zip' : 'pdf';
+      let amount = isProductReceipt ? 25 : 30000;   // ← product=$25 USD, course=₦30,000 NGN
       let purchasedAt = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
       if (env.DB) {
@@ -646,9 +652,12 @@ export default {
       const courseTitle = COURSE_PRODUCT_TITLES[courseId] || courseId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
       // Determine the displayed amount — prefer the frontend-passed amountPaid param (local currency),
-      // otherwise fall back to the NGN amount from the DB
-      const displayAmount = amountPaidParam || `₦${Number(amount).toLocaleString()}.00 NGN`;
-      const displayCurrency = currencyParam || 'NGN';
+      // otherwise fall back using the correct currency for the item type
+      const defaultCurrencySymbol = isProductReceipt ? '$' : '₦';
+      const defaultCurrencyLabel  = isProductReceipt ? 'USD' : 'NGN';
+      const displayAmount = amountPaidParam
+        || `${defaultCurrencySymbol}${Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${defaultCurrencyLabel}`;
+      const displayCurrency = currencyParam || defaultCurrencyLabel;
 
       const formatLabel = format === 'one-on-one' ? '1-on-1 Mentorship Session' : (format === 'zip' ? 'Digital Plugin Download (.ZIP)' : 'PDF Blueprint Masterclass');
       const receiptRef = `REC-${String(txId).replace(/[^a-zA-Z0-9]/g, '').slice(-8).toUpperCase()}`;
@@ -901,7 +910,7 @@ export default {
       <strong>Merchant Contact & Support:</strong><br>
       Oghenekaro Samson Afigo (Afigo-Sam Technology)<br>
       Email: admin@sampidia.com | Phone: +234 706 345 3903<br>
-      Website: https://sampidia.com
+      Website: https://afigo.sampidia.com
     </div>
 
     <div class="actions">

@@ -244,7 +244,7 @@ const CoursesPage: React.FC = () => {
                         to={`/course/${course.id}`}
                         className="flex-1 text-center bg-red-600 hover:bg-red-700 text-white font-black text-xs sm:text-sm px-4 py-3 rounded-2xl transition-all shadow-lg shadow-red-950/50 flex items-center justify-center gap-1.5"
                       >
-                        <span>🎯</span> Enroll Now — ₦{course.price.toLocaleString()}
+                        <span>🎯</span> Enroll Now — {priceInfo.formatted}
                       </Link>
 
                       <a

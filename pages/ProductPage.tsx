@@ -78,6 +78,8 @@ const ProductPage: React.FC = () => {
           customerName: name,
           customerEmail: email,
           amount: product.price,
+          currency: priceInfo.currency,
+          amountPaid: priceInfo.formatted,
         }),
       });
 
@@ -87,14 +89,19 @@ const ProductPage: React.FC = () => {
       }
 
       setR2DownloadLink(data.r2DownloadLink || `${cleanWorkerUrl}api/download-product-zip?token=demo&productId=${product.id}`);
-      setReceiptLink(data.receiptLink || `${cleanWorkerUrl}api/download-receipt?txId=${txRef}&email=${encodeURIComponent(email)}&courseId=${product.id}`);
+      // Always append currency params — worker may or may not have included them depending on deployment version
+      const workerReceiptBase = data.receiptLink
+        || `${cleanWorkerUrl}api/download-receipt?txId=${txRef}&email=${encodeURIComponent(email)}&courseId=${product.id}`;
+      const receiptWithCurrency = workerReceiptBase
+        + (workerReceiptBase.includes('currency=') ? '' : `&currency=${encodeURIComponent(priceInfo.currency)}&amountPaid=${encodeURIComponent(priceInfo.formatted)}`);
+      setReceiptLink(receiptWithCurrency);
       setIsPaid(true);
 
     } catch (err: any) {
       console.error('Product Payment Verification Error:', err);
       // Fallback display
       setR2DownloadLink(`https://course-worker.sampidiablog.workers.dev/api/download-product-zip?token=demo&productId=${product.id}`);
-      setReceiptLink(`https://course-worker.sampidiablog.workers.dev/api/download-receipt?txId=${txRef}&email=${encodeURIComponent(email)}&courseId=${product.id}`);
+      setReceiptLink(`https://course-worker.sampidiablog.workers.dev/api/download-receipt?txId=${txRef}&email=${encodeURIComponent(email)}&courseId=${product.id}&currency=${encodeURIComponent(priceInfo.currency)}&amountPaid=${encodeURIComponent(priceInfo.formatted)}`);
       setIsPaid(true);
     } finally {
       setIsLoading(false);
@@ -238,7 +245,7 @@ const ProductPage: React.FC = () => {
                       onClick={() => setIsCheckoutOpen(true)}
                       className="flex-1 text-center bg-red-600 text-white font-bold py-4 px-8 rounded-2xl hover:bg-red-700 transition-all text-lg shadow-xl shadow-red-200 hover:shadow-2xl hover:shadow-red-300 cursor-pointer"
                     >
-                      Get Started - {priceInfo.formatted}
+                      Checkout — {priceInfo.formatted}
                     </button>
                     {product.alternateUrl && (
                       <button
@@ -753,12 +760,13 @@ if ($data->result === 'success') {
               </a>
             ) : (
               <>
-                <a
-                  href={product.buyUrl || FLUTTERWAVE_URL}
-                  className="w-full sm:w-auto px-12 py-6 bg-red-600 text-white font-bold rounded-2xl hover:bg-red-700 transition-all text-xl shadow-2xl shadow-red-900/50 hover:shadow-red-900/70"
-                >
-                  Get Started - ${product.price}
-                </a>
+                  <button
+                    type="button"
+                    onClick={() => setIsCheckoutOpen(true)}
+                    className="w-full sm:w-auto px-12 py-6 bg-red-600 text-white font-bold rounded-2xl hover:bg-red-700 transition-all text-xl shadow-2xl shadow-red-900/50 hover:shadow-red-900/70 cursor-pointer"
+                  >
+                    💳 Checkout — {priceInfo.formatted}
+                  </button>
                 {product.alternateUrl && (
                   <a
                     href={product.alternateUrl}
@@ -892,7 +900,7 @@ if ($data->result === 'success') {
                   <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-contain rounded-xl bg-slate-900 border border-slate-800 p-1" />
                   <div>
                     <h3 className="text-base font-bold text-white leading-tight">{product.name}</h3>
-                    <p className="text-xs text-red-400 font-extrabold mt-0.5">$25.00 USD (Instant Access)</p>
+                    <p className="text-xs text-red-400 font-extrabold mt-0.5">{priceInfo.formatted} (Instant Access)</p>
                   </div>
                 </div>
 
@@ -945,7 +953,7 @@ if ($data->result === 'success') {
                     </span>
                   ) : (
                     <>
-                      <span>💳</span> Pay $25 USD via Flutterwave
+                      <span>💳</span> Pay {priceInfo.formatted} via Flutterwave
                     </>
                   )}
                 </button>
