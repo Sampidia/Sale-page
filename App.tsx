@@ -17,11 +17,13 @@ import CoursesPage from './pages/CoursesPage';
 import CourseDetailPage from './pages/CourseDetailPage';
 import CourseDashboard from './components/CourseDashboard';
 import ProjectsPage from './pages/ProjectsPage';
+import { CurrencyProvider } from './context/CurrencyContext';
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Layout>
+    <CurrencyProvider>
+      <Router>
+        <Layout>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/projects" element={<ProjectsPage />} />
@@ -43,6 +45,7 @@ const App: React.FC = () => {
         </Routes>
       </Layout>
     </Router>
+  </CurrencyProvider>
   );
 };
 

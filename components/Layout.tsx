@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { NAV_ITEMS, BRAIN_LOGO, EMAIL_MAIN, EMAIL_SUPPORT, FIVERR_URL, UPWORK_URL, CONTRA_URL } from '../constants';
+import CurrencySelector from './CurrencySelector';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -99,6 +100,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </Link>
                 );
               })}
+              <CurrencySelector />
               <a
                 href={FIVERR_URL}
                 target="_blank"
@@ -109,8 +111,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </a>
             </div>
 
-            {/* Hamburger Button */}
-            <div className="flex md:hidden">
+            {/* Hamburger Button & Mobile Currency Badge */}
+            <div className="flex md:hidden items-center space-x-2">
+              <CurrencySelector />
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 type="button"

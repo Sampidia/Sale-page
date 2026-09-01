@@ -1,13 +1,18 @@
-
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { PRODUCTS, BRAIN_LOGO, FLUTTERWAVE_URL, CODECANYON_URL } from '../constants';
 import BookDocumentation from '../components/BookDocumentation';
 import SEO from '../components/SEO';
+import { useCurrency } from '../context/CurrencyContext';
 
 const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { formatProductPrice } = useCurrency();
+  
   const product = PRODUCTS.find(p => p.id === id);
+  const priceInfo = product ? formatProductPrice(product.price) : { formatted: '$25 USD', amount: 25, currency: 'USD' };
+  
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isBookOpen, setIsBookOpen] = useState(false);
 
@@ -125,8 +130,8 @@ const ProductPage: React.FC = () => {
     (window as any).FlutterwaveCheckout({
       public_key: flwKey,
       tx_ref: txRef,
-      amount: product.price || 25,
-      currency: 'USD',
+      amount: priceInfo.currency === 'USD' ? (product.price || 25) : priceInfo.amount,
+      currency: priceInfo.currency,
       payment_options: 'card, ussd, banktransfer',
       customer: {
         email: email,
@@ -233,7 +238,7 @@ const ProductPage: React.FC = () => {
                       onClick={() => setIsCheckoutOpen(true)}
                       className="flex-1 text-center bg-red-600 text-white font-bold py-4 px-8 rounded-2xl hover:bg-red-700 transition-all text-lg shadow-xl shadow-red-200 hover:shadow-2xl hover:shadow-red-300 cursor-pointer"
                     >
-                      Get Started - ${product.price}
+                      Get Started - {priceInfo.formatted}
                     </button>
                     {product.alternateUrl && (
                       <button

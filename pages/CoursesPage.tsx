@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
-import { COURSES } from '../constants';
+import { COURSES, BRAIN_LOGO } from '../constants';
+import { useCurrency } from '../context/CurrencyContext';
 import { CourseFormat } from '../types';
 
 const CoursesPage: React.FC = () => {
@@ -166,6 +167,7 @@ const CoursesPage: React.FC = () => {
           {COURSES.map((course) => {
             const currentFormat = selectedFormat[course.id] || 'pdf';
             const currentCover = currentFormat === 'one-on-one' ? course.oneOnOneCoverUrl : course.pdfCoverUrl;
+            const priceInfo = formatCoursePrice(course.price);
 
             return (
               <div
@@ -185,7 +187,7 @@ const CoursesPage: React.FC = () => {
                     </div>
 
                     <div className="bg-red-950/60 border border-red-800/60 text-red-400 font-black text-xs sm:text-sm px-3 py-0.5 rounded-full">
-                      ₦{course.price.toLocaleString()} NGN
+                      {priceInfo.formatted}
                     </div>
                   </div>
 

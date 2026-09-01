@@ -2,12 +2,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '../types';
+import { useCurrency } from '../context/CurrencyContext';
 
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const { formatProductPrice } = useCurrency();
+  const priceInfo = formatProductPrice(product.price);
+  const altPriceInfo = product.alternatePrice ? formatProductPrice(product.alternatePrice) : null;
+
   return (
     <div className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden">
       <div className="relative h-48 overflow-hidden bg-gray-50 flex items-center justify-center">
@@ -34,10 +39,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="mt-auto">
           <div className="flex items-baseline space-x-2 mb-4">
             <span className="text-2xl font-black text-gray-900">
-              {product.price === 0 ? 'Free' : `$${product.price}`}
+              {product.price === 0 ? 'Free' : priceInfo.formatted}
             </span>
-            {product.alternatePrice && product.price !== 0 && (
-              <span className="text-lg text-gray-500 line-through">${product.alternatePrice}</span>
+            {altPriceInfo && product.price !== 0 && (
+              <span className="text-lg text-gray-500 line-through">{altPriceInfo.formatted}</span>
             )}
           </div>
 
@@ -60,7 +65,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 to={`/product/${product.id}`}
                 className="w-full text-center border-2 border-red-600 text-red-600 hover:bg-red-50 font-bold py-2.5 rounded-xl transition-colors text-sm"
               >
-                Buy Now - ${product.price}
+                Buy Now - {priceInfo.formatted}
               </Link>
             )}
           </div>

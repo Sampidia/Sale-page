@@ -1543,10 +1543,228 @@ export default {
       });
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 9: POST /api/trigger-drip-cron (Manual or Test Trigger for Email Drip)
+    // ─────────────────────────────────────────────────────────────────────────
+    if ((request.method === 'POST' || request.method === 'GET') && url.pathname.includes('/api/trigger-drip-cron')) {
+      const summary = await processDailyDripEmails(env);
+      return new Response(JSON.stringify(summary), {
+        status: 200,
+        headers: { ...headers, 'Content-Type': 'application/json' }
+      });
+    }
+
     // Default 404 Handler for Unmatched Endpoints
     return new Response(
       JSON.stringify({ error: 'Endpoint not found. Please verify the URL route.' }),
       { status: 404, headers: { ...headers, 'Content-Type': 'application/json' } }
     );
   },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // CLOUDFLARE SCHEDULED CRON TRIGGER (Runs Daily)
+  // ─────────────────────────────────────────────────────────────────────────
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(processDailyDripEmails(env));
+  }
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HELPER FUNCTION: Process Daily Drip & Cross-Sell Email Sequences
+// ─────────────────────────────────────────────────────────────────────────────
+async function processDailyDripEmails(env) {
+  const results = { day3Count: 0, day7Count: 0, day14Count: 0, errors: [] };
+
+  if (!env.DB || !env.RESEND_API_KEY) {
+    console.log('[Drip Cron] Skipped: Missing env.DB or env.RESEND_API_KEY');
+    return { status: 'skipped', reason: 'Missing env.DB or env.RESEND_API_KEY' };
+  }
+
+  try {
+    // 1. Ensure drip_logs tracking table exists
+    await env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS drip_logs (
+        id TEXT PRIMARY KEY,
+        email TEXT NOT NULL,
+        drip_step TEXT NOT NULL,
+        sent_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+
+    const now = Date.now();
+    const DAY_MS = 24 * 60 * 60 * 1000;
+
+    // Helper: Check if drip step was already sent to email
+    async function hasReceivedDrip(email, dripStep) {
+      const row = await env.DB.prepare(`
+        SELECT id FROM drip_logs WHERE LOWER(email) = ? AND drip_step = ?
+      `).bind(email.toLowerCase(), dripStep).first();
+      return !!row;
+    }
+
+    // Helper: Mark drip step as sent in D1
+    async function markDripSent(email, dripStep) {
+      await env.DB.prepare(`
+        INSERT OR IGNORE INTO drip_logs (id, email, drip_step)
+        VALUES (?, ?, ?)
+      `).bind(`drip_${dripStep}_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`, email.toLowerCase(), dripStep).run();
+    }
+
+    // Fetch all purchasers from D1
+    const { results: purchases } = await env.DB.prepare(`
+      SELECT DISTINCT email, customer_name, course_id, item_type, purchased_at FROM purchases ORDER BY purchased_at DESC
+    `).all();
+
+    if (!purchases || purchases.length === 0) {
+      return { status: 'success', message: 'No purchasers found in database', ...results };
+    }
+
+    for (const p of purchases) {
+      const email = String(p.email || '').trim().toLowerCase();
+      const customerName = p.customer_name || 'Valued Student';
+      const itemType = p.item_type || 'course';
+
+      if (!email || !email.includes('@')) continue;
+
+      // Calculate days since purchase
+      const purchasedTime = p.purchased_at ? new Date(p.purchased_at).getTime() : now;
+      const daysSincePurchase = (now - purchasedTime) / DAY_MS;
+
+      // ───────────────────────────────────────────────────────────────────────
+      // DAY 3 DRIP: Check-in & Antigravity AI Prompting Tips
+      // ───────────────────────────────────────────────────────────────────────
+      if (daysSincePurchase >= 3 && daysSincePurchase < 7) {
+        const alreadySent = await hasReceivedDrip(email, 'day_3');
+        if (!alreadySent) {
+          const resendRes = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${env.RESEND_API_KEY}`
+            },
+            body: JSON.stringify({
+              from: 'admin@afigo.sampidia.com',
+              to: email,
+              subject: `⚡ Quick Check-in: How is your Vibe Coding setup going, ${customerName}?`,
+              html: `
+                <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 25px; color: #1e293b; line-height: 1.6;">
+                  <h2 style="color: #dc2626;">Hey ${customerName}! 👋</h2>
+                  <p>It's Afigo Sam here. I noticed you grabbed our masterclass blueprint a few days ago, and I wanted to check in!</p>
+                  
+                  <p>How is your <strong>Android Studio + Antigravity AI</strong> setup coming along?</p>
+
+                  <div style="background-color: #f8fafc; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                    <p style="margin: 0; font-weight: bold; color: #0f172a;">💡 Quick Pro Tip from Module 1:</p>
+                    <p style="margin: 5px 0 0; font-size: 14px; color: #475569;">When asking Antigravity to write Kotlin layout code, always specify: <em>"Use ConstraintLayout or LazyColumn with dark mode tailwind-style palette and explicit accessibility IDs."</em> This eliminates 95% of layout bugs instantly!</p>
+                  </div>
+
+                  <p>If you have any questions or get stuck on any error, just hit reply to this email. I read every message personally.</p>
+
+                  <p style="margin-top: 30px; border-top: 1px solid #e2e8f0; pt-20px; font-size: 13px; color: #64748b;">
+                    Keep building,<br>
+                    <strong>Oghenekaro Samson Afigo</strong><br>
+                    Founder, Afigo-Sam Technology & SamPidia
+                  </p>
+                </div>
+              `
+            })
+          });
+
+          if (resendRes.ok) {
+            await markDripSent(email, 'day_3');
+            results.day3Count++;
+          }
+        }
+      }
+
+      // ───────────────────────────────────────────────────────────────────────
+      // DAY 7 DRIP: 1-on-1 Mentorship & Live Code Review Upgrade
+      // ───────────────────────────────────────────────────────────────────────
+      if (daysSincePurchase >= 7 && daysSincePurchase < 14) {
+        const alreadySent = await hasReceivedDrip(email, 'day_7');
+        if (!alreadySent) {
+          const resendRes = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${env.RESEND_API_KEY}`
+            },
+            body: JSON.stringify({
+              from: 'admin@afigo.sampidia.com',
+              to: email,
+              subject: `🎥 Want me to review your app & code live on video, ${customerName}?`,
+              html: `
+                <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 25px; color: #1e293b; line-height: 1.6;">
+                  <h2 style="color: #dc2626;">Take Your Project to the Next Level 🚀</h2>
+                  <p>Hi ${customerName},</p>
+                  <p>By now, you should have reviewed the <strong>Vibe Coding Masterclass</strong> guide. If you want to accelerate your development and skip weeks of trial and error, I'm offering direct 1-on-1 video mentorship sessions.</p>
+
+                  <div style="background-color: #0f172a; border-radius: 12px; padding: 20px; color: #ffffff; margin: 25px 0;">
+                    <span style="background: #ef4444; color: #fff; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 4px;">1-ON-1 LIVE MENTORSHIP</span>
+                    <h3 style="margin: 10px 0 5px; color: #ffffff;">Direct Video Coaching with Afigo Sam</h3>
+                    <p style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;">Book a dedicated 30-minute 1-on-1 Zoom or Google Meet slot where we review your project, solve Kotlin/Gradle bugs live, and optimize your app architecture.</p>
+                    <a href="https://afigo.sampidia.com/#/course/vibe-coding?format=one-on-one" style="background: #ef4444; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px; display: inline-block;">Book Live Mentorship Slot →</a>
+                  </div>
+
+                  <p style="font-size: 13px; color: #64748b;">Best regards,<br><strong>Afigo Sam</strong></p>
+                </div>
+              `
+            })
+          });
+
+          if (resendRes.ok) {
+            await markDripSent(email, 'day_7');
+            results.day7Count++;
+          }
+        }
+      }
+
+      // ───────────────────────────────────────────────────────────────────────
+      // DAY 14 DRIP: WordPress AI Content Generator Tool Cross-Sell
+      // ───────────────────────────────────────────────────────────────────────
+      if (daysSincePurchase >= 14) {
+        const alreadySent = await hasReceivedDrip(email, 'day_14');
+        if (!alreadySent) {
+          const resendRes = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${env.RESEND_API_KEY}`
+            },
+            body: JSON.stringify({
+              from: 'admin@afigo.sampidia.com',
+              to: email,
+              subject: `🔌 Automate your website content & traffic with AI, ${customerName}`,
+              html: `
+                <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 25px; color: #1e293b; line-height: 1.6;">
+                  <h2 style="color: #dc2626;">Automate Your Web Traffic 📈</h2>
+                  <p>Hi ${customerName},</p>
+                  <p>Whether you are building mobile apps or managing websites, driving organic search traffic is essential.</p>
+                  <p>I built the <strong>WordPress AI-Powered Automatic Content Generator ($25)</strong> to automatically write, optimize, and publish high-ranking blog posts using OpenAI GPT-4o, Google Gemini, Claude 3.5, and DeepSeek.</p>
+
+                  <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin: 25px 0;">
+                    <h3 style="margin: 0 0 8px; color: #0f172a;">WordPress AI Content Generator ($25 USD)</h3>
+                    <p style="color: #475569; font-size: 13px; margin: 0 0 15px;">Bulk article generation, automatic DALL-E 3 image creation, SEO auto-optimization, and automated publishing scheduling.</p>
+                    <a href="https://afigo.sampidia.com/#/product/ai-content-generator" style="background: #0f172a; color: #ffffff; padding: 10px 18px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px; display: inline-block;">View Plugin Details →</a>
+                  </div>
+
+                  <p style="font-size: 13px; color: #64748b;">Happy building,<br><strong>Afigo Sam</strong></p>
+                </div>
+              `
+            })
+          });
+
+          if (resendRes.ok) {
+            await markDripSent(email, 'day_14');
+            results.day14Count++;
+          }
+        }
+      }
+    }
+
+    return { status: 'success', ...results };
+  } catch (err) {
+    console.error('[Drip Cron Error]:', err);
+    return { status: 'error', error: err.message, ...results };
+  }
+}

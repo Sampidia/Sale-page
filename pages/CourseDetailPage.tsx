@@ -3,10 +3,13 @@ import { useParams, Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { COURSES } from '../constants';
 import { CourseFormat } from '../types';
+import { useCurrency } from '../context/CurrencyContext';
 
 const CourseDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const course = COURSES.find((c) => c.id === id) || COURSES[0];
+  const { formatCoursePrice } = useCurrency();
+  const coursePriceInfo = formatCoursePrice(course.price);
 
   // State selection
   const [format, setFormat] = useState<CourseFormat>('pdf');
@@ -375,7 +378,7 @@ const CourseDetailPage: React.FC = () => {
             </span>
           ) : (
             <>
-              <span>💳</span> Pay ₦{course.price.toLocaleString()} NGN Now
+              <span>💳</span> Pay {coursePriceInfo.formatted} Now
             </>
           )}
         </button>

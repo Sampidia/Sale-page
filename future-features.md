@@ -205,7 +205,53 @@ A fully functional post-purchase portal at `/my-courses` where students enter th
 - ⚡ **Zero Infrastructure Cost**: Cloudflare D1 free tier provides 5 million reads/day and 100,000 writes/day.
 - 🎨 **Premium UI**: Split-screen card layout with AI-generated hero artwork, matching the luxury design aesthetic of the main sales page.
 
+## 5. Generate High-Res Social Preview Images & Dynamic OpenGraph Engine — ✅ IMPLEMENTED
+
+**Completed: September 2026** | Implemented via Route 8 (`GET /share` & `GET /api/share`) in `course-payment-worker-deploy.js`.
+
+Edge Cloudflare Worker generates server-side OpenGraph HTML meta tags (`og:title`, `og:description`, `og:image`) specifically designed for WhatsApp, iMessage, Facebook, and Twitter link preview crawlers, featuring dynamic client redirects to SPA routes.
+
 ---
 
-## 5. Generate High-Res Social Preview image for products pages and implement it
+## 6. Verified Student Certificate Generator (PDF / Image)
+
+Allow students who complete the PDF masterclass or 1-on-1 Mentorship session to unlock and download a high-resolution, branded **Afigo-Sam Verified Certificate of Completion**.
+
+### How It Works
+1. Student enters their registered email on the portal (`/my-courses`).
+2. Worker verifies completed purchase in Cloudflare D1.
+3. Generates a branded PDF certificate with student name, course title, issue date, and unique certificate verification code (`CERT-2026-XXXX`).
+4. Students share certificate on LinkedIn, Twitter/X, and WhatsApp Status with a verification link back to `afigo.sampidia.com`.
+
+### Benefits
+- 🎓 **High Social Proof**: Increases perceived value of masterclasses.
+- 🚀 **Viral Referral Traffic**: Free organic traffic from LinkedIn and Twitter shares.
+
+---
+
+## 7. Affiliate & Student Referral Commission System
+
+Allow past students, tech bloggers, and influencers to generate unique referral links and earn commissions on course and plugin sales.
+
+### How It Works
+1. Affiliates generate referral links (e.g. `afigo.sampidia.com/#/course/vibe-coding?ref=aff_alex`).
+2. Cloudflare Worker tracks referral cookies/parameters during Flutterwave checkout.
+3. On successful purchase, records 20%–30% referral commission in D1 (`referrals` table).
+
+### Benefits
+- 💰 **Hands-Free Sales Growth**: Scales masterclass sales via word-of-mouth without upfront ad spend.
+
+---
+
+## 8. In-Portal Student Review & Testimonial Submission Widget
+
+Allow verified buyers in the Student Portal (`/my-downloads`) to submit 5-star ratings and written or video reviews.
+
+### How It Works
+1. Verified buyer logs into portal and clicks *"Submit Course Review"*.
+2. Review is stored in Cloudflare D1 (`reviews` table).
+3. Approved reviews automatically display on the main sales page testimonials grid.
+
+### Benefits
+- ⭐ **Automated Social Proof**: Keeps testimonial sections fresh without manual code updates.
 
