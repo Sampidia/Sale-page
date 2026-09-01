@@ -28,6 +28,57 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Contact', href: '/#contact' }
 ];
 
+export const TESTIMONIALS: Testimonial[] = [
+  {
+    id: 't-1',
+    name: 'Andrej Balham',
+    country: 'Slovak Republic 🇸🇰',
+    quote: 'If you are in the hotel industry, I would definitely recommend Sam. Sam is a real professional, knows the business, and can deliver projects in a high quality. A++++++. Your great work deserves another THANK YOU!',
+    rating: 5,
+    avatarUrl: 'https://portfolio.sampidia.com/img/testimonials/A.png'
+  },
+  {
+    id: 't-2',
+    name: 'Livelimitless',
+    country: 'USA 🇺🇸',
+    quote: 'Above and beyond, customer service, skills and communication. Very happy to work with Sampdiablog!',
+    rating: 5,
+    avatarUrl: 'https://portfolio.sampidia.com/img/testimonials/l.png'
+  },
+  {
+    id: 't-3',
+    name: 'Markmediaman',
+    country: 'USA 🇺🇸',
+    quote: 'Great work, in a timely fashion.',
+    rating: 5,
+    avatarUrl: 'https://portfolio.sampidia.com/img/testimonials/M.png'
+  },
+  {
+    id: 't-4',
+    name: 'Wterrac',
+    country: 'Sweden 🇸🇪',
+    quote: 'Great service!!!!',
+    rating: 5,
+    avatarUrl: 'https://portfolio.sampidia.com/img/testimonials/wterrac.jpg'
+  },
+  {
+    id: 't-5',
+    name: 'Pargelenis',
+    country: 'Germany 🇩🇪',
+    quote: 'Quick delivery, thank you',
+    rating: 5,
+    avatarUrl: 'https://portfolio.sampidia.com/img/testimonials/P.png'
+  },
+  {
+    id: 't-6',
+    name: 'Markpriston',
+    country: 'Croatia 🇭🇷',
+    quote: 'The best developer and problem solver!',
+    rating: 5,
+    avatarUrl: 'https://portfolio.sampidia.com/img/testimonials/markpriston.jpg'
+  }
+];
+
 export const CLIENT_PROJECTS: ClientProject[] = [
   {
     id: 'hotel-casa-escobar',
@@ -45,6 +96,119 @@ export const CLIENT_PROJECTS: ClientProject[] = [
     ],
     websiteUrl: 'https://hotelcasaescobar.com/',
     tags: ['WordPress', 'MotoPress Booking', 'Payment Gateway', 'Custom PHP']
+  },
+  {
+    id: 'hotel-botanikal',
+    title: 'Hotel Botanikal',
+    category: 'Hotel Booking',
+    client: 'Markmediaman',
+    location: 'Quindío, Colombia',
+    date: 'May 2022',
+    description: 'Luxury eco-hotel booking system created for guests seeking privacy, luxury, and nature connection in the Coffee Cultural Landscape.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/hotelBot%C3%A1nikal.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/hotelBot%C3%A1nikal1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/hotelBot%C3%A1nikal2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/hotelBot%C3%A1nikal3.webp'
+    ],
+    websiteUrl: 'https://hotelbotanikal.com/',
+    tags: ['Hotel Booking', 'Luxury Resort', 'Payment Integration', 'Multilingual']
+  },
+  {
+    id: 'element-quindio',
+    title: 'Elementquindio Resort',
+    category: 'Hotel Booking',
+    client: 'Markmediaman',
+    location: 'Circasia - Salento, Colombia',
+    date: 'June 2022',
+    description: 'Boutique lodging booking portal for eco-shelters designed for magical sunsets and forest nature immersion.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/Elementquindio.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/Elementquindio1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/Elementquindio2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/Elementquindio3.webp'
+    ],
+    websiteUrl: 'https://elementquindio.com/',
+    tags: ['Hotel Booking', 'Custom Reservation', 'Stripe/PayPal']
+  },
+  {
+    id: 'eva-worldwide',
+    title: 'EVA Worldwide Resort',
+    category: 'Hotel Booking',
+    client: 'Adeel Habib',
+    location: 'South Carolina, USA',
+    date: 'November 2023',
+    description: 'Luxury resort booking portal providing guests with personalized stay packages and local culture immersion.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/evaww.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/evaww1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/evaww2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/evaww3.webp'
+    ],
+    websiteUrl: 'https://evaww.com/',
+    tags: ['Hotel Booking', 'Resort Booking', 'Custom PHP', 'Payment Gateway']
+  },
+  {
+    id: 'villa-liptovska-mara',
+    title: 'Villa Liptovská Mara',
+    category: 'Hotel Booking',
+    client: 'Andrej Balham',
+    location: 'Bratislava, Slovakia',
+    date: 'December 2023',
+    description: 'Vacation villa booking platform located near thermal park Bešenová and Tatralandia water park.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/villaliptovskamara.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/villaliptovskamara1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/villaliptovskamara2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/villaliptovskamara3.webp'
+    ],
+    websiteUrl: 'https://www.villaliptovskamara.sk/',
+    tags: ['Hotel Booking', 'Villa Reservation', 'Multi-Language', 'Custom WordPress']
+  },
+  {
+    id: 'riad-rodaina',
+    title: 'Riad Rodaina Marrakech',
+    category: 'Hotel Booking',
+    client: 'Baissane',
+    location: 'Marrakech Medina, Morocco',
+    date: 'January 2023',
+    description: 'Traditional Moroccan Riad booking engine in the heart of Marrakech Medina with Atlas mountain views.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/ria.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/ria1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/ria2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/ria3.webp'
+    ],
+    websiteUrl: 'https://riadrodaina.com/',
+    tags: ['Riad Booking', 'Moroccan Hospitality', 'Reservation Engine']
+  },
+  {
+    id: 'turtle-bay-beach-house',
+    title: 'Turtle Bay Beach House',
+    category: 'Hotel Booking',
+    client: 'Alex',
+    location: 'Espiritu Santo, Vanuatu',
+    date: 'October 2024',
+    description: 'Minimalist waterfront beach house and tree house booking engine overlooking Turtle Bay.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/turtle1.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/turtle2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/turtle4.webp'
+    ],
+    websiteUrl: 'https://turtlebaybeachhouse.com/cheap-accommodation-espiritu-santo-vanuatu/',
+    tags: ['Beach House Booking', 'Minimalist Design', 'Online Booking']
+  },
+  {
+    id: '10680-rochdale',
+    title: '10680 Rochdale (Guesty Integration)',
+    category: 'Hotel Booking',
+    client: 'Rochdale Rentals',
+    location: 'USA',
+    date: '2024',
+    description: 'Shortlet vacation rental booking engine integrated with Guesty PMS multi-channel channel manager.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/1068.webp',
+    websiteUrl: 'https://10680.guestybookings.com/en',
+    tags: ['Guesty PMS', 'Shortlet Booking', 'API Integration', 'Channel Manager']
   },
   {
     id: 'nano-earth-cbd',
@@ -106,8 +270,79 @@ export const CLIENT_PROJECTS: ClientProject[] = [
     date: 'February 2022',
     description: 'Service appointment scheduling site serving DC, MD, and VA, integrated with digital package checkout and automated confirmation systems.',
     imageUrl: 'https://portfolio.sampidia.com/img/portfolio/tet.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/tet1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/tet2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/tet3.webp'
+    ],
     websiteUrl: 'https://www.tetradopus.com/',
     tags: ['Appointment Booking', 'Payment Gateway', 'Photography Services']
+  },
+  {
+    id: 'rincon-de-galicia',
+    title: "O'Rincón de Galicia Restaurant",
+    category: 'Appointment Booking',
+    client: 'Manuelvalenciad',
+    location: 'Hospitalet, Barcelona, Spain',
+    date: 'November 2022',
+    description: 'Table reservation booking system for a traditional Galician restaurant operating in Barcelona since 1999.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/rin.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/rin1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/rin2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/rin3.webp'
+    ],
+    websiteUrl: 'https://rincondegalicia.es/pages/reserva-mesa',
+    tags: ['Table Reservation', 'Restaurant Booking', 'Custom PHP']
+  },
+  {
+    id: 'the-outcasters',
+    title: 'The Outcasters Improv Training',
+    category: 'Appointment Booking',
+    client: 'Desertheat',
+    location: 'Scottsdale, Arizona, USA',
+    date: 'November 2022',
+    description: 'Class reservation & drop-in booking platform for an improvisational comedy troupe and training center.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/theout.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/theout1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/theout2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/theout3.webp'
+    ],
+    websiteUrl: 'https://theoutcasters.com/dropin/',
+    tags: ['Class Booking', 'Improv Training', 'Ticket Booking']
+  },
+  {
+    id: 'evaspin',
+    title: 'Evaspin Car Sharing',
+    category: 'Appointment Booking',
+    client: 'Adeel Habib',
+    location: 'New York, USA',
+    date: 'April 2023',
+    description: 'Car sharing reservation platform providing accessible, secure, and cost-effective vehicle booking.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/evaspin.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/evaspin1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/evaspin2.webp'
+    ],
+    websiteUrl: 'https://evaspin.com/',
+    tags: ['Car Sharing', 'Vehicle Reservation', 'Payment Integration']
+  },
+  {
+    id: 'investment-property-nottingham',
+    title: 'Investment Property Nottingham',
+    category: 'Landing Pages',
+    client: 'Investment Property Nottingham UK',
+    location: 'Nottingham, United Kingdom',
+    date: 'January 2022',
+    description: 'Comprehensive property sourcing landing page engineered for real estate investors across the UK.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/InvestmentPropertywebsite.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/InvestmentPropertywebsite1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/InvestmentPropertywebsite2.webp'
+    ],
+    websiteUrl: 'https://www.investmentpropertynottingham.co.uk/',
+    tags: ['Landing Page', 'Real Estate', 'Lead Generation']
   },
   {
     id: 'solana-community-dapp',
@@ -115,7 +350,7 @@ export const CLIENT_PROJECTS: ClientProject[] = [
     category: 'AI & Web3',
     client: 'Web3 Community',
     date: '2024',
-    description: 'Decentralized community-savings (Ajo/ESUSU) dApp engineered on Solana utilizing Rust smart contracts for transparent, trustless financial pools.',
+    description: 'Decentralized community-savings (Ajo/ESUSU) dApp engineered on Solana utilizing Rust smart contracts for transparent financial pools.',
     imageUrl: 'assets/Solana Savings dApp ESUSU.webp',
     websiteUrl: 'https://ajo.sampidia.com/',
     tags: ['Rust', 'Solana', 'Smart Contracts', 'Web3', 'dApp']
@@ -126,10 +361,10 @@ export const CLIENT_PROJECTS: ClientProject[] = [
     category: 'AI & Web3',
     client: 'Gaming & Creator Studio',
     date: '2025',
-    description: 'Autonomous multi-agent workflow for game developers and VTubers — auto-posts trending X/Twitter content with AI-generated FLUX images and Buffer scheduling.',
+    description: 'Autonomous multi-agent workflow for game developers and VTubers — auto-posts trending X/Twitter content with AI-generated FLUX images.',
     imageUrl: 'assets/AI Multi-Agent Content Pipeline.webp',
     websiteUrl: 'https://n8n.io/workflows/14768-auto-post-trending-x-tweets-with-gemini-ai-images-flux-and-buffer/',
-    tags: ['n8n Creator', 'Gemini AI', 'FLUX Image Gen', 'Apify', 'Buffer API', 'X/Twitter']
+    tags: ['n8n Creator', 'Gemini AI', 'FLUX Image Gen', 'Apify', 'Buffer API']
   },
   {
     id: 'telegram-storefront-bot',
@@ -137,10 +372,10 @@ export const CLIENT_PROJECTS: ClientProject[] = [
     category: 'AI & Web3',
     client: 'SME Merchants',
     date: '2025',
-    description: 'Full n8n workflow that turns a Telegram bot into a complete storefront — product browsing, cart, Paystack/Flutterwave checkout, and Google Sheets inventory sync. Published on n8n.io.',
+    description: 'Full n8n workflow turning a Telegram bot into a complete storefront — product browsing, Paystack/Flutterwave checkout, and Google Sheets sync.',
     imageUrl: 'assets/Workflow Automation (n8n, Make, Zapier Expert).webp',
     websiteUrl: 'https://n8n.io/creators/sampidia/',
-    tags: ['n8n Creator', 'Telegram Bot', 'Paystack', 'Flutterwave', 'Google Sheets']
+    tags: ['n8n Creator', 'Telegram Bot', 'Paystack', 'Flutterwave']
   }
 ];
 
@@ -367,7 +602,7 @@ export const PRODUCTS: Product[] = [
         metric: '100% Automated'
       }
     ],
-    buyUrl: '#',
+    buyUrl: 'https://efedazivgdlaojmbqczt.supabase.co/storage/v1/object/sign/Naija%20Ayo%20WorldWide/Sales%20Page/my-licenses-manager.zip?token=eyJraWQiOiI0ZGEyZWZiYS02MGRkLTQ3MTktYmZlNi0zZTJlMjJkNWJhMTEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJOYWlqYSBBeW8gV29ybGRXaWRlL1NhbGVzIFBhZ2UvbXktbGljZW5zZXMtbWFuYWdlci56aXAiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg4MjgzMTg4LCJleHAiOjMxNTUzODgyODMxODh9.tZX7AEiS8ig-hxSnDrupLWT_X43XKjbRiT13U0dubpY',
     badge: 'Popular',
     showcaseImages: [
       { img: 'assets/screenshot-1.webp', title: 'Intuitive Dashboard' },

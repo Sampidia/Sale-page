@@ -6,6 +6,7 @@ import {
   PRODUCTS, 
   MOBILE_APPS, 
   CLIENT_PROJECTS, 
+  TESTIMONIALS,
   SKILL_CATEGORIES, 
   EXPERIENCE_TIMELINE, 
   EDUCATION_TIMELINE,
@@ -394,9 +395,9 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Projects Grid */}
+          {/* Projects Grid (6-Item Limit) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProjects.map((project) => (
+            {filteredProjects.slice(0, 6).map((project) => (
               <div 
                 key={project.id}
                 className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
@@ -464,6 +465,17 @@ const LandingPage: React.FC = () => {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* View All Projects Button */}
+          <div className="mt-12 text-center">
+            <Link
+              to="/projects"
+              className="inline-flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-extrabold text-sm px-8 py-4 rounded-2xl transition-all shadow-xl hover:shadow-red-600/30 transform hover:-translate-y-0.5"
+            >
+              <span>View All Projects ({CLIENT_PROJECTS.length})</span>
+              <span>→</span>
+            </Link>
           </div>
         </div>
       </section>
@@ -625,6 +637,62 @@ const LandingPage: React.FC = () => {
 
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS & CLIENT REVIEWS SECTION */}
+      <section id="testimonials" className="py-24 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-red-600/10 rounded-full blur-[140px] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-red-400 bg-red-950/80 border border-red-800/80 px-4 py-1.5 rounded-full inline-block">
+              Client Feedback
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-4 tracking-tight">
+              What Clients Say About My Work
+            </h2>
+            <p className="text-slate-400 text-base mt-2">
+              Verified 5-star reviews from business owners across the USA, Sweden, Croatia, Germany, and Slovakia.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {TESTIMONIALS.map((t) => (
+              <div
+                key={t.id}
+                className="bg-[#0f0e17] border border-slate-800/80 hover:border-red-500/40 rounded-3xl p-6 shadow-xl flex flex-col justify-between transition-all"
+              >
+                <div className="space-y-4">
+                  {/* Rating Stars */}
+                  <div className="flex items-center space-x-1 text-amber-400 text-sm">
+                    {Array.from({ length: t.rating }).map((_, i) => (
+                      <span key={i}>★</span>
+                    ))}
+                  </div>
+
+                  {/* Quote */}
+                  <p className="text-slate-300 text-sm leading-relaxed italic">
+                    "{t.quote}"
+                  </p>
+                </div>
+
+                <div className="flex items-center space-x-3 pt-6 mt-6 border-t border-slate-800/80">
+                  <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 overflow-hidden flex items-center justify-center font-bold text-red-400 text-sm shrink-0">
+                    {t.avatarUrl ? (
+                      <img src={t.avatarUrl} alt={t.name} className="w-full h-full object-cover" />
+                    ) : (
+                      t.name.charAt(0)
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold text-white leading-tight">{t.name}</h3>
+                    <p className="text-[11px] text-slate-400 font-medium">{t.country}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

@@ -48,15 +48,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             >
               View Details
             </Link>
-            <a
-              href={product.buyUrl}
-              className={`w-full text-center border-2 font-bold py-2.5 rounded-xl transition-colors text-sm ${product.price === 0
-                ? 'border-green-600 text-green-600 hover:bg-green-50'
-                : 'border-red-600 text-red-600 hover:bg-red-50'
-                }`}
-            >
-              {product.price === 0 ? 'Get for Free' : 'Buy Now'}
-            </a>
+            {product.price === 0 ? (
+              <a
+                href={product.buyUrl}
+                className="w-full text-center border-2 border-green-600 text-green-600 hover:bg-green-50 font-bold py-2.5 rounded-xl transition-colors text-sm"
+              >
+                Get for Free
+              </a>
+            ) : (
+              <Link
+                to={`/product/${product.id}`}
+                className="w-full text-center border-2 border-red-600 text-red-600 hover:bg-red-50 font-bold py-2.5 rounded-xl transition-colors text-sm"
+              >
+                Buy Now - ${product.price}
+              </Link>
+            )}
           </div>
         </div>
       </div>

@@ -157,13 +157,12 @@ const ProductsListPage: React.FC = () => {
                                                             Learn More →
                                                         </Link>
                                                         {product.id === 'ai-content-generator' && (
-                                                            <a
-                                                                href="https://flutterwave.com/pay/wordpressai"
+                                                            <Link
+                                                                to={`/product/${product.id}`}
                                                                 className="px-6 py-3 bg-gradient-to-r from-pink-600 to-red-600 text-white font-bold rounded-lg hover:from-pink-700 hover:to-red-700 transition-all shadow-lg shadow-pink-600/30 hover:shadow-pink-600/50 hover:scale-105"
-                                                                onClick={(e) => e.stopPropagation()}
                                                             >
-                                                                Buy Now
-                                                            </a>
+                                                                Buy Now - ${product.price}
+                                                            </Link>
                                                         )}
                                                     </div>
                                                 </div>

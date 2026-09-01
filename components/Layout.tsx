@@ -230,27 +230,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div>
               <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-4">Quick Navigation</h4>
               <ul className="space-y-2.5 text-sm">
-                {NAV_ITEMS.filter(item => !['Home', 'Skills', 'Products', 'Mobile Apps', 'Experience'].includes(item.label)).map((item) => {
-                  const isHash = item.href.startsWith('/#');
-                  if (isHash) {
-                    return (
-                      <li key={item.label}>
-                        <a
-                          href={item.href}
-                          onClick={(e) => handleNavClick(e, item.href)}
-                          className="text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
-                        >
-                          {item.label}
-                        </a>
-                      </li>
-                    );
-                  }
-                  return (
-                    <li key={item.label}>
-                      <Link to={item.href} className="text-slate-400 hover:text-red-400 transition-colors">{item.label}</Link>
-                    </li>
-                  );
-                })}
+                <li>
+                  <Link to="/projects" className="text-slate-400 hover:text-red-400 transition-colors font-semibold">Client Projects (19)</Link>
+                </li>
+                <li>
+                  <Link to="/products" className="text-slate-400 hover:text-red-400 transition-colors">Plugins & Tools</Link>
+                </li>
+                <li>
+                  <Link to="/courses" className="text-slate-400 hover:text-red-400 transition-colors">Masterclass Courses</Link>
+                </li>
+                <li>
+                  <Link to="/apps" className="text-slate-400 hover:text-red-400 transition-colors">Mobile Apps</Link>
+                </li>
+                <li>
+                  <Link to="/my-downloads" className="text-slate-400 hover:text-red-400 transition-colors">Plugin & Asset Portal</Link>
+                </li>
                 <li>
                   <Link to="/privacy-policy" className="text-slate-400 hover:text-red-400 transition-colors">Privacy Policy</Link>
                 </li>

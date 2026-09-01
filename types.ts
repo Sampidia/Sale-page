@@ -108,3 +108,12 @@ export interface Course {
   calendlyUrl: string; // e.g. 'https://calendly.com/oghenekaroafigo/meeting'
   perfectFor: { title: string; desc: string; metric: string; }[];
 }
+
+export interface Testimonial {
+  id: string;
+  name: string;
+  country: string;
+  quote: string;
+  avatarUrl?: string;
+  rating: number;
+}

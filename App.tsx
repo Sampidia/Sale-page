@@ -16,6 +16,7 @@ import GetCodePage from './pages/GetCodePage';
 import CoursesPage from './pages/CoursesPage';
 import CourseDetailPage from './pages/CourseDetailPage';
 import CourseDashboard from './components/CourseDashboard';
+import ProjectsPage from './pages/ProjectsPage';
 
 const App: React.FC = () => {
   return (
@@ -23,6 +24,7 @@ const App: React.FC = () => {
       <Layout>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/products" element={<ProductsListPage />} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/product/ai-content-generator/documentation" element={<AIDocumentationPage />} />

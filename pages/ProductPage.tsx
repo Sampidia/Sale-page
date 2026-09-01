@@ -236,14 +236,13 @@ const ProductPage: React.FC = () => {
                       Get Started - ${product.price}
                     </button>
                     {product.alternateUrl && (
-                      <a
-                        href={product.alternateUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 text-center bg-white text-gray-900 border-2 border-gray-200 font-bold py-4 px-8 rounded-2xl hover:border-red-600 hover:text-red-600 transition-all text-lg"
+                      <button
+                        disabled
+                        className="flex-1 text-center bg-slate-100 text-slate-400 border-2 border-slate-200 font-bold py-4 px-8 rounded-2xl cursor-not-allowed opacity-60 text-lg select-none hover:bg-slate-100 hover:border-slate-200 hover:text-slate-400"
+                        title="CodeCanyon purchase temporarily disabled — Buy direct for $25!"
                       >
                         CodeCanyon - ${product.alternatePrice || 35}
-                      </a>
+                      </button>
                     )}
                   </>
                 )}
