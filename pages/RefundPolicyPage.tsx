@@ -69,7 +69,7 @@ const RefundPolicyPage: React.FC = () => {
               Our 1-on-1 mentorship includes direct, live 60–120 minute video sessions and customized guidance scheduled via Calendly.
             </p>
             <ul className="list-disc list-inside space-y-2 text-slate-300">
-              <li><strong>Rescheduling Policy:</strong> You may reschedule your 1-on-1 mentorship session free of charge up to <strong>24 hours before</strong> the scheduled meeting time using the link in your email confirmation.</li>
+              <li><strong>Rescheduling Policy:</strong> You may reschedule your 1-on-1 mentorship session free of charge up to <strong>24 hours before</strong> the scheduled meeting time by contacting support.</li>
               <li><strong>No-Show / Late Cancellation:</strong> Cancellations made less than 6 hours prior to the session, or failure to attend without prior notice, are non-refundable as the instructor's dedicated time slot has been reserved.</li>
               <li><strong>Instructor Rescheduling Guarantee:</strong> In the rare event that the instructor must reschedule, you will be offered an immediate choice between an alternative priority time slot or a 100% full refund.</li>
             </ul>
@@ -81,7 +81,7 @@ const RefundPolicyPage: React.FC = () => {
               <span>💳</span> 3. Payment Disputes & Processing
             </h2>
             <p className="text-slate-400">
-              All transactions are securely processed via Flutterwave in Nigerian Naira (NGN). Approved refunds for duplicate transactions will be returned to the original payment source within 3–7 business days depending on your bank network.
+              All transactions are securely processed via Flutterwave. Approved refunds for duplicate transactions will be returned to the original payment source within 3–7 business days depending on your bank network.
             </p>
           </div>
 

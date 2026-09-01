@@ -584,8 +584,6 @@ const CourseDetailPage: React.FC = () => {
             <span>⏱️ {course.duration}</span>
             <span>•</span>
             <span>🌐 100% Practical</span>
-            <span>•</span>
-            <span className="text-emerald-400">✅ Lifetime Updates</span>
           </div>
         </div>
 
