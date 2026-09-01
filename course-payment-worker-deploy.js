@@ -608,6 +608,8 @@ export default {
       const txId = url.searchParams.get('txId') || url.searchParams.get('transactionId') || 'REC-SAMPLE';
       const email = url.searchParams.get('email') || 'student@example.com';
       const courseId = url.searchParams.get('courseId') || 'vibe-coding';
+      const currencyParam = url.searchParams.get('currency') || null;
+      const amountPaidParam = url.searchParams.get('amountPaid') || null;
 
       let customerName = 'Valued Student';
       let format = 'pdf';
@@ -630,11 +632,25 @@ export default {
         }
       }
 
-      const courseTitle = courseId === 'vibe-coding'
-        ? 'Vibe Coding: Building High-End Android Apps with Android Studio & Antigravity + AI'
-        : 'Zero to n8n — Free Hosting Mastered';
+      // Map all known course/product IDs to their display names
+      const COURSE_PRODUCT_TITLES = {
+        'vibe-coding': 'Vibe Coding: Building High-End Android Apps with Android Studio & Antigravity + AI',
+        'zero-to-n8n': 'Zero to n8n — Free Hosting Mastered',
+        'ai-content-generator': 'WordPress AI-Powered Automatic Content Generator & Auto Posting Plugin',
+        'my-licenses-manager': 'My Licenses Manager — WordPress License Key Management Plugin',
+        'booking-theme': 'Hotel Booking WordPress Theme (Pro Edition)',
+        'naija-ayo-worldwide': 'Naija Ayo Worldwide — Music Streaming & Download Plugin',
+        'afro-short': 'AfroShort — WordPress URL Shortener & Analytics Plugin',
+        'fake-detector': 'FakeDetector AI — Fact-Check & Misinformation Scanner Plugin',
+      };
+      const courseTitle = COURSE_PRODUCT_TITLES[courseId] || courseId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
-      const formatLabel = format === 'one-on-one' ? '1-on-1 Mentorship Session' : 'PDF Blueprint Masterclass';
+      // Determine the displayed amount — prefer the frontend-passed amountPaid param (local currency),
+      // otherwise fall back to the NGN amount from the DB
+      const displayAmount = amountPaidParam || `₦${Number(amount).toLocaleString()}.00 NGN`;
+      const displayCurrency = currencyParam || 'NGN';
+
+      const formatLabel = format === 'one-on-one' ? '1-on-1 Mentorship Session' : (format === 'zip' ? 'Digital Plugin Download (.ZIP)' : 'PDF Blueprint Masterclass');
       const receiptRef = `REC-${String(txId).replace(/[^a-zA-Z0-9]/g, '').slice(-8).toUpperCase()}`;
 
       const receiptHtml = `<!DOCTYPE html>
@@ -864,7 +880,7 @@ export default {
 
     <div class="items-container">
       <div class="items-header">
-        <span>Course Item & Details</span>
+        <span>Item &amp; Details</span>
         <span>Amount</span>
       </div>
       <div class="item-body">
@@ -872,12 +888,12 @@ export default {
         <div class="subtitle">Transaction Ref: ${txId}</div>
         <div class="item-meta-row">
           <span class="format-tag">Format: ${formatLabel}</span>
-          <span class="item-amount">₦${amount.toLocaleString()}.00</span>
+          <span class="item-amount">${displayAmount}</span>
         </div>
       </div>
       <div class="total-box">
         <span class="total-label">Total Amount Paid</span>
-        <span class="total-value">₦${amount.toLocaleString()}.00 NGN</span>
+        <span class="total-value">${displayAmount}</span>
       </div>
     </div>
 

@@ -6,6 +6,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import { CourseFormat } from '../types';
 
 const CoursesPage: React.FC = () => {
+  const { formatCoursePrice } = useCurrency();
   const [selectedFormat, setSelectedFormat] = useState<Record<string, CourseFormat>>({
     'vibe-coding': 'pdf',
     'zero-to-n8n': 'pdf',

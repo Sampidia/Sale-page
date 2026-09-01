@@ -255,8 +255,7 @@ const CourseDetailPage: React.FC = () => {
       <div className="border-b border-slate-800 pb-6 mb-6">
         <span className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1">Total Course Fee</span>
         <div className="flex items-baseline gap-2">
-          <span className="text-3xl sm:text-4xl font-black text-white">₦{course.price.toLocaleString()}</span>
-          <span className="text-slate-400 font-bold text-sm">NGN</span>
+          <span className="text-3xl sm:text-4xl font-black text-white">{coursePriceInfo.formatted}</span>
         </div>
         {format === 'one-on-one' ? (
           <p className="text-xs text-purple-400 font-bold mt-1">
@@ -437,7 +436,7 @@ const CourseDetailPage: React.FC = () => {
                 🎉
               </div>
               <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-black text-xs px-4 py-1.5 rounded-full uppercase tracking-wider">
-                Payment Verified • ₦{course.price.toLocaleString()} NGN
+                Payment Verified • {coursePriceInfo.formatted}
               </span>
               <h1 className="text-3xl sm:text-4xl font-black text-white mt-4 mb-2">
                 Congratulations, {name}!
@@ -472,7 +471,7 @@ const CourseDetailPage: React.FC = () => {
                     <span>📥</span> Instant Download PDF
                   </a>
                   <a
-                    href={`${workerBase}/api/download-receipt?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}&courseId=${encodeURIComponent(course.id)}`}
+                    href={`${workerBase}/api/download-receipt?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}&courseId=${encodeURIComponent(course.id)}&currency=${encodeURIComponent(coursePriceInfo.currency)}&amountPaid=${encodeURIComponent(coursePriceInfo.formatted)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm px-6 py-4 rounded-2xl transition-all border border-slate-700 flex items-center justify-center gap-2"
@@ -495,7 +494,7 @@ const CourseDetailPage: React.FC = () => {
                     👇 Please select your preferred date and time slot on the calendar widget below:
                   </p>
                   <a
-                    href={`${workerBase}/api/download-receipt?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}&courseId=${encodeURIComponent(course.id)}`}
+                    href={`${workerBase}/api/download-receipt?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}&courseId=${encodeURIComponent(course.id)}&currency=${encodeURIComponent(coursePriceInfo.currency)}&amountPaid=${encodeURIComponent(coursePriceInfo.formatted)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs px-5 py-2.5 rounded-xl border border-slate-700 transition-all"
