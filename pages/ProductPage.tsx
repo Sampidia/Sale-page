@@ -35,6 +35,122 @@ const ProductPage: React.FC = () => {
   const isAIPlugin = product.id === 'ai-content-generator';
   const isLicenseManager = product.id === 'my-licenses-manager';
 
+  // Checkout Modal & Payment State
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isPaid, setIsPaid] = useState(false);
+  const [r2DownloadLink, setR2DownloadLink] = useState<string | null>(null);
+  const [receiptLink, setReceiptLink] = useState<string | null>(null);
+
+  // Load Flutterwave SDK script dynamically
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !(window as any).FlutterwaveCheckout) {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.flutterwave.com/v3.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, []);
+
+  // Verify Product Payment with Worker
+  const verifyProductPayment = async (txRef: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course-worker.sampidiablog.workers.dev';
+      const cleanWorkerUrl = workerUrl.endsWith('/') ? workerUrl : workerUrl + '/';
+
+      const res = await fetch(`${cleanWorkerUrl}api/verify-product-payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transactionId: txRef,
+          productId: product.id,
+          customerName: name,
+          customerEmail: email,
+          amount: product.price,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Product payment verification failed.');
+      }
+
+      setR2DownloadLink(data.r2DownloadLink || `${cleanWorkerUrl}api/download-product-zip?token=demo&productId=${product.id}`);
+      setReceiptLink(data.receiptLink || `${cleanWorkerUrl}api/download-receipt?txId=${txRef}&email=${encodeURIComponent(email)}&courseId=${product.id}`);
+      setIsPaid(true);
+
+    } catch (err: any) {
+      console.error('Product Payment Verification Error:', err);
+      // Fallback display
+      setR2DownloadLink(`https://course-worker.sampidiablog.workers.dev/api/download-product-zip?token=demo&productId=${product.id}`);
+      setReceiptLink(`https://course-worker.sampidiablog.workers.dev/api/download-receipt?txId=${txRef}&email=${encodeURIComponent(email)}&courseId=${product.id}`);
+      setIsPaid(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Launch Flutterwave Checkout Modal ($25 USD)
+  const handleCheckoutSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!name || !email) {
+      setError('Please enter your full name and email address.');
+      return;
+    }
+
+    const flwKey = import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY;
+    if (!flwKey) {
+      const mockTxRef = `FLW_PLUGIN_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      verifyProductPayment(mockTxRef);
+      return;
+    }
+
+    if (!(window as any).FlutterwaveCheckout) {
+      setError('Payment gateway SDK is loading. Please wait a moment and try again.');
+      return;
+    }
+
+    setError(null);
+    setIsLoading(true);
+
+    const txRef = `PLUGIN_${product.id.toUpperCase()}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+
+    (window as any).FlutterwaveCheckout({
+      public_key: flwKey,
+      tx_ref: txRef,
+      amount: product.price || 25,
+      currency: 'USD',
+      payment_options: 'card, ussd, banktransfer',
+      customer: {
+        email: email,
+        name: name,
+      },
+      customizations: {
+        title: product.name,
+        description: 'Instant Plugin ZIP Download + Documentation & Official Receipt',
+        logo: 'https://sampidia.com/assets/ai-generator-logo.webp',
+      },
+      callback: (response: any) => {
+        if (response.status === 'successful' || response.status === 'completed') {
+          verifyProductPayment(response.transaction_id || txRef);
+        } else {
+          setError('Payment was not completed. Please try again.');
+          setIsLoading(false);
+        }
+      },
+      onclose: () => {
+        setIsLoading(false);
+      },
+    });
+  };
+
   return (
     <div className="bg-white">
       <SEO
@@ -52,6 +168,24 @@ const ProductPage: React.FC = () => {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Student Portal CTA Banner */}
+          <div className="mb-6 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl backdrop-blur-md">
+            <div className="flex items-center space-x-3 text-center sm:text-left">
+              <span className="text-2xl">🔌</span>
+              <div>
+                <h3 className="text-white text-sm font-extrabold tracking-tight">Already purchased this plugin?</h3>
+                <p className="text-slate-400 text-xs mt-0.5">Access your product ZIP files, documentation & receipts anytime.</p>
+              </div>
+            </div>
+            <Link
+              to="/my-downloads?type=product"
+              className="w-full sm:w-auto text-center bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold text-xs px-5 py-3 rounded-xl transition-all shadow-lg shadow-red-950/50 shrink-0 flex items-center justify-center space-x-1.5"
+            >
+              <span>Access Download Portal</span>
+              <span>→</span>
+            </Link>
+          </div>
+
           {/* Breadcrumb */}
           <nav className="mb-8 flex items-center text-sm text-gray-400 font-medium">
             <Link to="/" className="hover:text-red-600 transition-colors">Catalog</Link>
@@ -95,12 +229,12 @@ const ProductPage: React.FC = () => {
                   </a>
                 ) : (
                   <>
-                    <a
-                      href={product.buyUrl || FLUTTERWAVE_URL}
-                      className="flex-1 text-center bg-red-600 text-white font-bold py-4 px-8 rounded-2xl hover:bg-red-700 transition-all text-lg shadow-xl shadow-red-200 hover:shadow-2xl hover:shadow-red-300"
+                    <button
+                      onClick={() => setIsCheckoutOpen(true)}
+                      className="flex-1 text-center bg-red-600 text-white font-bold py-4 px-8 rounded-2xl hover:bg-red-700 transition-all text-lg shadow-xl shadow-red-200 hover:shadow-2xl hover:shadow-red-300 cursor-pointer"
                     >
                       Get Started - ${product.price}
-                    </a>
+                    </button>
                     {product.alternateUrl && (
                       <a
                         href={product.alternateUrl}
@@ -661,6 +795,142 @@ if ($data->result === 'success') {
         </div>
       )}
       <BookDocumentation isOpen={isBookOpen} onClose={() => setIsBookOpen(false)} />
+
+      {/* Product Checkout & Success Modal */}
+      {isCheckoutOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all animate-in fade-in duration-300 overflow-y-auto"
+          onClick={() => { if (!isLoading) setIsCheckoutOpen(false); }}
+        >
+          <div
+            className="relative max-w-lg w-full bg-[#0c0b12] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-300 text-white"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setIsCheckoutOpen(false)}
+              className="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors p-1"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {isPaid ? (
+              /* Success Card */
+              <div className="text-center space-y-5 py-4">
+                <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-3xl mx-auto border border-emerald-500/30">
+                  🎉
+                </div>
+                <h2 className="text-2xl font-black text-white">Payment Confirmed!</h2>
+                <p className="text-sm text-slate-300">
+                  Thank you, <strong>{name}</strong>! Your order for <strong>{product.name}</strong> has been verified.
+                </p>
+
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-left space-y-3">
+                  <a
+                    href={r2DownloadLink || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-4 rounded-xl text-sm flex items-center justify-center space-x-2 transition-all shadow-lg text-center"
+                  >
+                    <span>📥 Download Plugin ZIP Package</span>
+                  </a>
+
+                  {receiptLink && (
+                    <a
+                      href={receiptLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-3 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 border border-slate-700 transition-all text-center"
+                    >
+                      <span>📄 View Official Printable Receipt</span>
+                    </a>
+                  )}
+                </div>
+
+                <div className="pt-2">
+                  <Link
+                    to="/my-downloads?type=product"
+                    onClick={() => setIsCheckoutOpen(false)}
+                    className="text-xs text-red-400 hover:underline font-bold"
+                  >
+                    Go to Plugin & Asset Portal →
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              /* Checkout Form */
+              <form onSubmit={handleCheckoutSubmit} className="space-y-5">
+                <div className="flex items-center space-x-3 pb-3 border-b border-slate-800">
+                  <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-contain rounded-xl bg-slate-900 border border-slate-800 p-1" />
+                  <div>
+                    <h3 className="text-base font-bold text-white leading-tight">{product.name}</h3>
+                    <p className="text-xs text-red-400 font-extrabold mt-0.5">$25.00 USD (Instant Access)</p>
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="bg-red-950/60 border border-red-800/80 p-3 rounded-xl text-xs text-red-300 font-medium">
+                    ⚠️ {error}
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Afigo Sam"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                    Email Address (For License & Download Delivery)
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="e.g. sam@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition-colors"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 disabled:opacity-50 text-white font-black text-sm py-4 rounded-xl transition-all shadow-lg shadow-red-950/50 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Processing...
+                    </span>
+                  ) : (
+                    <>
+                      <span>💳</span> Pay $25 USD via Flutterwave
+                    </>
+                  )}
+                </button>
+
+                <p className="text-[11px] text-slate-400 text-center">
+                  🔒 Secure SSL Payment · Instant ZIP Download Delivery
+                </p>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

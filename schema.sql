@@ -12,8 +12,9 @@ CREATE TABLE IF NOT EXISTS purchases (
   course_id TEXT NOT NULL,
   format TEXT NOT NULL DEFAULT 'pdf', -- 'pdf' | 'one-on-one'
   transaction_id TEXT UNIQUE NOT NULL,
-  amount INTEGER NOT NULL DEFAULT 30000, -- Amount in NGN
+  amount INTEGER NOT NULL DEFAULT 30000, -- Amount in NGN or USD
   download_token TEXT NOT NULL,
+  item_type TEXT DEFAULT 'course', -- 'course' | 'product'
   session_booked INTEGER DEFAULT 0, -- 0 = not booked, 1 = booked on Calendly
   session_booked_at DATETIME,
   purchased_at DATETIME DEFAULT CURRENT_TIMESTAMP

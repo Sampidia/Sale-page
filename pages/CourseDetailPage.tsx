@@ -301,7 +301,7 @@ const CourseDetailPage: React.FC = () => {
             id={mobileMode ? "customer-name-m" : "customer-name"}
             type="text"
             required
-            placeholder="e.g. Karo Samson"
+            placeholder="e.g. Afigo Sam"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition-colors"

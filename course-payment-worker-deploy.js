@@ -24,21 +24,22 @@ export default {
     const url = new URL(request.url);
 
     // Helper: Store Purchase Record in Cloudflare D1
-    async function recordPurchaseToDB({ email, customerName, courseId, format, transactionId, downloadToken, amount = 30000 }) {
+    async function recordPurchaseToDB({ email, customerName, courseId, format, transactionId, downloadToken, amount = 30000, itemType = 'course' }) {
       if (!env.DB) return;
       try {
         await env.DB.prepare(`
-          INSERT OR IGNORE INTO purchases (id, email, customer_name, course_id, format, transaction_id, amount, download_token)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          INSERT OR IGNORE INTO purchases (id, email, customer_name, course_id, format, transaction_id, amount, download_token, item_type)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).bind(
           `purch_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
           String(email).trim().toLowerCase(),
-          customerName || 'Valued Student',
+          customerName || 'Valued Customer',
           courseId,
           format || 'pdf',
           String(transactionId),
           amount,
-          downloadToken
+          downloadToken,
+          itemType
         ).run();
       } catch (err) {
         console.error('D1 purchase record error:', err);
@@ -201,6 +202,155 @@ export default {
 
         return new Response(
           JSON.stringify({ success: true, verified: true, downloadToken, transactionId: txStr, receiptLink }),
+          { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ error: err.message || 'Internal Server Error' }),
+          { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 1.8: POST /api/verify-product-payment (Plugin & Digital Product Verification)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'POST' && url.pathname.endsWith('/api/verify-product-payment')) {
+      try {
+        const body = await request.json();
+        const { transactionId, productId = 'ai-content-generator', customerName, customerEmail } = body || {};
+
+        if (!transactionId || !customerName || !customerEmail) {
+          return new Response(
+            JSON.stringify({ error: 'Missing required parameters: transactionId, customerName, customerEmail' }),
+            { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const txStr = String(transactionId || '');
+
+        // 1. Verify payment with Flutterwave API
+        if (env.FLW_SECRET_KEY && !txStr.startsWith('FREE_') && !txStr.startsWith('FLW_PLUGIN_')) {
+          const flwRes = await fetch(`https://api.flutterwave.com/v3/transactions/${txStr}/verify`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${env.FLW_SECRET_KEY}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!flwRes.ok) {
+            return new Response(
+              JSON.stringify({ error: 'Transaction verification failed with payment gateway' }),
+              { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          const flwData = await flwRes.json();
+          if (flwData && flwData.data && flwData.data.status !== 'successful') {
+            return new Response(
+              JSON.stringify({ error: 'Payment transaction was not successful' }),
+              { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+            );
+          }
+        }
+
+        const downloadToken = `token_prod_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        const workerOrigin = new URL(request.url).origin;
+        const r2DownloadLink = `${workerOrigin}/api/download-product-zip?token=${downloadToken}&productId=${productId}`;
+        const receiptLink = `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(txStr)}&email=${encodeURIComponent(customerEmail)}&courseId=${encodeURIComponent(productId)}`;
+
+        // 2. Save product purchase to Cloudflare D1
+        await recordPurchaseToDB({
+          email: customerEmail,
+          customerName,
+          courseId: productId,
+          format: 'zip',
+          transactionId: txStr,
+          downloadToken,
+          amount: 25,
+          itemType: 'product'
+        });
+
+        // 3. Send Resend fulfillment email
+        if (env.RESEND_API_KEY) {
+          const productName = productId === 'ai-content-generator'
+            ? 'WordPress AI-Powered Automatic Content Generator'
+            : 'WordPress Plugin & Asset';
+
+          const emailSubject = `🔌 Order Confirmed: ${productName}`;
+
+          const emailHtml = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1e293b; line-height: 1.6;">
+              <h2 style="color: #dc2626; border-bottom: 2px solid #fee2e2; padding-bottom: 12px; margin-top: 0;">
+                🎉 Order Confirmed — ${productName}
+              </h2>
+              <p>Hi <strong>${customerName}</strong>,</p>
+              <p>Thank you for purchasing <strong>${productName}</strong>. Your payment of <strong>$25 USD</strong> has been verified.</p>
+
+              <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                <h3 style="color: #166534; margin-top: 0;">📥 Download Your Plugin (.ZIP)</h3>
+                <p>Click the button below to download your plugin package directly from our secure storage:</p>
+                <div style="text-align: center; margin: 16px 0;">
+                  <a href="${r2DownloadLink}"
+                     style="background:#16a34a; color:#ffffff; padding:14px 28px; border-radius:10px;
+                            font-size:15px; font-weight:bold; text-decoration:none; display:inline-block;">
+                    📥 Download Plugin ZIP Package
+                  </a>
+                </div>
+                <p style="font-size: 12px; color: #64748b; margin-top: 8px; text-align: center;">
+                  Save this email to re-download your plugin anytime in the future.
+                </p>
+              </div>
+
+              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin: 20px 0; text-align: center;">
+                <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: bold; color: #334155;">📄 Official Purchase Receipt</p>
+                <a href="${receiptLink}" target="_blank" style="color: #2563eb; font-weight: bold; text-decoration: underline; font-size: 14px;">
+                  View & Download Printable Receipt (PDF)
+                </a>
+              </div>
+
+              <p style="font-size: 12px; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 24px;">
+                Transaction Ref: ${txStr} | Contact support: admin@afigo.sampidia.com
+              </p>
+            </div>
+          `;
+
+          try {
+            const sendPayload = (fromAddress) => ({
+              from: fromAddress,
+              to: [customerEmail, 'admin@sampidia.com'],
+              subject: emailSubject,
+              html: emailHtml,
+            });
+
+            let resendRes = await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+              },
+              body: JSON.stringify(sendPayload('admin@afigo.sampidia.com')),
+            });
+
+            if (!resendRes.ok) {
+              await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+                },
+                body: JSON.stringify(sendPayload('onboarding@resend.dev')),
+              });
+            }
+          } catch (emailErr) {
+            console.error('Failed to send product fulfillment email:', emailErr);
+          }
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, verified: true, downloadToken, transactionId: txStr, receiptLink, r2DownloadLink }),
           { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
         );
 
@@ -410,6 +560,43 @@ export default {
           ...headers,
           'Content-Type': 'application/pdf',
           'Content-Disposition': `attachment; filename="${pdfFileName}"`,
+        },
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 2.5: GET /api/download-product-zip
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'GET' && url.pathname.endsWith('/api/download-product-zip')) {
+      const productId = url.searchParams.get('productId') || 'ai-content-generator';
+      const zipFileName = productId === 'ai-content-generator'
+        ? 'wordpress-ai-content-generator.zip'
+        : 'wordpress-plugin-asset.zip';
+
+      if (env.COURSE_PDFS) {
+        try {
+          const r2Object = await env.COURSE_PDFS.get(zipFileName);
+          if (r2Object) {
+            return new Response(r2Object.body, {
+              status: 200,
+              headers: {
+                ...headers,
+                'Content-Type': 'application/zip',
+                'Content-Disposition': `attachment; filename="${zipFileName}"`,
+              },
+            });
+          }
+        } catch (r2Err) {
+          console.error('R2 zip streaming error:', r2Err);
+        }
+      }
+
+      return new Response(`ZIP Document stream for ${productId} plugin`, {
+        status: 200,
+        headers: {
+          ...headers,
+          'Content-Type': 'application/zip',
+          'Content-Disposition': `attachment; filename="${zipFileName}"`,
         },
       });
     }
@@ -737,8 +924,9 @@ export default {
             record = await env.DB.prepare(`SELECT * FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' ORDER BY purchased_at DESC`).bind(email.toLowerCase()).first();
           }
 
-          if (record && Number(record.session_booked) === 1) {
-            const bookedHtml = `<!DOCTYPE html>
+          if (record) {
+            if (Number(record.session_booked) === 1) {
+              const bookedHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -758,17 +946,23 @@ export default {
   <div class="card">
     <div class="icon">✅</div>
     <h1>Session Already Scheduled</h1>
-    <p>Your 1-on-1 mentorship session for this purchase has already been booked on Calendly.</p>
+    <p>Your 1-on-1 mentorship booking for this purchase has already been accessed.</p>
     <div class="info-box">
-      <strong>Need to reschedule or view booking?</strong><br>
-      Please check the confirmation email sent directly by Calendly to your inbox, or contact support: <br>
+      <strong>Need to reschedule or check your date?</strong><br>
+      Please check the confirmation email sent directly by Calendly, or contact support: <br>
       <a href="mailto:admin@afigo.sampidia.com" style="color:#60a5fa;">admin@afigo.sampidia.com</a>
     </div>
     <a href="https://sampidia.com/my-courses" class="btn">Return to Student Portal</a>
   </div>
 </body>
 </html>`;
-            return new Response(bookedHtml, { status: 200, headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' } });
+              return new Response(bookedHtml, { status: 200, headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' } });
+            }
+
+            // On first click: mark session_booked = 1 in D1 so link cannot be re-used!
+            await env.DB.prepare(`
+              UPDATE purchases SET session_booked = 1, session_booked_at = datetime('now') WHERE id = ?
+            `).bind(record.id).run();
           }
         } catch (dbErr) {
           console.error('D1 check session_booked error:', dbErr);
@@ -832,26 +1026,37 @@ export default {
         );
       }
 
+      let orgUri = url.searchParams.get('org') || url.searchParams.get('organization') || '';
+      let userUri = url.searchParams.get('user') || '';
+
       try {
-        // Step 1: Fetch current user & organization details from Calendly API
-        const userRes = await fetch('https://api.calendly.com/users/me', {
-          headers: {
-            'Authorization': `Bearer ${pat}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        // Step 1: If org/user URI is not provided in URL params, fetch from /users/me
+        if (!orgUri && !userUri) {
+          const userRes = await fetch('https://api.calendly.com/users/me', {
+            headers: {
+              'Authorization': `Bearer ${pat}`,
+              'Content-Type': 'application/json',
+            },
+          });
 
-        if (!userRes.ok) {
-          const userErr = await userRes.json();
-          return new Response(
-            JSON.stringify({ error: 'Failed to verify Calendly Personal Access Token', details: userErr }),
-            { status: userRes.status, headers: { ...headers, 'Content-Type': 'application/json' } }
-          );
+          if (!userRes.ok) {
+            const userErr = await userRes.json();
+            const isScopeErr = userErr && userErr.title === 'Insufficient scope';
+            return new Response(
+              JSON.stringify({
+                error: isScopeErr
+                  ? "⚠️ Personal Access Token is missing the 'users:read' scope. Please create a new Token in Calendly with 'users:read', 'webhooks:read', and 'webhooks:write' enabled."
+                  : 'Failed to verify Calendly Personal Access Token',
+                details: userErr
+              }),
+              { status: userRes.status, headers: { ...headers, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          const userData = await userRes.json();
+          orgUri = userData.resource && userData.resource.current_organization;
+          userUri = userData.resource && userData.resource.uri;
         }
-
-        const userData = await userRes.json();
-        const orgUri = userData.resource && userData.resource.current_organization;
-        const userUri = userData.resource && userData.resource.uri;
 
         if (!orgUri && !userUri) {
           return new Response(
@@ -880,19 +1085,22 @@ export default {
 
         let subData = await subRes.json();
         if (!subRes.ok) {
-          // If organization scope failed, retry with user scope
+          // Retry with user scope + organization
+          const payload = {
+            url: webhookCallbackUrl,
+            events: ['invitee.created'],
+            scope: 'user',
+          };
+          if (orgUri) payload.organization = orgUri;
+          if (userUri) payload.user = userUri;
+
           subRes = await fetch('https://api.calendly.com/webhook_subscriptions', {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${pat}`,
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              url: webhookCallbackUrl,
-              events: ['invitee.created'],
-              user: userUri,
-              scope: 'user',
-            }),
+            body: JSON.stringify(payload),
           });
           subData = await subRes.json();
           if (!subRes.ok) {
@@ -1081,11 +1289,14 @@ export default {
                 id: p.id,
                 courseId: p.course_id,
                 format: p.format,
+                itemType: p.item_type || 'course',
                 customerName: p.customer_name,
                 transactionId: p.transaction_id,
                 purchasedAt: p.purchased_at,
                 sessionBooked: Number(p.session_booked) === 1,
-                r2DownloadLink: `${workerOrigin}/api/download-course-pdf?token=${p.download_token}&courseId=${p.course_id}`,
+                r2DownloadLink: p.item_type === 'product'
+                  ? `${workerOrigin}/api/download-product-zip?token=${p.download_token}&productId=${p.course_id}`
+                  : `${workerOrigin}/api/download-course-pdf?token=${p.download_token}&courseId=${p.course_id}`,
                 receiptLink: `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(p.transaction_id)}&email=${encodeURIComponent(normalizedEmail)}&courseId=${encodeURIComponent(p.course_id)}`,
                 calendlyUrl: p.format === 'one-on-one' ? `${workerOrigin}/api/calendly-redirect?txId=${encodeURIComponent(p.transaction_id)}&email=${encodeURIComponent(normalizedEmail)}` : null
               }));

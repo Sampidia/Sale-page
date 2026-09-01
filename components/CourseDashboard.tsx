@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams, useLocation } from 'react-router-dom';
 import SEO from './SEO';
-import { COURSES } from '../constants';
+import { COURSES, PRODUCTS } from '../constants';
 
 interface PurchasedCourseItem {
   id: string;
   courseId: string;
-  format: 'pdf' | 'one-on-one';
+  format: 'pdf' | 'one-on-one' | 'zip';
+  itemType?: 'course' | 'product';
   customerName: string;
   transactionId: string;
   purchasedAt: string;
@@ -19,12 +20,35 @@ interface PurchasedCourseItem {
 const WORKER_BASE_URL = (import.meta as any).env?.VITE_COURSE_WORKER_URL || (import.meta as any).env?.VITE_WORKER_URL || 'https://course-worker.sampidiablog.workers.dev';
 
 const CourseDashboard: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+
+  const isProductMode = searchParams.get('type') === 'product' || location.pathname === '/my-downloads';
+  const [activeTab, setActiveTab] = useState<'all' | 'course' | 'product'>('all');
+
   const [step, setStep] = useState<'email' | 'otp' | 'dashboard'>('email');
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [purchases, setPurchases] = useState<PurchasedCourseItem[]>([]);
+
+  // Dynamic Visual & Text Configurations
+  const heroImage = isProductMode ? 'assets/product_portal_hero.png' : 'assets/student_portal_hero.png';
+  const heroOverlayTitle = isProductMode
+    ? 'WordPress themes, plugins, Php Scripts and custom scripts or apps'
+    : 'Master AI & Mobile Engineering';
+  const heroOverlayDesc = isProductMode
+    ? 'Access your purchased plugin ZIP packages, developer documentation, and official payment receipts anytime.'
+    : 'Access your masterclass PDF blueprints, 1-on-1 mentorship slots, and official payment receipts anytime.';
+
+  const backLink = isProductMode ? '/products' : '/courses';
+  const backLabel = isProductMode ? 'Back to Plugins' : 'Back to courses';
+
+  const portalHeaderTitle = isProductMode ? 'Plugin & Asset Portal' : 'Student Course Access Portal';
+  const portalHeaderSubtext = isProductMode
+    ? 'Enter your purchase email address to retrieve your product ZIP files, documentation, and receipts.'
+    : 'Enter your purchase email address to unlock your courses.';
 
   // Step 1: Request OTP Access Code
   const handleRequestAccess = async (e: React.FormEvent) => {
@@ -94,8 +118,8 @@ const CourseDashboard: React.FC = () => {
   return (
     <>
       <SEO
-        title="Student Access Portal | Afigo-Sam Courses"
-        description="Access your purchased course PDF blueprints, live 1-on-1 mentorship links, and official payment receipts anytime."
+        title={`${portalHeaderTitle} | Afigo-Sam`}
+        description={portalHeaderSubtext}
       />
 
       <div className="min-h-screen bg-[#0a0910] text-slate-100 pt-0 pb-8 sm:py-4 px-4 sm:px-6 flex items-center justify-center relative overflow-hidden">
@@ -111,7 +135,7 @@ const CourseDashboard: React.FC = () => {
             {/* Background Image Layer */}
             <div
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-105"
-              style={{ backgroundImage: `url('assets/student_portal_hero.png')` }}
+              style={{ backgroundImage: `url('${heroImage}')` }}
             />
             {/* Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c14] via-[#0d0c14]/40 to-black/60" />
@@ -119,10 +143,10 @@ const CourseDashboard: React.FC = () => {
             {/* Top Bar inside Image Panel */}
             <div className="relative z-10 flex items-center justify-end">
               <Link
-                to="/courses"
+                to={backLink}
                 className="text-[11px] font-bold text-slate-200 hover:text-white bg-slate-900/80 hover:bg-slate-800 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-700/70 transition-all flex items-center space-x-1"
               >
-                <span>Back to courses</span>
+                <span>{backLabel}</span>
                 <span>→</span>
               </Link>
             </div>
@@ -130,10 +154,10 @@ const CourseDashboard: React.FC = () => {
             {/* Bottom Content inside Image Panel */}
             <div className="relative z-10 mt-auto pt-16">
               <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight mb-2">
-                Master AI & Mobile Engineering
+                {heroOverlayTitle}
               </h2>
               <p className="text-slate-300 text-xs sm:text-sm leading-relaxed mb-6">
-                Access your masterclass PDF blueprints, 1-on-1 mentorship slots, and official payment receipts anytime.
+                {heroOverlayDesc}
               </p>
 
               {/* Slider Pagination Pills */}
@@ -153,36 +177,33 @@ const CourseDashboard: React.FC = () => {
               <div className="space-y-6">
                 <div>
                   <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
-                    Access Student Portal
+                    {portalHeaderTitle}
                   </h1>
                   <p className="text-slate-400 text-xs sm:text-sm">
-                    Enter your purchase email address to unlock your courses.
+                    {portalHeaderSubtext}
                   </p>
                 </div>
 
                 {errorMessage && (
-                  <div className="bg-red-950/80 border border-red-800/80 text-red-300 text-xs p-3.5 rounded-2xl flex items-center space-x-2">
-                    <span>⚠️</span>
-                    <span>{errorMessage}</span>
+                  <div className="bg-red-950/60 border border-red-800/80 p-3.5 rounded-2xl text-xs text-red-300 font-medium">
+                    ⚠️ {errorMessage}
                   </div>
                 )}
 
-                <form onSubmit={handleRequestAccess} className="space-y-5">
+                <form onSubmit={handleRequestAccess} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                    <label htmlFor="portal-email" className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                       Purchase Email Address
                     </label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm">✉️</span>
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email address"
-                        className="w-full bg-[#0c0b12] border border-slate-800 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
-                      />
-                    </div>
+                    <input
+                      id="portal-email"
+                      type="email"
+                      required
+                      placeholder="e.g. student@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full bg-[#09080e] border border-slate-800 rounded-2xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-colors"
+                    />
                   </div>
 
                   <button
@@ -192,89 +213,99 @@ const CourseDashboard: React.FC = () => {
                   >
                     {isLoading ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>Sending Access Code...</span>
+                        <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        <span>Sending 6-Digit Code...</span>
                       </>
                     ) : (
-                      <span>Send 6-Digit Access Code 🔑</span>
+                      <>
+                        <span>Send 6-Digit Access Code</span>
+                        <span>→</span>
+                      </>
                     )}
                   </button>
                 </form>
 
-                <div className="pt-6 border-t border-slate-800/80 text-center">
-                  <p className="text-xs text-slate-400">
-                    Haven't enrolled in a masterclass yet?{' '}
-                    <Link to="/courses" className="text-purple-400 font-bold hover:underline">
-                      Browse Catalog
-                    </Link>
-                  </p>
-                </div>
+                <p className="text-[11px] text-slate-400 text-center">
+                  🔒 Passwordless Verification · A 6-digit access code will be sent to your email.
+                </p>
               </div>
             )}
 
-            {/* STEP 2: Enter 6-Digit Code */}
+            {/* STEP 2: OTP Verification */}
             {step === 'otp' && (
               <div className="space-y-6">
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
-                    Enter Verification Code
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-950/80 text-purple-300 border border-purple-800/50 px-2.5 py-1 rounded-full">
+                    Step 2 of 2
+                  </span>
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-3 mb-2">
+                    Enter Access Code
                   </h1>
                   <p className="text-slate-400 text-xs sm:text-sm">
-                    We sent a 6-digit access code to <strong className="text-white">{email}</strong>.
+                    We sent a 6-digit code to <strong className="text-purple-300">{email}</strong>.
                   </p>
                 </div>
 
                 {errorMessage && (
-                  <div className="bg-red-950/80 border border-red-800/80 text-red-300 text-xs p-3.5 rounded-2xl flex items-center space-x-2">
-                    <span>⚠️</span>
-                    <span>{errorMessage}</span>
+                  <div className="bg-red-950/60 border border-red-800/80 p-3.5 rounded-2xl text-xs text-red-300 font-medium">
+                    ⚠️ {errorMessage}
                   </div>
                 )}
 
-                <form onSubmit={handleVerifyCode} className="space-y-5">
+                <form onSubmit={handleVerifyOtp} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 text-center">
+                    <label htmlFor="portal-code" className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                       6-Digit Access Code
                     </label>
                     <input
+                      id="portal-code"
                       type="text"
-                      required
                       maxLength={6}
+                      required
+                      placeholder="123456"
                       value={code}
                       onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                      placeholder="123456"
-                      className="w-full bg-[#0c0b12] border border-slate-800 rounded-2xl px-4 py-4 text-center text-2xl font-mono font-extrabold tracking-[10px] text-purple-400 placeholder-slate-700 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
+                      className="w-full bg-[#09080e] border border-slate-800 rounded-2xl px-4 py-3.5 text-center text-xl font-mono tracking-[8px] text-white focus:outline-none focus:border-purple-500 transition-colors"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3.5 px-6 rounded-2xl text-sm transition-all shadow-lg shadow-emerald-950/50 flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold py-3.5 px-6 rounded-2xl text-sm transition-all shadow-lg shadow-red-950/40 flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
                   >
                     {isLoading ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>Verifying Access Code...</span>
+                        <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        <span>Unlocking Dashboard...</span>
                       </>
                     ) : (
-                      <span>Unlock My Masterclasses 🚀</span>
+                      <>
+                        <span>Unlock Access Portal</span>
+                        <span>→</span>
+                      </>
                     )}
                   </button>
                 </form>
 
-                <div className="pt-6 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
                   <button
                     onClick={() => { setStep('email'); setErrorMessage(''); }}
-                    className="text-slate-400 hover:text-white transition-colors"
+                    className="hover:text-slate-200 transition-colors"
                   >
                     ← Change Email
                   </button>
                   <button
                     onClick={handleRequestAccess}
-                    className="text-purple-400 font-bold hover:underline"
+                    className="text-purple-400 hover:text-purple-300 font-medium transition-colors"
                   >
-                    Resend Code
+                    Resend Code 🔄
                   </button>
                 </div>
               </div>
@@ -282,89 +313,131 @@ const CourseDashboard: React.FC = () => {
 
             {/* STEP 3: Student Purchases Dashboard */}
             {step === 'dashboard' && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+              <div className="space-y-5">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                   <div>
                     <h2 className="text-xl font-extrabold text-white">
-                      Welcome, <span className="text-purple-400">{purchases[0]?.customerName || 'Student'}</span>
+                      Welcome, <span className="text-purple-400">{purchases[0]?.customerName || 'Customer'}</span>
                     </h2>
                     <p className="text-xs text-slate-400">
-                      {purchases.length} verified course{purchases.length === 1 ? '' : 's'} linked to {email}
+                      {purchases.length} verified purchase{purchases.length === 1 ? '' : 's'} linked to {email}
                     </p>
                   </div>
                   <button
                     onClick={() => { setStep('email'); setEmail(''); setCode(''); setPurchases([]); }}
-                    className="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 px-3.5 py-1.5 rounded-full transition-colors font-medium"
+                    className="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 px-3.5 py-1.5 rounded-full transition-colors font-medium cursor-pointer"
                   >
                     Sign Out
                   </button>
                 </div>
 
+                {/* Tab Filter Pills */}
+                {purchases.length > 0 && (
+                  <div className="flex items-center space-x-2 pb-1">
+                    <button
+                      onClick={() => setActiveTab('all')}
+                      className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer ${activeTab === 'all' ? 'bg-purple-600 text-white shadow-lg' : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'}`}
+                    >
+                      All ({purchases.length})
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('course')}
+                      className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer ${activeTab === 'course' ? 'bg-purple-600 text-white shadow-lg' : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'}`}
+                    >
+                      📘 Masterclasses ({purchases.filter(p => (p.itemType || 'course') === 'course').length})
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('product')}
+                      className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer ${activeTab === 'product' ? 'bg-purple-600 text-white shadow-lg' : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'}`}
+                    >
+                      🔌 Plugins & Assets ({purchases.filter(p => p.itemType === 'product').length})
+                    </button>
+                  </div>
+                )}
+
                 <div className="space-y-4 max-h-[70vh] sm:max-h-[460px] overflow-y-auto pr-1">
-                  {purchases.map((item) => {
-                    const courseData = COURSES.find(c => c.id === item.courseId) || COURSES[0];
-                    const formattedDate = item.purchasedAt
-                      ? new Date(item.purchasedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                      : 'Verified Order';
+                  {purchases
+                    .filter(p => activeTab === 'all' || (activeTab === 'product' ? p.itemType === 'product' : (p.itemType || 'course') === 'course'))
+                    .map((item) => {
+                      const courseData = COURSES.find(c => c.id === item.courseId);
+                      const productData = PRODUCTS.find(p => p.id === item.courseId);
+                      const title = item.itemType === 'product'
+                        ? (productData?.name || 'WordPress Plugin & Digital Product')
+                        : (courseData?.title || 'Masterclass Blueprint');
 
-                    return (
-                      <div
-                        key={item.id || item.transactionId}
-                        className="bg-[#0c0b12] border border-slate-800/90 hover:border-purple-500/40 rounded-2xl p-5 transition-all space-y-4"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-950/80 text-purple-300 border border-purple-800/50 px-2.5 py-0.5 rounded-full">
-                              {item.format === 'one-on-one' ? '🗓️ 1-on-1 Mentorship' : '📘 PDF Blueprint'}
-                            </span>
-                            <h3 className="text-sm font-bold text-white mt-2 leading-snug">
-                              {courseData.title}
-                            </h3>
+                      const formattedDate = item.purchasedAt
+                        ? new Date(item.purchasedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                        : 'Verified Order';
+
+                      return (
+                        <div
+                          key={item.id || item.transactionId}
+                          className="bg-[#0c0b12] border border-slate-800/90 hover:border-purple-500/40 rounded-2xl p-5 transition-all space-y-4"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-950/80 text-purple-300 border border-purple-800/50 px-2.5 py-0.5 rounded-full">
+                                {item.itemType === 'product' ? '🔌 Plugin Package' : (item.format === 'one-on-one' ? '🗓️ 1-on-1 Mentorship' : '📘 PDF Blueprint')}
+                              </span>
+                              <h3 className="text-sm font-bold text-white mt-2 leading-snug">
+                                {title}
+                              </h3>
+                            </div>
+                            <span className="text-[11px] text-slate-400 shrink-0">{formattedDate}</span>
                           </div>
-                          <span className="text-[11px] text-slate-400 shrink-0">{formattedDate}</span>
-                        </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
-                          {item.format !== 'one-on-one' && (
-                            <a
-                              href={item.r2DownloadLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center"
-                            >
-                              <span>📥 Download PDF</span>
-                            </a>
-                          )}
-
-                          {item.format === 'one-on-one' && (
-                            item.sessionBooked ? (
-                              <div className="bg-amber-950/80 border border-amber-800/60 text-amber-300 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 text-center">
-                                <span>✅ Session Scheduled</span>
-                              </div>
-                            ) : (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                            {item.itemType === 'product' ? (
                               <a
-                                href={item.calendlyUrl || `${WORKER_BASE_URL}/api/calendly-redirect?txId=${encodeURIComponent(item.transactionId)}`}
+                                href={item.r2DownloadLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center"
+                                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center"
                               >
-                                <span>🗓️ Schedule Live Session</span>
+                                <span>📥 Download Plugin ZIP</span>
                               </a>
-                            )
-                          )}
+                            ) : (
+                              item.format !== 'one-on-one' && (
+                                <a
+                                  href={item.r2DownloadLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center"
+                                >
+                                  <span>📥 Download PDF</span>
+                                </a>
+                              )
+                            )}
 
-                          <a
-                            href={item.receiptLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-slate-900 hover:bg-slate-800 text-slate-300 font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 border border-slate-800 transition-all text-center"
-                          >
-                            <span>📄 Printable Receipt</span>
-                          </a>
+                            {item.format === 'one-on-one' && (
+                              item.sessionBooked ? (
+                                <div className="bg-amber-950/80 border border-amber-800/60 text-amber-300 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 text-center">
+                                  <span>✅ Session Scheduled</span>
+                                </div>
+                              ) : (
+                                <a
+                                  href={item.calendlyUrl || `${WORKER_BASE_URL}/api/calendly-redirect?txId=${encodeURIComponent(item.transactionId)}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center"
+                                >
+                                  <span>🗓️ Schedule Live Session</span>
+                                </a>
+                              )
+                            )}
+
+                            <a
+                              href={item.receiptLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="bg-slate-900 hover:bg-slate-800 text-slate-300 font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 border border-slate-800 transition-all text-center"
+                            >
+                              <span>📄 Printable Receipt</span>
+                            </a>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                 </div>
 
                 {purchases.length > 1 && (
