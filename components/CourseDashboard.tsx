@@ -97,7 +97,7 @@ const CourseDashboard: React.FC = () => {
         description="Access your purchased course PDF blueprints, live 1-on-1 mentorship links, and official payment receipts anytime."
       />
 
-      <div className="min-h-screen bg-[#0a0910] text-slate-100 pt-4 pb-8 sm:py-10 px-4 sm:px-6 flex items-center justify-center relative overflow-hidden">
+      <div className="min-h-screen bg-[#0a0910] text-slate-100 pt-0 pb-8 sm:py-4 px-4 sm:px-6 flex items-center justify-center relative overflow-hidden">
         {/* Ambient Background Glows */}
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-purple-600/10 rounded-full blur-[140px] pointer-events-none" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-red-600/10 rounded-full blur-[120px] pointer-events-none" />
@@ -187,7 +187,7 @@ const CourseDashboard: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 px-6 rounded-2xl text-sm transition-all shadow-lg shadow-purple-950/40 flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold py-3.5 px-6 rounded-2xl text-sm transition-all shadow-lg shadow-red-950/40 flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
                   >
                     {isLoading ? (
                       <>
