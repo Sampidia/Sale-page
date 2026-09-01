@@ -439,15 +439,23 @@ const CourseDetailPage: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="pt-4 flex justify-center">
+                <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
                   <a
                     href={directPdfUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     download={course.pdfFileName}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm px-8 py-4 rounded-2xl transition-all shadow-xl shadow-emerald-950/40 flex items-center justify-center gap-2"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm px-6 py-4 rounded-2xl transition-all shadow-xl shadow-emerald-950/40 flex items-center justify-center gap-2"
                   >
                     <span>📥</span> Instant Download PDF
+                  </a>
+                  <a
+                    href={`${workerBase}/api/download-receipt?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}&courseId=${encodeURIComponent(course.id)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm px-6 py-4 rounded-2xl transition-all border border-slate-700 flex items-center justify-center gap-2"
+                  >
+                    <span>📄</span> Download Official Receipt (PDF)
                   </a>
                 </div>
               </div>
@@ -461,9 +469,17 @@ const CourseDetailPage: React.FC = () => {
                   <h3 className="text-xl font-bold text-white mt-2">
                     Schedule Your 1-on-1 Session with Afigo Sam
                   </h3>
-                  <p className="text-purple-300 text-xs sm:text-sm font-semibold">
+                  <p className="text-purple-300 text-xs sm:text-sm font-semibold mb-4">
                     👇 Please select your preferred date and time slot on the calendar widget below:
                   </p>
+                  <a
+                    href={`${workerBase}/api/download-receipt?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}&courseId=${encodeURIComponent(course.id)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs px-5 py-2.5 rounded-xl border border-slate-700 transition-all"
+                  >
+                    <span>📄</span> Download Official Receipt (PDF)
+                  </a>
                 </div>
 
                 {/* Embedded Calendly Scheduler Widget */}
@@ -479,9 +495,13 @@ const CourseDetailPage: React.FC = () => {
               </div>
             )}
 
-            <div className="text-center pt-10">
-              <Link to="/courses" className="text-slate-400 hover:text-white text-xs font-bold transition-colors">
+            <div className="text-center pt-10 flex items-center justify-center space-x-6 text-xs font-bold">
+              <Link to="/courses" className="text-slate-400 hover:text-white transition-colors">
                 ← Return to Course Catalog
+              </Link>
+              <span className="text-slate-700">•</span>
+              <Link to="/my-courses" className="text-red-400 hover:text-red-300 transition-colors">
+                🔑 Open Student Portal
               </Link>
             </div>
 

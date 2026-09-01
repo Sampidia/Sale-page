@@ -149,7 +149,27 @@ const CoursesPage: React.FC = () => {
 
       {/* Course Catalog Grid */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
-        
+
+        {/* Student Access Portal Banner CTA */}
+        <div className="bg-gradient-to-r from-red-950/80 via-slate-900 to-purple-950/80 border border-slate-800/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-4xl mx-auto mb-10 shadow-2xl backdrop-blur-md">
+          <div className="flex items-center space-x-3.5 text-left">
+            <div className="w-10 h-10 rounded-xl bg-red-600/20 border border-red-500/40 text-red-400 flex items-center justify-center text-xl shrink-0 shadow-inner">
+              🔑
+            </div>
+            <div>
+              <h3 className="text-white text-sm font-extrabold tracking-tight">Already Enrolled in a Masterclass?</h3>
+              <p className="text-slate-400 text-xs mt-0.5">Access your course PDF blueprints, Calendly mentorship links & receipts anytime.</p>
+            </div>
+          </div>
+          <Link
+            to="/my-courses"
+            className="w-full sm:w-auto text-center bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold text-xs px-5 py-3 rounded-xl transition-all shadow-lg shadow-red-950/50 shrink-0 flex items-center justify-center space-x-1.5"
+          >
+            <span>Access Student Portal</span>
+            <span>→</span>
+          </Link>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
           {COURSES.map((course) => {
             const currentFormat = selectedFormat[course.id] || 'pdf';

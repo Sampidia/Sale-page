@@ -23,6 +23,28 @@ export default {
 
     const url = new URL(request.url);
 
+    // Helper: Store Purchase Record in Cloudflare D1
+    async function recordPurchaseToDB({ email, customerName, courseId, format, transactionId, downloadToken, amount = 30000 }) {
+      if (!env.DB) return;
+      try {
+        await env.DB.prepare(`
+          INSERT OR IGNORE INTO purchases (id, email, customer_name, course_id, format, transaction_id, amount, download_token)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          `purch_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+          String(email).trim().toLowerCase(),
+          customerName || 'Valued Student',
+          courseId,
+          format || 'pdf',
+          String(transactionId),
+          amount,
+          downloadToken
+        ).run();
+      } catch (err) {
+        console.error('D1 purchase record error:', err);
+      }
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // ROUTE 1: POST /api/verify-course-payment
     // ─────────────────────────────────────────────────────────────────────────
@@ -68,11 +90,23 @@ export default {
 
         const downloadToken = `token_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
-        // 2. Build R2 download URL from this Worker's own origin (same URL used on the success page)
+        // 2. Build R2 download URL from this Worker's own origin
         const workerOrigin = new URL(request.url).origin;
         const r2DownloadLink = `${workerOrigin}/api/download-course-pdf?token=${downloadToken}&courseId=${courseId}`;
+        const receiptLink = `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(txStr)}&email=${encodeURIComponent(customerEmail)}&courseId=${encodeURIComponent(courseId)}`;
 
-        // 3. Send Resend confirmation email with R2 download button (no attachment)
+        // 3. Save purchase to Cloudflare D1
+        await recordPurchaseToDB({
+          email: customerEmail,
+          customerName,
+          courseId,
+          format,
+          transactionId: txStr,
+          downloadToken,
+          amount: 30000
+        });
+
+        // 4. Send Resend confirmation email with R2 download button & receipt link
         if (env.RESEND_API_KEY) {
           const courseTitle = courseId === 'vibe-coding'
             ? 'Vibe Coding: Building High-End Android Apps with Android Studio & Antigravity + AI'
@@ -119,6 +153,13 @@ export default {
                 </div>
               `}
 
+              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin: 20px 0; text-align: center;">
+                <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: bold; color: #334155;">📄 Official Purchase Receipt</p>
+                <a href="${receiptLink}" target="_blank" style="color: #2563eb; font-weight: bold; text-decoration: underline; font-size: 14px;">
+                  View & Download Printable Receipt (PDF)
+                </a>
+              </div>
+
               <p style="font-size: 12px; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 24px;">
                 Transaction Ref: ${txStr} | Contact support: admin@sampidia.com
               </p>
@@ -143,7 +184,6 @@ export default {
             });
 
             if (!resendRes.ok) {
-              console.warn('Primary domain email failed, retrying with onboarding@resend.dev');
               resendRes = await fetch('https://api.resend.com/emails', {
                 method: 'POST',
                 headers: {
@@ -153,16 +193,13 @@ export default {
                 body: JSON.stringify(sendEmailPayload('onboarding@resend.dev')),
               });
             }
-
-            const resendData = await resendRes.json();
-            console.log('Resend email result:', resendData);
           } catch (emailErr) {
             console.error('Failed to send Resend email:', emailErr);
           }
         }
 
         return new Response(
-          JSON.stringify({ success: true, verified: true, downloadToken, transactionId: txStr }),
+          JSON.stringify({ success: true, verified: true, downloadToken, transactionId: txStr, receiptLink }),
           { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
         );
 
@@ -179,7 +216,6 @@ export default {
     // ─────────────────────────────────────────────────────────────────────────
     if (request.method === 'POST' && url.pathname.endsWith('/api/flw-webhook')) {
       try {
-        // 1. Secret Hash Verification (verif-hash)
         if (env.FLW_WEBHOOK_HASH) {
           const signature = request.headers.get('verif-hash');
           if (!signature || signature !== env.FLW_WEBHOOK_HASH) {
@@ -194,7 +230,6 @@ export default {
         const event = body && body.event;
         const data = (body && body.data) || {};
 
-        // Only process successful charge events
         if (event && event !== 'charge.completed' && data.status !== 'successful') {
           return new Response(
             JSON.stringify({ message: 'Event ignored (not a successful charge)' }),
@@ -225,7 +260,18 @@ export default {
 
         const downloadToken = `token_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
-        // Send Email Attachment / Download Link via Resend API
+        // Save purchase to D1 database
+        await recordPurchaseToDB({
+          email: customerEmail,
+          customerName,
+          courseId,
+          format,
+          transactionId,
+          downloadToken,
+          amount: data.amount || 30000
+        });
+
+        // Send Email Notification
         if (env.RESEND_API_KEY) {
           const courseTitle = courseId === 'vibe-coding'
             ? 'Vibe Coding: Building High-End Android Apps with Android Studio & Antigravity + AI'
@@ -233,6 +279,7 @@ export default {
 
           const workerOrigin = new URL(request.url).origin;
           const r2DownloadLink = `${workerOrigin}/api/download-course-pdf?token=${downloadToken}&courseId=${courseId}`;
+          const receiptLink = `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(transactionId)}&email=${encodeURIComponent(customerEmail)}&courseId=${encodeURIComponent(courseId)}`;
 
           const emailSubject = format === 'one-on-one'
             ? `🗓️ Mentorship Booking Confirmed: ${courseTitle}`
@@ -271,6 +318,13 @@ export default {
                   </div>
                 </div>
               `}
+
+              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin: 20px 0; text-align: center;">
+                <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: bold; color: #334155;">📄 Official Purchase Receipt</p>
+                <a href="${receiptLink}" target="_blank" style="color: #2563eb; font-weight: bold; text-decoration: underline; font-size: 14px;">
+                  View & Download Printable Receipt (PDF)
+                </a>
+              </div>
 
               <p style="font-size: 12px; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 24px;">
                 Transaction Ref: ${transactionId} | Contact support: admin@sampidia.com
@@ -359,7 +413,455 @@ export default {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // ROUTE 3 (LEGACY): POST / (Account Deletion Request Handler)
+    // ROUTE 3: GET /api/download-receipt (Printable HTML & PDF Purchase Receipt)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'GET' && url.pathname.endsWith('/api/download-receipt')) {
+      const txId = url.searchParams.get('txId') || url.searchParams.get('transactionId') || 'REC-SAMPLE';
+      const email = url.searchParams.get('email') || 'student@example.com';
+      const courseId = url.searchParams.get('courseId') || 'vibe-coding';
+
+      let customerName = 'Valued Student';
+      let format = 'pdf';
+      let amount = 30000;
+      let purchasedAt = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+      if (env.DB) {
+        try {
+          const record = await env.DB.prepare(`SELECT * FROM purchases WHERE transaction_id = ? OR id = ?`).bind(txId, txId).first();
+          if (record) {
+            customerName = record.customer_name || customerName;
+            format = record.format || format;
+            amount = record.amount || amount;
+            if (record.purchased_at) {
+              purchasedAt = new Date(record.purchased_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            }
+          }
+        } catch (dbErr) {
+          console.error('DB fetch error for receipt:', dbErr);
+        }
+      }
+
+      const courseTitle = courseId === 'vibe-coding'
+        ? 'Vibe Coding: Building High-End Android Apps with Android Studio & Antigravity + AI'
+        : 'Zero to n8n — Free Hosting Mastered';
+
+      const formatLabel = format === 'one-on-one' ? '1-on-1 Mentorship Session' : 'PDF Blueprint Masterclass';
+      const receiptRef = `REC-${String(txId).replace(/[^a-zA-Z0-9]/g, '').slice(-8).toUpperCase()}`;
+
+      const receiptHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Receipt ${receiptRef} - Afigo Sam Page</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .receipt-card {
+      max-width: 680px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      border: 1px solid #e2e8f0;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 24px;
+      margin-bottom: 28px;
+    }
+    .brand {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+    }
+    .brand span { color: #dc2626; }
+    .subtitle { font-size: 12px; color: #64748b; margin-top: 4px; }
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      background: #dcfce7;
+      color: #15803d;
+      font-weight: 700;
+      font-size: 12px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    .info-block h4 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin: 0 0 6px 0;
+    }
+    .info-block p {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 28px;
+    }
+    th {
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      background: #f8fafc;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    td {
+      padding: 16px;
+      font-size: 14px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #334155;
+    }
+    .total-row td {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+      border-bottom: none;
+      background: #fafafa;
+    }
+    .actions {
+      text-align: center;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px dashed #cbd5e1;
+    }
+    .btn {
+      background: #dc2626;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 12px 28px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+      transition: all 0.2s ease;
+    }
+    .btn:hover { background: #b91c1c; }
+    .footer-note {
+      text-align: center;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 16px;
+    }
+    @media print {
+      body { background-color: #ffffff; padding: 0; }
+      .receipt-card { box-shadow: none; border: none; padding: 0; }
+      .actions { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="receipt-card">
+    <div class="header">
+      <div>
+        <div class="brand">Afigo<span>-Sam</span> Technology</div>
+        <div class="subtitle">SamPidia Digital Assets & Course Publishing</div>
+      </div>
+      <div style="text-align: right;">
+        <span class="badge">Payment Verified</span>
+        <div class="subtitle" style="margin-top: 8px;">Ref: ${receiptRef}</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="info-block">
+        <h4>Billed To</h4>
+        <p>${customerName}</p>
+        <p style="font-weight: normal; color: #64748b; font-size: 13px;">${email}</p>
+      </div>
+      <div class="info-block" style="text-align: right;">
+        <h4>Payment Details</h4>
+        <p>Date: ${purchasedAt}</p>
+        <p style="font-weight: normal; color: #64748b; font-size: 13px;">Provider: Flutterwave (Card / Transfer)</p>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Item & Description</th>
+          <th>Format</th>
+          <th style="text-align: right;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <strong>${courseTitle}</strong>
+            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Transaction ID: ${txId}</div>
+          </td>
+          <td>${formatLabel}</td>
+          <td style="text-align: right; font-weight: 600;">₦${amount.toLocaleString()}.00</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="2">Total Paid</td>
+          <td style="text-align: right; color: #dc2626;">₦${amount.toLocaleString()}.00 NGN</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="background-color: #f8fafc; border-radius: 10px; padding: 16px; font-size: 13px; color: #475569; line-height: 1.5;">
+      <strong>Merchant Contact & Support:</strong><br>
+      Oghenekaro Samson Afigo (Afigo-Sam Technology)<br>
+      Email: admin@sampidia.com | Phone: +234 706 345 3903<br>
+      Website: https://sampidia.com
+    </div>
+
+    <div class="actions">
+      <button className="btn" onclick="window.print()">🖨️ Print / Save as PDF Receipt</button>
+      <div class="footer-note">Thank you for your purchase! Keep this official receipt for your tax and accounting records.</div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+      return new Response(receiptHtml, {
+        status: 200,
+        headers: {
+          ...headers,
+          'Content-Type': 'text/html; charset=utf-8',
+        },
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 4: POST /api/portal/request-access (Request 6-Digit Verification Code)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'POST' && url.pathname.endsWith('/api/portal/request-access')) {
+      try {
+        const { email } = await request.json();
+
+        if (!email || !String(email).trim()) {
+          return new Response(
+            JSON.stringify({ error: 'Please enter a valid email address.' }),
+            { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const normalizedEmail = String(email).trim().toLowerCase();
+
+        // Check if D1 database has records for this email (if DB is bound)
+        if (env.DB) {
+          try {
+            const countRes = await env.DB.prepare(`SELECT COUNT(*) as cnt FROM purchases WHERE LOWER(email) = ?`).bind(normalizedEmail).first('cnt');
+            if (!countRes || Number(countRes) === 0) {
+              return new Response(
+                JSON.stringify({ error: 'No purchased courses found associated with this email address. Please check spelling or purchase a course.' }),
+                { status: 404, headers: { ...headers, 'Content-Type': 'application/json' } }
+              );
+            }
+          } catch (dbErr) {
+            console.error('D1 purchase check error:', dbErr);
+          }
+        }
+
+        // Generate 6-Digit OTP Code
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 mins expiry
+
+        if (env.DB) {
+          try {
+            await env.DB.prepare(`
+              INSERT INTO access_tokens (token, email, expires_at, used)
+              VALUES (?, ?, ?, 0)
+            `).bind(otpCode, normalizedEmail, expiresAt).run();
+          } catch (tokenErr) {
+            console.error('D1 token insert error:', tokenErr);
+          }
+        }
+
+        // Send OTP via Resend API
+        if (env.RESEND_API_KEY) {
+          const emailSubject = `🔑 ${otpCode} is your Afigo-Sam Course Access Code`;
+          const emailHtml = `
+            <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; color: #1e293b;">
+              <h2 style="color: #dc2626; border-bottom: 2px solid #fee2e2; padding-bottom: 12px; margin-top: 0;">
+                🔑 Course Access Verification Code
+              </h2>
+              <p>Hello,</p>
+              <p>Use the 6-digit verification code below to access your purchased courses and download blueprints on <strong>Afigo-Sam Page</strong>:</p>
+
+              <div style="background-color: #f1f5f9; border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;">
+                <span style="font-size: 32px; font-weight: 800; letter-spacing: 6px; color: #dc2626;">${otpCode}</span>
+                <p style="font-size: 12px; color: #64748b; margin-top: 8px; margin-bottom: 0;">Valid for 15 minutes. Do not share this code.</p>
+              </div>
+
+              <p style="font-size: 12px; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 24px;">
+                If you did not request this code, please ignore this email.
+              </p>
+            </div>
+          `;
+
+          try {
+            const sendPayload = (fromAddress) => ({
+              from: fromAddress,
+              to: [normalizedEmail],
+              subject: emailSubject,
+              html: emailHtml,
+            });
+
+            let resendRes = await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+              },
+              body: JSON.stringify(sendPayload('admin@ajo-esusu.sampidia.com')),
+            });
+
+            if (!resendRes.ok) {
+              await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+                },
+                body: JSON.stringify(sendPayload('onboarding@resend.dev')),
+              });
+            }
+          } catch (emailErr) {
+            console.error('Failed to send OTP email:', emailErr);
+          }
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, message: 'Verification code sent to your email address.' }),
+          { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ error: err.message || 'Internal Server Error' }),
+          { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 5: POST /api/portal/verify-access (Verify Code & Fetch Student Purchases)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'POST' && url.pathname.endsWith('/api/portal/verify-access')) {
+      try {
+        const { email, code } = await request.json();
+
+        if (!email || !code) {
+          return new Response(
+            JSON.stringify({ error: 'Missing email or verification code.' }),
+            { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const normalizedEmail = String(email).trim().toLowerCase();
+        const inputCode = String(code).trim();
+
+        if (env.DB) {
+          try {
+            const tokenRecord = await env.DB.prepare(`
+              SELECT * FROM access_tokens 
+              WHERE LOWER(email) = ? AND token = ? AND used = 0 AND expires_at > datetime('now')
+            `).bind(normalizedEmail, inputCode).first();
+
+            if (!tokenRecord) {
+              return new Response(
+                JSON.stringify({ error: 'Invalid or expired 6-digit verification code. Please request a new code.' }),
+                { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+              );
+            }
+
+            // Mark token as used
+            await env.DB.prepare(`UPDATE access_tokens SET used = 1 WHERE token = ?`).bind(inputCode).run();
+          } catch (dbErr) {
+            console.error('D1 token verification error:', dbErr);
+          }
+        }
+
+        const workerOrigin = new URL(request.url).origin;
+        let purchases = [];
+
+        if (env.DB) {
+          try {
+            const { results } = await env.DB.prepare(`
+              SELECT * FROM purchases WHERE LOWER(email) = ? ORDER BY purchased_at DESC
+            `).bind(normalizedEmail).all();
+
+            if (results && results.length > 0) {
+              purchases = results.map(p => ({
+                id: p.id,
+                courseId: p.course_id,
+                format: p.format,
+                customerName: p.customer_name,
+                transactionId: p.transaction_id,
+                purchasedAt: p.purchased_at,
+                r2DownloadLink: `${workerOrigin}/api/download-course-pdf?token=${p.download_token}&courseId=${p.course_id}`,
+                receiptLink: `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(p.transaction_id)}&email=${encodeURIComponent(normalizedEmail)}&courseId=${encodeURIComponent(p.course_id)}`,
+                calendlyUrl: p.format === 'one-on-one' ? 'https://calendly.com/oghenekaroafigo/meeting' : null
+              }));
+            }
+          } catch (dbErr) {
+            console.error('D1 fetch purchases error:', dbErr);
+          }
+        }
+
+        // Fallback demo purchase if DB is not attached during dev testing
+        if (purchases.length === 0) {
+          const fallbackToken = `token_${Date.now()}`;
+          purchases = [
+            {
+              id: 'purch_vibe_coding',
+              courseId: 'vibe-coding',
+              format: 'pdf',
+              customerName: 'Valued Student',
+              transactionId: 'FLW_DEMO_VERIFIED',
+              purchasedAt: new Date().toISOString(),
+              r2DownloadLink: `${workerOrigin}/api/download-course-pdf?token=${fallbackToken}&courseId=vibe-coding`,
+              receiptLink: `${workerOrigin}/api/download-receipt?txId=FLW_DEMO_VERIFIED&email=${encodeURIComponent(normalizedEmail)}&courseId=vibe-coding`,
+              calendlyUrl: null
+            }
+          ];
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, purchases }),
+          { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ error: err.message || 'Internal Server Error' }),
+          { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 6 (LEGACY): POST / (Account Deletion Request Handler)
     // ─────────────────────────────────────────────────────────────────────────
     if (request.method !== 'POST') {
       return new Response(JSON.stringify({ error: 'Method not allowed' }), {

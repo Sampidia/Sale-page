@@ -15,6 +15,7 @@ import ClaimPrizePage from './pages/ClaimPrizePage';
 import GetCodePage from './pages/GetCodePage';
 import CoursesPage from './pages/CoursesPage';
 import CourseDetailPage from './pages/CourseDetailPage';
+import CourseDashboard from './components/CourseDashboard';
 
 const App: React.FC = () => {
   return (
@@ -27,6 +28,7 @@ const App: React.FC = () => {
           <Route path="/product/ai-content-generator/documentation" element={<AIDocumentationPage />} />
           <Route path="/courses" element={<CoursesPage />} />
           <Route path="/course/:id" element={<CourseDetailPage />} />
+          <Route path="/my-courses" element={<CourseDashboard />} />
           <Route path="/apps" element={<MobileAppsPage />} />
           <Route path="/app/:id" element={<MobileAppDetailPage />} />
           <Route path="/delete-account" element={<DeleteAccountPage />} />

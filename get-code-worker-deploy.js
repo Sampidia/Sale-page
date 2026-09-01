@@ -599,6 +599,199 @@ export default {
       }
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // Route: POST /api/flw-webhook (Flutterwave Webhook Verification)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'POST' && url.pathname.endsWith('/api/flw-webhook')) {
+      try {
+        // 1. Secret Hash Verification (verif-hash)
+        if (env.FLW_WEBHOOK_HASH) {
+          const signature = request.headers.get('verif-hash');
+          if (!signature || signature !== env.FLW_WEBHOOK_HASH) {
+            return new Response(
+              JSON.stringify({ error: 'Unauthorized: Invalid verif-hash signature' }),
+              { status: 401, headers: { ...headers, 'Content-Type': 'application/json' } }
+            );
+          }
+        }
+
+        const body = await request.json();
+        const event = body && body.event;
+        const data = (body && body.data) || {};
+
+        // Only process successful charge events
+        if (event && event !== 'charge.completed' && data.status !== 'successful') {
+          return new Response(
+            JSON.stringify({ message: 'Event ignored (not a successful charge)' }),
+            { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        if (data.status !== 'successful') {
+          return new Response(
+            JSON.stringify({ message: 'Transaction status not successful' }),
+            { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const transactionId = String(data.id || data.tx_ref || 'FLW_WEBHOOK');
+        const meta = data.meta || {};
+        const tournamentType = meta.tournamentType || (String(data.tx_ref || '').includes('weekend') ? 'weekend' : 'quick');
+        const username = meta.username || (data.customer && data.customer.name) || 'Game Player';
+        const email = data.customer && data.customer.email;
+
+        if (!email) {
+          return new Response(
+            JSON.stringify({ error: 'Missing customer email in webhook payload' }),
+            { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const tournamentId = tournamentType === 'weekend' ? env.Weekend_Challenge_ID : env.Quick_Challenge_ID;
+        if (!tournamentId) {
+          return new Response(
+            JSON.stringify({ error: `Tournament ID for ${tournamentType} challenge not configured` }),
+            { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        if (!env.DB) {
+          return new Response(
+            JSON.stringify({ error: 'D1 Database binding (DB) is missing' }),
+            { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // 1. Check if transaction already processed synchronously
+        const existingTx = await env.DB.prepare(
+          'SELECT passcode FROM purchases WHERE transaction_id = ?'
+        ).bind(transactionId).first();
+
+        if (existingTx) {
+          return new Response(
+            JSON.stringify({ success: true, message: 'Transaction already processed', passcode: existingTx.passcode, reissued: true }),
+            { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // 2. Check if passcode already issued to user for this tournament
+        const existingUserPurchase = await env.DB.prepare(
+          'SELECT passcode FROM purchases WHERE username = ? AND email = ? AND tournament_id = ?'
+        ).bind(username, email, tournamentId).first();
+
+        if (existingUserPurchase) {
+          return new Response(
+            JSON.stringify({ success: true, message: 'User already has passcode', passcode: existingUserPurchase.passcode, reissued: true }),
+            { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // 3. Allocate passcode from NAW_DB
+        if (!env.NAW_DB) {
+          return new Response(
+            JSON.stringify({ error: 'D1 Database binding (NAW_DB) is missing. Cannot allocate passcode.' }),
+            { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const { results: unusedCodes } = await env.NAW_DB.prepare(
+          'SELECT code FROM passcodes WHERE tournament_id = ? AND (is_used = 0 OR is_used IS NULL) ORDER BY id ASC'
+        ).bind(tournamentId).all();
+
+        if (!unusedCodes || unusedCodes.length === 0) {
+          return new Response(
+            JSON.stringify({ error: 'No passcodes available for this tournament.' }),
+            { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        let passcode = null;
+        for (const row of unusedCodes) {
+          const exists = await env.DB.prepare(
+            'SELECT 1 FROM purchases WHERE passcode = ?'
+          ).bind(row.code).first();
+
+          if (!exists) {
+            passcode = row.code;
+            break;
+          }
+        }
+
+        if (!passcode) {
+          return new Response(
+            JSON.stringify({ error: 'All available passcodes have already been issued.' }),
+            { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // 4. Save to DB (purchases)
+        await env.DB.prepare(
+          'INSERT INTO purchases (transaction_id, username, email, tournament_id, passcode, amount, currency) VALUES (?, ?, ?, ?, ?, ?, ?)'
+        ).bind(transactionId, username, email, tournamentId, passcode, data.amount ?? 0, data.currency || 'NGN').run();
+
+        // 5. Mark passcode as used in NAW_DB
+        try {
+          const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+          await env.NAW_DB.prepare(
+            'UPDATE passcodes SET is_used = 1, used_by_username = ?, used_by_email = ?, used_at = ? WHERE code = ? AND tournament_id = ?'
+          ).bind(username, email, nowStr, passcode, tournamentId).run();
+        } catch (dbErr) {
+          console.error('Failed to update NAW_DB code status in webhook:', dbErr);
+        }
+
+        // 6. Send email via Resend
+        if (env.RESEND_API_KEY) {
+          const emailHtml = `
+            <div style="font-family: sans-serif; padding: 24px; color: #333; max-width: 600px; line-height: 1.6;">
+              <h2 style="color: #ef4444; border-bottom: 2px solid #fee2e2; padding-bottom: 12px; margin-top: 0;">
+                🎟️ Webhook Payment Confirmed — Passcode Issued
+              </h2>
+              <p>Hi <strong>${username}</strong>,</p>
+              <p>Your payment has been verified by our automated payment system, and your unique tournament code is ready below.</p>
+              <div style="background-color: #fef2f2; border: 1px solid #fee2e2; border-radius: 12px; padding: 24px; text-align: center; margin: 24px 0;">
+                <span style="font-size: 12px; text-transform: uppercase; color: #b91c1c; font-weight: bold; letter-spacing: 0.1em;">Your Passcode</span>
+                <div style="font-size: 32px; font-weight: 950; color: #dc2626; margin-top: 8px; letter-spacing: 1px; font-family: monospace;">
+                  ${passcode}
+                </div>
+              </div>
+              <p style="font-size: 12px; color: #9ca3af; border-top: 1px solid #f3f4f6; padding-top: 12px; margin-top: 24px;">
+                Transaction Ref: ${transactionId} | Contact support: admin@sampidia.com
+              </p>
+            </div>
+          `;
+
+          try {
+            await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+              },
+              body: JSON.stringify({
+                from: 'admin@ajo-esusu.sampidia.com',
+                to: [email, 'admin@ajo-esusu.sampidia.com'],
+                subject: `🎟️ Tournament Passcode: ${username} (${tournamentType === 'weekend' ? 'Weekend' : 'Quick'})`,
+                html: emailHtml,
+              }),
+            });
+          } catch (emailErr) {
+            console.error('Failed to send webhook passcode email:', emailErr);
+          }
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, message: 'Passcode issued via webhook', passcode }),
+          { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ error: err.message || 'Internal Server Error' }),
+          { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     // Fallback
     return new Response(JSON.stringify({ error: 'Route not found' }), {
       status: 404,
