@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from './SEO';
-import { COURSES, BRAIN_LOGO } from '../constants';
+import { COURSES } from '../constants';
 
 interface PurchasedCourseItem {
   id: string;
@@ -97,7 +97,7 @@ const CourseDashboard: React.FC = () => {
         description="Access your purchased course PDF blueprints, live 1-on-1 mentorship links, and official payment receipts anytime."
       />
 
-      <div className="min-h-screen bg-[#0a0910] text-slate-100 py-12 px-4 sm:px-6 flex items-center justify-center relative overflow-hidden">
+      <div className="min-h-screen bg-[#0a0910] text-slate-100 pt-4 pb-8 sm:py-10 px-4 sm:px-6 flex items-center justify-center relative overflow-hidden">
         {/* Ambient Background Glows */}
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-purple-600/10 rounded-full blur-[140px] pointer-events-none" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-red-600/10 rounded-full blur-[120px] pointer-events-none" />
@@ -106,7 +106,7 @@ const CourseDashboard: React.FC = () => {
         <div className="max-w-5xl w-full bg-[#12111c] border border-slate-800/80 rounded-[32px] overflow-hidden shadow-2xl shadow-purple-950/30 grid grid-cols-1 lg:grid-cols-12 relative z-10">
           
           {/* LEFT HERO ARTWORK PANEL (Figma / Dribbble Style) */}
-          <div className="lg:col-span-5 p-4 sm:p-6 flex flex-col justify-between relative rounded-[28px] overflow-hidden min-h-[380px] lg:min-h-[560px] m-2">
+          <div className="lg:col-span-5 p-4 sm:p-6 flex flex-col justify-between relative rounded-[28px] overflow-hidden min-h-[300px] lg:min-h-[480px] m-2">
             {/* Background Image Layer */}
             <div
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-105"
@@ -116,21 +116,12 @@ const CourseDashboard: React.FC = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c14] via-[#0d0c14]/40 to-black/60" />
 
             {/* Top Bar inside Image Panel */}
-            <div className="relative z-10 flex items-center justify-between">
-              <Link to="/" className="flex items-center space-x-2 bg-slate-950/70 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-800">
-                <div className="w-5 h-5 text-red-500">
-                  {BRAIN_LOGO}
-                </div>
-                <span className="text-xs font-black text-white tracking-tight">
-                  Afigo<span className="text-red-500">-Sam</span>
-                </span>
-              </Link>
-
+            <div className="relative z-10 flex items-center justify-end">
               <Link
                 to="/courses"
                 className="text-[11px] font-bold text-slate-200 hover:text-white bg-slate-900/80 hover:bg-slate-800 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-700/70 transition-all flex items-center space-x-1"
               >
-                <span>Back to website</span>
+                <span>Back to courses</span>
                 <span>→</span>
               </Link>
             </div>
@@ -196,7 +187,7 @@ const CourseDashboard: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-purple-600 to-red-600 hover:from-purple-500 hover:to-red-500 text-white font-bold py-3.5 px-6 rounded-2xl text-sm transition-all shadow-lg shadow-purple-950/50 flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
+                    className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 px-6 rounded-2xl text-sm transition-all shadow-lg shadow-purple-950/40 flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
                   >
                     {isLoading ? (
                       <>
