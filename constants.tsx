@@ -81,6 +81,56 @@ export const TESTIMONIALS: Testimonial[] = [
 
 export const CLIENT_PROJECTS: ClientProject[] = [
   {
+    id: 'turtle-bay-beach-house',
+    title: 'Turtle Bay Beach House',
+    category: 'Hotel Booking',
+    client: 'Alex',
+    location: 'Espiritu Santo, Vanuatu',
+    date: 'October 2024',
+    description: 'Minimalist waterfront beach house and tree house booking engine overlooking Turtle Bay.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/turtle1.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/turtle2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/turtle4.webp'
+    ],
+    websiteUrl: 'https://turtlebaybeachhouse.com/cheap-accommodation-espiritu-santo-vanuatu/',
+    tags: ['Beach House Booking', 'Minimalist Design', 'Online Booking']
+  },
+  {
+    id: 'villa-liptovska-mara',
+    title: 'Villa Liptovská Mara',
+    category: 'Hotel Booking',
+    client: 'Andrej Balham',
+    location: 'Bratislava, Slovakia',
+    date: 'December 2023',
+    description: 'Vacation villa booking platform located near thermal park Bešenová and Tatralandia water park.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/villaliptovskamara.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/villaliptovskamara1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/villaliptovskamara2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/villaliptovskamara3.webp'
+    ],
+    websiteUrl: 'https://www.villaliptovskamara.sk/',
+    tags: ['Hotel Booking', 'Villa Reservation', 'Multi-Language', 'Custom WordPress']
+  },
+  {
+    id: 'eva-worldwide',
+    title: 'EVA Worldwide Resort',
+    category: 'Hotel Booking',
+    client: 'Adeel Habib',
+    location: 'South Carolina, USA',
+    date: 'November 2023',
+    description: 'Luxury resort booking portal providing guests with personalized stay packages and local culture immersion.',
+    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/evaww.webp',
+    additionalImages: [
+      'https://portfolio.sampidia.com/img/portfolio/evaww1.webp',
+      'https://portfolio.sampidia.com/img/portfolio/evaww2.webp',
+      'https://portfolio.sampidia.com/img/portfolio/evaww3.webp'
+    ],
+    websiteUrl: 'https://evaww.com/',
+    tags: ['Hotel Booking', 'Resort Booking', 'Custom PHP', 'Payment Gateway']
+  },
+  {
     id: 'hotel-casa-escobar',
     title: 'Hotel Casa Escobar',
     category: 'Hotel Booking',
@@ -132,40 +182,6 @@ export const CLIENT_PROJECTS: ClientProject[] = [
     tags: ['Hotel Booking', 'Custom Reservation', 'Stripe/PayPal']
   },
   {
-    id: 'eva-worldwide',
-    title: 'EVA Worldwide Resort',
-    category: 'Hotel Booking',
-    client: 'Adeel Habib',
-    location: 'South Carolina, USA',
-    date: 'November 2023',
-    description: 'Luxury resort booking portal providing guests with personalized stay packages and local culture immersion.',
-    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/evaww.webp',
-    additionalImages: [
-      'https://portfolio.sampidia.com/img/portfolio/evaww1.webp',
-      'https://portfolio.sampidia.com/img/portfolio/evaww2.webp',
-      'https://portfolio.sampidia.com/img/portfolio/evaww3.webp'
-    ],
-    websiteUrl: 'https://evaww.com/',
-    tags: ['Hotel Booking', 'Resort Booking', 'Custom PHP', 'Payment Gateway']
-  },
-  {
-    id: 'villa-liptovska-mara',
-    title: 'Villa Liptovská Mara',
-    category: 'Hotel Booking',
-    client: 'Andrej Balham',
-    location: 'Bratislava, Slovakia',
-    date: 'December 2023',
-    description: 'Vacation villa booking platform located near thermal park Bešenová and Tatralandia water park.',
-    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/villaliptovskamara.webp',
-    additionalImages: [
-      'https://portfolio.sampidia.com/img/portfolio/villaliptovskamara1.webp',
-      'https://portfolio.sampidia.com/img/portfolio/villaliptovskamara2.webp',
-      'https://portfolio.sampidia.com/img/portfolio/villaliptovskamara3.webp'
-    ],
-    websiteUrl: 'https://www.villaliptovskamara.sk/',
-    tags: ['Hotel Booking', 'Villa Reservation', 'Multi-Language', 'Custom WordPress']
-  },
-  {
     id: 'riad-rodaina',
     title: 'Riad Rodaina Marrakech',
     category: 'Hotel Booking',
@@ -181,22 +197,6 @@ export const CLIENT_PROJECTS: ClientProject[] = [
     ],
     websiteUrl: 'https://riadrodaina.com/',
     tags: ['Riad Booking', 'Moroccan Hospitality', 'Reservation Engine']
-  },
-  {
-    id: 'turtle-bay-beach-house',
-    title: 'Turtle Bay Beach House',
-    category: 'Hotel Booking',
-    client: 'Alex',
-    location: 'Espiritu Santo, Vanuatu',
-    date: 'October 2024',
-    description: 'Minimalist waterfront beach house and tree house booking engine overlooking Turtle Bay.',
-    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/turtle1.webp',
-    additionalImages: [
-      'https://portfolio.sampidia.com/img/portfolio/turtle2.webp',
-      'https://portfolio.sampidia.com/img/portfolio/turtle4.webp'
-    ],
-    websiteUrl: 'https://turtlebaybeachhouse.com/cheap-accommodation-espiritu-santo-vanuatu/',
-    tags: ['Beach House Booking', 'Minimalist Design', 'Online Booking']
   },
   {
     id: '10680-rochdale',
