@@ -1172,14 +1172,14 @@ export default {
 
         // Send OTP via Resend API
         if (env.RESEND_API_KEY) {
-          const emailSubject = `🔑 ${otpCode} is your Afigo-Sam Course Access Code`;
+          const emailSubject = `🔑 ${otpCode} is your Afigo-Sam Access Code`;
           const emailHtml = `
             <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; color: #1e293b;">
               <h2 style="color: #dc2626; border-bottom: 2px solid #fee2e2; padding-bottom: 12px; margin-top: 0;">
-                🔑 Course Access Verification Code
+                🔑 Access Verification Code
               </h2>
               <p>Hello,</p>
-              <p>Use the 6-digit verification code below to access your purchased courses and download blueprints on <strong>Afigo-Sam Page</strong>:</p>
+              <p>Use the 6-digit verification code below to access your purchased products, plugins, assets, or courses on <strong>Afigo-Sam Page</strong>:</p>
 
               <div style="background-color: #f1f5f9; border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;">
                 <span style="font-size: 32px; font-weight: 800; letter-spacing: 6px; color: #dc2626;">${otpCode}</span>

@@ -255,7 +255,7 @@ const CourseDashboard: React.FC = () => {
                   </div>
                 )}
 
-                <form onSubmit={handleVerifyOtp} className="space-y-4">
+                <form onSubmit={handleVerifyCode} className="space-y-4">
                   <div>
                     <label htmlFor="portal-code" className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                       6-Digit Access Code
