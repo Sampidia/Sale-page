@@ -129,15 +129,7 @@ const CoursesPage: React.FC = () => {
             </span>
           </div>
 
-          <h1
-            className="text-3xl sm:text-5xl font-black mb-3 tracking-tight leading-tight"
-            style={{
-              background: 'linear-gradient(135deg, #ffffff 30%, #fecaca 70%, #ddd6fe 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-white mb-3 tracking-tight leading-tight">
             Level Up Your AI & Mobile Engineering
           </h1>
 

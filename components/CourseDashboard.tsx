@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from './SEO';
-import { COURSES } from '../constants';
+import { COURSES, BRAIN_LOGO } from '../constants';
 
 interface PurchasedCourseItem {
   id: string;
@@ -97,217 +97,249 @@ const CourseDashboard: React.FC = () => {
         description="Access your purchased course PDF blueprints, live 1-on-1 mentorship links, and official payment receipts anytime."
       />
 
-      <div className="min-h-screen bg-slate-950 text-slate-100 py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        {/* Decorative Background Glows */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="min-h-screen bg-[#0a0910] text-slate-100 py-12 px-4 sm:px-6 flex items-center justify-center relative overflow-hidden">
+        {/* Ambient Background Glows */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-purple-600/10 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-red-600/10 rounded-full blur-[120px] pointer-events-none" />
 
-        <div className="max-w-4xl mx-auto relative z-10">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <Link
-              to="/courses"
-              className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-400 hover:text-red-400 transition-colors mb-6 bg-slate-900/80 px-4 py-2 rounded-full border border-slate-800"
-            >
-              <span>← Back to Masterclasses</span>
-            </Link>
+        {/* Main Split Luxury Modal Container */}
+        <div className="max-w-5xl w-full bg-[#12111c] border border-slate-800/80 rounded-[32px] overflow-hidden shadow-2xl shadow-purple-950/30 grid grid-cols-1 lg:grid-cols-12 relative z-10">
+          
+          {/* LEFT HERO ARTWORK PANEL (Figma / Dribbble Style) */}
+          <div className="lg:col-span-5 p-4 sm:p-6 flex flex-col justify-between relative rounded-[28px] overflow-hidden min-h-[380px] lg:min-h-[560px] m-2">
+            {/* Background Image Layer */}
+            <div
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-105"
+              style={{ backgroundImage: `url('assets/student_portal_hero.png')` }}
+            />
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c14] via-[#0d0c14]/40 to-black/60" />
 
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
-              Student Course <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500">Access Portal</span>
-            </h1>
-            <p className="text-slate-400 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
-              Enter your purchase email address to retrieve your masterclass PDF blueprints, 1-on-1 mentorship slots, and official receipts.
-            </p>
+            {/* Top Bar inside Image Panel */}
+            <div className="relative z-10 flex items-center justify-between">
+              <Link to="/" className="flex items-center space-x-2 bg-slate-950/70 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-800">
+                <div className="w-5 h-5 text-red-500">
+                  {BRAIN_LOGO}
+                </div>
+                <span className="text-xs font-black text-white tracking-tight">
+                  Afigo<span className="text-red-500">-Sam</span>
+                </span>
+              </Link>
+
+              <Link
+                to="/courses"
+                className="text-[11px] font-bold text-slate-200 hover:text-white bg-slate-900/80 hover:bg-slate-800 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-700/70 transition-all flex items-center space-x-1"
+              >
+                <span>Back to website</span>
+                <span>→</span>
+              </Link>
+            </div>
+
+            {/* Bottom Content inside Image Panel */}
+            <div className="relative z-10 mt-auto pt-16">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight mb-2">
+                Master AI & Mobile Engineering
+              </h2>
+              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed mb-6">
+                Access your masterclass PDF blueprints, 1-on-1 mentorship slots, and official payment receipts anytime.
+              </p>
+
+              {/* Slider Pagination Pills */}
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-1.5 bg-purple-500 rounded-full" />
+                <div className="w-2 h-1.5 bg-slate-700 rounded-full" />
+                <div className="w-2 h-1.5 bg-slate-700 rounded-full" />
+              </div>
+            </div>
           </div>
 
-          {/* STEP 1: Request Email Access */}
-          {step === 'email' && (
-            <div className="max-w-md mx-auto bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl shadow-red-950/20">
-              <div className="text-center mb-6">
-                <div className="w-12 h-12 bg-red-950/60 border border-red-500/30 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl font-bold">
-                  🔑
-                </div>
-                <h2 className="text-xl font-bold text-white">Passwordless Verification</h2>
-                <p className="text-xs text-slate-400 mt-1">We will send a 6-digit access code to your email.</p>
-              </div>
-
-              {errorMessage && (
-                <div className="bg-red-950/80 border border-red-800 text-red-300 text-xs p-3.5 rounded-xl mb-6 text-center">
-                  ⚠️ {errorMessage}
-                </div>
-              )}
-
-              <form onSubmit={handleRequestAccess} className="space-y-4">
+          {/* RIGHT FORM / DASHBOARD PANEL */}
+          <div className="lg:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-center bg-[#13111c]">
+            
+            {/* STEP 1: Email Access Request */}
+            {step === 'email' && (
+              <div className="space-y-6">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                    Purchase Email Address
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="e.g. alex@example.com"
-                    className="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold py-3.5 px-6 rounded-xl text-sm transition-all shadow-lg shadow-red-600/30 flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Sending Code...</span>
-                    </>
-                  ) : (
-                    <span>Send Access Code 🔑</span>
-                  )}
-                </button>
-              </form>
-
-              <div className="mt-6 pt-6 border-t border-slate-800 text-center">
-                <p className="text-xs text-slate-400">
-                  Haven't enrolled yet?{' '}
-                  <Link to="/courses" className="text-red-400 font-semibold hover:underline">
-                    Explore Masterclasses
-                  </Link>
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 2: Enter OTP Code */}
-          {step === 'otp' && (
-            <div className="max-w-md mx-auto bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl shadow-red-950/20">
-              <div className="text-center mb-6">
-                <div className="w-12 h-12 bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl font-bold">
-                  📩
-                </div>
-                <h2 className="text-xl font-bold text-white">Enter 6-Digit Code</h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Sent to <strong className="text-slate-200">{email}</strong>
-                </p>
-              </div>
-
-              {errorMessage && (
-                <div className="bg-red-950/80 border border-red-800 text-red-300 text-xs p-3.5 rounded-xl mb-6 text-center">
-                  ⚠️ {errorMessage}
-                </div>
-              )}
-
-              <form onSubmit={handleVerifyCode} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 text-center">
-                    Verification Code
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={6}
-                    value={code}
-                    onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                    placeholder="123456"
-                    className="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl px-4 py-3 text-center text-2xl font-mono font-bold tracking-[8px] text-red-400 placeholder-slate-700 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3.5 px-6 rounded-xl text-sm transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Verifying Code...</span>
-                    </>
-                  ) : (
-                    <span>Unlock My Courses 🚀</span>
-                  )}
-                </button>
-              </form>
-
-              <div className="mt-6 pt-6 border-t border-slate-800 text-center flex items-center justify-between text-xs">
-                <button
-                  onClick={() => { setStep('email'); setErrorMessage(''); }}
-                  className="text-slate-400 hover:text-white transition-colors"
-                >
-                  ← Change Email
-                </button>
-                <button
-                  onClick={handleRequestAccess}
-                  className="text-red-400 font-semibold hover:underline"
-                >
-                  Resend Code
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: Student Purchases Dashboard */}
-          {step === 'dashboard' && (
-            <div className="space-y-8">
-              <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-bold text-white">
-                    Welcome back, <span className="text-red-400">{purchases[0]?.customerName || email}</span>!
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Showing {purchases.length} verified purchase{purchases.length === 1 ? '' : 's'} linked to <span className="text-slate-300 font-mono">{email}</span>
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
+                    Access Student Portal
+                  </h1>
+                  <p className="text-slate-400 text-xs sm:text-sm">
+                    Enter your purchase email address to unlock your courses.
                   </p>
                 </div>
-                <button
-                  onClick={() => { setStep('email'); setEmail(''); setCode(''); setPurchases([]); }}
-                  className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl transition-colors font-medium"
-                >
-                  🔒 Sign Out
-                </button>
+
+                {errorMessage && (
+                  <div className="bg-red-950/80 border border-red-800/80 text-red-300 text-xs p-3.5 rounded-2xl flex items-center space-x-2">
+                    <span>⚠️</span>
+                    <span>{errorMessage}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleRequestAccess} className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                      Purchase Email Address
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm">✉️</span>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter your email address"
+                        className="w-full bg-[#0c0b12] border border-slate-800 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full bg-gradient-to-r from-purple-600 to-red-600 hover:from-purple-500 hover:to-red-500 text-white font-bold py-3.5 px-6 rounded-2xl text-sm transition-all shadow-lg shadow-purple-950/50 flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Sending Access Code...</span>
+                      </>
+                    ) : (
+                      <span>Send 6-Digit Access Code 🔑</span>
+                    )}
+                  </button>
+                </form>
+
+                <div className="pt-6 border-t border-slate-800/80 text-center">
+                  <p className="text-xs text-slate-400">
+                    Haven't enrolled in a masterclass yet?{' '}
+                    <Link to="/courses" className="text-purple-400 font-bold hover:underline">
+                      Browse Catalog
+                    </Link>
+                  </p>
+                </div>
               </div>
+            )}
 
-              {/* Purchases Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {purchases.map((item) => {
-                  const courseData = COURSES.find(c => c.id === item.courseId) || COURSES[0];
-                  const formattedDate = item.purchasedAt
-                    ? new Date(item.purchasedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                    : 'Recently Purchased';
+            {/* STEP 2: Enter 6-Digit Code */}
+            {step === 'otp' && (
+              <div className="space-y-6">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
+                    Enter Verification Code
+                  </h1>
+                  <p className="text-slate-400 text-xs sm:text-sm">
+                    We sent a 6-digit access code to <strong className="text-white">{email}</strong>.
+                  </p>
+                </div>
 
-                  return (
-                    <div
-                      key={item.id || item.transactionId}
-                      className="bg-slate-900/90 border border-slate-800 hover:border-slate-700 rounded-3xl overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-xl"
-                    >
-                      <div className="p-6">
-                        {/* Course Badge & Date */}
-                        <div className="flex items-center justify-between mb-4">
-                          <span className="text-[10px] font-bold uppercase tracking-wider bg-red-950/80 text-red-400 border border-red-800/50 px-3 py-1 rounded-full">
-                            {item.format === 'one-on-one' ? '🗓️ 1-on-1 Mentorship' : '📘 Masterclass PDF'}
-                          </span>
-                          <span className="text-xs text-slate-400 font-medium">
-                            {formattedDate}
-                          </span>
+                {errorMessage && (
+                  <div className="bg-red-950/80 border border-red-800/80 text-red-300 text-xs p-3.5 rounded-2xl flex items-center space-x-2">
+                    <span>⚠️</span>
+                    <span>{errorMessage}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleVerifyCode} className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 text-center">
+                      6-Digit Access Code
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={6}
+                      value={code}
+                      onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="123456"
+                      className="w-full bg-[#0c0b12] border border-slate-800 rounded-2xl px-4 py-4 text-center text-2xl font-mono font-extrabold tracking-[10px] text-purple-400 placeholder-slate-700 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3.5 px-6 rounded-2xl text-sm transition-all shadow-lg shadow-emerald-950/50 flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Verifying Access Code...</span>
+                      </>
+                    ) : (
+                      <span>Unlock My Masterclasses 🚀</span>
+                    )}
+                  </button>
+                </form>
+
+                <div className="pt-6 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                  <button
+                    onClick={() => { setStep('email'); setErrorMessage(''); }}
+                    className="text-slate-400 hover:text-white transition-colors"
+                  >
+                    ← Change Email
+                  </button>
+                  <button
+                    onClick={handleRequestAccess}
+                    className="text-purple-400 font-bold hover:underline"
+                  >
+                    Resend Code
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3: Student Purchases Dashboard */}
+            {step === 'dashboard' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-white">
+                      Welcome, <span className="text-purple-400">{purchases[0]?.customerName || 'Student'}</span>
+                    </h2>
+                    <p className="text-xs text-slate-400">
+                      {purchases.length} verified course{purchases.length === 1 ? '' : 's'} linked to {email}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => { setStep('email'); setEmail(''); setCode(''); setPurchases([]); }}
+                    className="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 px-3.5 py-1.5 rounded-full transition-colors font-medium"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+
+                <div className="space-y-4 max-h-[420px] overflow-y-auto pr-1">
+                  {purchases.map((item) => {
+                    const courseData = COURSES.find(c => c.id === item.courseId) || COURSES[0];
+                    const formattedDate = item.purchasedAt
+                      ? new Date(item.purchasedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                      : 'Verified Order';
+
+                    return (
+                      <div
+                        key={item.id || item.transactionId}
+                        className="bg-[#0c0b12] border border-slate-800/90 hover:border-purple-500/40 rounded-2xl p-5 transition-all space-y-4"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-950/80 text-purple-300 border border-purple-800/50 px-2.5 py-0.5 rounded-full">
+                              {item.format === 'one-on-one' ? '🗓️ 1-on-1 Mentorship' : '📘 PDF Blueprint'}
+                            </span>
+                            <h3 className="text-sm font-bold text-white mt-2 leading-snug">
+                              {courseData.title}
+                            </h3>
+                          </div>
+                          <span className="text-[11px] text-slate-400 shrink-0">{formattedDate}</span>
                         </div>
 
-                        {/* Title */}
-                        <h3 className="text-lg font-bold text-white mb-2 leading-snug">
-                          {courseData.title}
-                        </h3>
-                        <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-6">
-                          {courseData.subtitle || courseData.description}
-                        </p>
-
-                        {/* Actions */}
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
                           <a
                             href={item.r2DownloadLink}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition-all shadow-md shadow-emerald-950/40"
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center"
                           >
-                            <span>📥 Download PDF Blueprint</span>
+                            <span>📥 Download PDF</span>
                           </a>
 
                           {item.format === 'one-on-one' && (
@@ -315,9 +347,9 @@ const CourseDashboard: React.FC = () => {
                               href={item.calendlyUrl || 'https://calendly.com/oghenekaroafigo/meeting'}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition-all shadow-md shadow-purple-950/40"
+                              className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center"
                             >
-                              <span>🗓️ Schedule Live Session (Calendly)</span>
+                              <span>🗓️ Schedule Live Session</span>
                             </a>
                           )}
 
@@ -325,24 +357,19 @@ const CourseDashboard: React.FC = () => {
                             href={item.receiptLink}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition-all border border-slate-700/60"
+                            className="bg-slate-900 hover:bg-slate-800 text-slate-300 font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 border border-slate-800 transition-all text-center"
                           >
-                            <span>📄 View Official Receipt (PDF)</span>
+                            <span>📄 Printable Receipt</span>
                           </a>
                         </div>
                       </div>
-
-                      {/* Footer Info */}
-                      <div className="bg-slate-950/60 px-6 py-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
-                        <span>Ref: <strong className="text-slate-300 font-mono">{item.transactionId}</strong></span>
-                        <span className="text-emerald-400 font-semibold">✓ Access Guaranteed</span>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+
+          </div>
         </div>
       </div>
     </>
