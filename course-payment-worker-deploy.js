@@ -90,7 +90,7 @@ export default {
 
         const downloadToken = `token_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
-        // 2. Build R2 download URL from this Worker's own origin
+        // 2. Build R2 download URL & Receipt URL from this Worker's own origin
         const workerOrigin = new URL(request.url).origin;
         const r2DownloadLink = `${workerOrigin}/api/download-course-pdf?token=${downloadToken}&courseId=${courseId}`;
         const receiptLink = `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(txStr)}&email=${encodeURIComponent(customerEmail)}&courseId=${encodeURIComponent(courseId)}`;
@@ -413,7 +413,7 @@ export default {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // ROUTE 3: GET /api/download-receipt (Printable HTML & PDF Purchase Receipt)
+    // ROUTE 3: GET /api/download-receipt (Printable & Mobile-Responsive HTML Receipt)
     // ─────────────────────────────────────────────────────────────────────────
     if (request.method === 'GET' && url.pathname.endsWith('/api/download-receipt')) {
       const txId = url.searchParams.get('txId') || url.searchParams.get('transactionId') || 'REC-SAMPLE';
@@ -452,23 +452,25 @@ export default {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Receipt ${receiptRef} - Afigo Sam Page</title>
   <style>
+    * { box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background-color: #f8fafc;
       color: #0f172a;
       margin: 0;
-      padding: 40px 20px;
+      padding: 32px 12px;
+      -webkit-font-smoothing: antialiased;
     }
     .receipt-card {
-      max-width: 680px;
+      max-width: 640px;
       margin: 0 auto;
       background: #ffffff;
-      border-radius: 16px;
-      padding: 40px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06);
       border: 1px solid #e2e8f0;
     }
     .header {
@@ -476,24 +478,26 @@ export default {
       justify-content: space-between;
       align-items: flex-start;
       border-bottom: 2px solid #f1f5f9;
-      padding-bottom: 24px;
-      margin-bottom: 28px;
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+      gap: 16px;
     }
     .brand {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 800;
       color: #0f172a;
       letter-spacing: -0.5px;
+      line-height: 1.2;
     }
     .brand span { color: #dc2626; }
     .subtitle { font-size: 12px; color: #64748b; margin-top: 4px; }
     .badge {
       display: inline-block;
-      padding: 6px 12px;
+      padding: 5px 12px;
       background: #dcfce7;
       color: #15803d;
       font-weight: 700;
-      font-size: 12px;
+      font-size: 11px;
       border-radius: 9999px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -502,53 +506,103 @@ export default {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
     .info-block h4 {
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 1px;
       color: #94a3b8;
-      margin: 0 0 6px 0;
+      margin: 0 0 4px 0;
     }
     .info-block p {
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 700;
       color: #1e293b;
       margin: 0;
+      word-break: break-word;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 28px;
-    }
-    th {
-      text-align: left;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+    .info-block .sub {
+      font-weight: 400;
       color: #64748b;
+      font-size: 13px;
+      margin-top: 2px;
+    }
+    .items-container {
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .items-header {
       background: #f8fafc;
       padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #64748b;
       border-bottom: 1px solid #e2e8f0;
     }
-    td {
+    .item-body {
       padding: 16px;
-      font-size: 14px;
-      border-bottom: 1px solid #f1f5f9;
-      color: #334155;
     }
-    .total-row td {
-      font-size: 18px;
+    .item-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+    .item-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #f1f5f9;
+    }
+    .format-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: #3b82f6;
+      background: #eff6ff;
+      padding: 3px 10px;
+      border-radius: 6px;
+    }
+    .item-amount {
+      font-size: 16px;
       font-weight: 800;
       color: #0f172a;
-      border-bottom: none;
+    }
+    .total-box {
       background: #fafafa;
+      border-top: 2px solid #f1f5f9;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .total-label { font-size: 15px; font-weight: 800; color: #0f172a; }
+    .total-value { font-size: 19px; font-weight: 900; color: #dc2626; }
+
+    .support-box {
+      background-color: #f8fafc;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.6;
+      border: 1px solid #f1f5f9;
     }
     .actions {
       text-align: center;
-      margin-top: 32px;
-      padding-top: 24px;
+      margin-top: 28px;
+      padding-top: 20px;
       border-top: 1px dashed #cbd5e1;
     }
     .btn {
@@ -557,19 +611,35 @@ export default {
       font-size: 14px;
       font-weight: 700;
       padding: 12px 28px;
-      border-radius: 10px;
+      border-radius: 12px;
       border: none;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.25);
       transition: all 0.2s ease;
+      width: 100%;
+      max-width: 320px;
     }
     .btn:hover { background: #b91c1c; }
     .footer-note {
       text-align: center;
       font-size: 12px;
       color: #94a3b8;
-      margin-top: 16px;
+      margin-top: 14px;
+      line-height: 1.4;
     }
+
+    @media (max-width: 600px) {
+      body { padding: 10px 6px; }
+      .receipt-card { padding: 20px 14px; border-radius: 14px; }
+      .header { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .header-right { text-align: left !important; }
+      .grid { grid-template-columns: 1fr; gap: 14px; }
+      .grid-right { text-align: left !important; }
+      .brand { font-size: 20px; }
+      .item-title { font-size: 14px; }
+      .total-value { font-size: 17px; }
+    }
+
     @media print {
       body { background-color: #ffffff; padding: 0; }
       .receipt-card { box-shadow: none; border: none; padding: 0; }
@@ -584,9 +654,9 @@ export default {
         <div class="brand">Afigo<span>-Sam</span> Technology</div>
         <div class="subtitle">SamPidia Digital Assets & Course Publishing</div>
       </div>
-      <div style="text-align: right;">
+      <div class="header-right" style="text-align: right;">
         <span class="badge">Payment Verified</span>
-        <div class="subtitle" style="margin-top: 8px;">Ref: ${receiptRef}</div>
+        <div class="subtitle" style="margin-top: 6px;">Ref: ${receiptRef}</div>
       </div>
     </div>
 
@@ -594,40 +664,35 @@ export default {
       <div class="info-block">
         <h4>Billed To</h4>
         <p>${customerName}</p>
-        <p style="font-weight: normal; color: #64748b; font-size: 13px;">${email}</p>
+        <div class="sub">${email}</div>
       </div>
-      <div class="info-block" style="text-align: right;">
+      <div class="info-block grid-right" style="text-align: right;">
         <h4>Payment Details</h4>
         <p>Date: ${purchasedAt}</p>
-        <p style="font-weight: normal; color: #64748b; font-size: 13px;">Provider: Flutterwave (Card / Transfer)</p>
+        <div class="sub">Provider: Flutterwave (Card / Transfer)</div>
       </div>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Item & Description</th>
-          <th>Format</th>
-          <th style="text-align: right;">Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <strong>${courseTitle}</strong>
-            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Transaction ID: ${txId}</div>
-          </td>
-          <td>${formatLabel}</td>
-          <td style="text-align: right; font-weight: 600;">₦${amount.toLocaleString()}.00</td>
-        </tr>
-        <tr class="total-row">
-          <td colspan="2">Total Paid</td>
-          <td style="text-align: right; color: #dc2626;">₦${amount.toLocaleString()}.00 NGN</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="items-container">
+      <div class="items-header">
+        <span>Course Item & Details</span>
+        <span>Amount</span>
+      </div>
+      <div class="item-body">
+        <div class="item-title">${courseTitle}</div>
+        <div class="subtitle">Transaction Ref: ${txId}</div>
+        <div class="item-meta-row">
+          <span class="format-tag">Format: ${formatLabel}</span>
+          <span class="item-amount">₦${amount.toLocaleString()}.00</span>
+        </div>
+      </div>
+      <div class="total-box">
+        <span class="total-label">Total Amount Paid</span>
+        <span class="total-value">₦${amount.toLocaleString()}.00 NGN</span>
+      </div>
+    </div>
 
-    <div style="background-color: #f8fafc; border-radius: 10px; padding: 16px; font-size: 13px; color: #475569; line-height: 1.5;">
+    <div class="support-box">
       <strong>Merchant Contact & Support:</strong><br>
       Oghenekaro Samson Afigo (Afigo-Sam Technology)<br>
       Email: admin@sampidia.com | Phone: +234 706 345 3903<br>
@@ -635,8 +700,8 @@ export default {
     </div>
 
     <div class="actions">
-      <button className="btn" onclick="window.print()">🖨️ Print / Save as PDF Receipt</button>
-      <div class="footer-note">Thank you for your purchase! Keep this official receipt for your tax and accounting records.</div>
+      <button class="btn" onclick="window.print()">🖨️ Print / Save as PDF Receipt</button>
+      <div class="footer-note">Thank you for your enrollment! Keep this official receipt for your tax and accounting records.</div>
     </div>
   </div>
 </body>
@@ -861,32 +926,15 @@ export default {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // ROUTE 6 (LEGACY): POST / (Account Deletion Request Handler)
+    // ROUTE 6 (LEGACY): POST /delete-account (Account Deletion Request Handler)
     // ─────────────────────────────────────────────────────────────────────────
-    if (request.method !== 'POST') {
-      return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-        status: 405,
-        headers: { ...headers, 'Content-Type': 'application/json' },
-      });
-    }
+    if (request.method === 'POST' && (url.pathname === '/' || url.pathname.endsWith('/delete-account'))) {
+      try {
+        const { email, username, appName, token } = await request.json();
 
-    try {
-      const { email, username, appName, token } = await request.json();
-
-      if (!email || !username || !appName) {
-        return new Response(
-          JSON.stringify({ error: 'Missing required fields: email, username, appName' }),
-          {
-            status: 400,
-            headers: { ...headers, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      if (env.TURNSTILE_SECRET_KEY) {
-        if (!token) {
+        if (!email || !username || !appName) {
           return new Response(
-            JSON.stringify({ error: 'Security verification token is missing. Please complete the captcha.' }),
+            JSON.stringify({ error: 'Missing required fields: email, username, appName' }),
             {
               status: 400,
               headers: { ...headers, 'Content-Type': 'application/json' },
@@ -894,86 +942,104 @@ export default {
           );
         }
 
-        const verifyResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            secret: env.TURNSTILE_SECRET_KEY,
-            response: token,
-            remoteip: request.headers.get('CF-Connecting-IP'),
-          })
-        });
+        if (env.TURNSTILE_SECRET_KEY) {
+          if (!token) {
+            return new Response(
+              JSON.stringify({ error: 'Security verification token is missing. Please complete the captcha.' }),
+              {
+                status: 400,
+                headers: { ...headers, 'Content-Type': 'application/json' },
+              }
+            );
+          }
 
-        const verifyResult = await verifyResponse.json();
-        if (!verifyResult || !verifyResult.success) {
+          const verifyResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              secret: env.TURNSTILE_SECRET_KEY,
+              response: token,
+              remoteip: request.headers.get('CF-Connecting-IP'),
+            })
+          });
+
+          const verifyResult = await verifyResponse.json();
+          if (!verifyResult || !verifyResult.success) {
+            return new Response(
+              JSON.stringify({ error: 'Security verification failed. Please try again.' }),
+              {
+                status: 403,
+                headers: { ...headers, 'Content-Type': 'application/json' },
+              }
+            );
+          }
+        }
+
+        if (!env.RESEND_API_KEY) {
           return new Response(
-            JSON.stringify({ error: 'Security verification failed. Please try again.' }),
+            JSON.stringify({ error: 'RESEND_API_KEY is not configured in Cloudflare Worker secrets' }),
             {
-              status: 403,
+              status: 500,
               headers: { ...headers, 'Content-Type': 'application/json' },
             }
           );
         }
-      }
 
-      if (!env.RESEND_API_KEY) {
-        return new Response(
-          JSON.stringify({ error: 'RESEND_API_KEY is not configured in Cloudflare Worker secrets' }),
-          {
-            status: 500,
-            headers: { ...headers, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      const resendResponse = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-        },
-        body: JSON.stringify({
-          from: 'admin@ajo-esusu.sampidia.com',
-          to: 'admin@sampidia.com',
-          subject: `Account Deletion Request: ${username} (${appName})`,
-          html: `
-            <div style="font-family: sans-serif; padding: 20px; line-height: 1.6; color: #333;">
-              <h2 style="color: #dc2626; border-bottom: 1px solid #eee; padding-bottom: 10px;">Account Deletion Request</h2>
-              <p>A new account deletion request has been submitted from the <strong>Afigo Sam Page</strong> portal.</p>
-              
-              <div style="background-color: #f9fafb; border: 1px solid #f3f4f6; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                <p style="margin: 5px 0;"><strong>Username:</strong> ${username}</p>
-                <p style="margin: 5px 0;"><strong>Email Address:</strong> ${email}</p>
-                <p style="margin: 5px 0;"><strong>App Selection:</strong> ${appName}</p>
+        const resendResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+          },
+          body: JSON.stringify({
+            from: 'admin@ajo-esusu.sampidia.com',
+            to: 'admin@sampidia.com',
+            subject: `Account Deletion Request: ${username} (${appName})`,
+            html: `
+              <div style="font-family: sans-serif; padding: 20px; line-height: 1.6; color: #333;">
+                <h2 style="color: #dc2626; border-bottom: 1px solid #eee; padding-bottom: 10px;">Account Deletion Request</h2>
+                <p>A new account deletion request has been submitted from the <strong>Afigo Sam Page</strong> portal.</p>
+                
+                <div style="background-color: #f9fafb; border: 1px solid #f3f4f6; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                  <p style="margin: 5px 0;"><strong>Username:</strong> ${username}</p>
+                  <p style="margin: 5px 0;"><strong>Email Address:</strong> ${email}</p>
+                  <p style="margin: 5px 0;"><strong>App Selection:</strong> ${appName}</p>
+                </div>
+                
+                <p style="color: #d97706; font-weight: bold;">⚠️ SLA Note: Please process this request within 48 hours to meet platform terms.</p>
               </div>
-              
-              <p style="color: #d97706; font-weight: bold;">⚠️ SLA Note: Please process this request within 48 hours to meet platform terms.</p>
-            </div>
-          `,
-        }),
-      });
+            `,
+          }),
+        });
 
-      const responseData = await resendResponse.json();
-      if (!resendResponse.ok) {
-        return new Response(
-          JSON.stringify({ error: responseData.message || 'Failed to send email via Resend API' }),
-          {
-            status: resendResponse.status,
-            headers: { ...headers, 'Content-Type': 'application/json' },
-          }
-        );
+        const responseData = await resendResponse.json();
+        if (!resendResponse.ok) {
+          return new Response(
+            JSON.stringify({ error: responseData.message || 'Failed to send email via Resend API' }),
+            {
+              status: resendResponse.status,
+              headers: { ...headers, 'Content-Type': 'application/json' },
+            }
+          );
+        }
+
+        return new Response(JSON.stringify({ success: true, id: responseData.id }), {
+          status: 200,
+          headers: { ...headers, 'Content-Type': 'application/json' },
+        });
+
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message || 'Internal Server Error' }), {
+          status: 500,
+          headers: { ...headers, 'Content-Type': 'application/json' },
+        });
       }
-
-      return new Response(JSON.stringify({ success: true, id: responseData.id }), {
-        status: 200,
-        headers: { ...headers, 'Content-Type': 'application/json' },
-      });
-
-    } catch (err) {
-      return new Response(JSON.stringify({ error: err.message || 'Internal Server Error' }), {
-        status: 500,
-        headers: { ...headers, 'Content-Type': 'application/json' },
-      });
     }
+
+    // Default 404 Handler for Unmatched Endpoints
+    return new Response(
+      JSON.stringify({ error: 'Endpoint not found. Please verify the URL route.' }),
+      { status: 404, headers: { ...headers, 'Content-Type': 'application/json' } }
+    );
   },
 };
