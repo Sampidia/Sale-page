@@ -977,7 +977,7 @@ export default {
       Please check the confirmation email sent directly by Calendly, or contact support: <br>
       <a href="mailto:admin@afigo.sampidia.com" style="color:#60a5fa;">admin@afigo.sampidia.com</a>
     </div>
-    <a href="https://sampidia.com/my-courses" class="btn">Return to Student Portal</a>
+    <a href="https://afigo.sampidia.com/#/my-courses" class="btn">Return to Student Portal</a>
   </div>
 </body>
 </html>`;
