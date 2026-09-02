@@ -155,7 +155,7 @@ const CourseDetailPage: React.FC = () => {
     setError(null);
 
     try {
-      const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course-worker.sampidiablog.workers.dev';
+      const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course.sampidia.com';
 
       const res = await fetch(`${workerUrl.endsWith('/') ? workerUrl : workerUrl + '/'}api/verify-course-payment`, {
         method: 'POST',
@@ -390,7 +390,7 @@ const CourseDetailPage: React.FC = () => {
         </span>
         <div className="flex items-center gap-2">
           <a
-            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out "${course.title}" by Afigo Sam: https://course-worker.sampidiablog.workers.dev/share?type=course&id=${course.id}`)}`}
+            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out "${course.title}" by Afigo Sam: https://course.sampidia.com/share?type=course&id=${course.id}`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 text-xs font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5"
@@ -400,7 +400,7 @@ const CourseDetailPage: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              const link = `https://course-worker.sampidiablog.workers.dev/share?type=course&id=${course.id}`;
+              const link = `https://course.sampidia.com/share?type=course&id=${course.id}`;
               navigator.clipboard.writeText(link);
               alert('WhatsApp share link copied to clipboard!');
             }}
@@ -417,7 +417,7 @@ const CourseDetailPage: React.FC = () => {
   // VIEW: POST-PAYMENT THANK YOU / SUCCESS SCREEN
   // ───────────────────────────────────────────────────────────────────────────
   if (isPaid) {
-    const workerBase = (import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course-worker.sampidiablog.workers.dev').replace(/\/$/, '');
+    const workerBase = (import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course.sampidia.com').replace(/\/$/, '');
     const directPdfUrl = `${workerBase}/api/download-course-pdf?token=${downloadToken}&courseId=${course.id}`;
 
     return (
@@ -503,12 +503,12 @@ const CourseDetailPage: React.FC = () => {
                   </a>
                 </div>
 
-                {/* Embedded Calendly Scheduler Widget */}
+                {/* Embedded Calendly Scheduler Widget (via Worker Gatekeeper Redirect) */}
                 <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-white min-h-[650px]">
                   <iframe
-                    src={`https://calendly.com/oghenekaroafigo/meeting?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`}
+                    src={`${workerBase}/api/calendly-redirect?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}`}
                     width="100%"
-                    height="650 border-0"
+                    height="650"
                     title="Schedule 1-on-1 Mentorship Session"
                     style={{ border: 0, minHeight: '650px', width: '100%' }}
                   />

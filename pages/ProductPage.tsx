@@ -66,7 +66,7 @@ const ProductPage: React.FC = () => {
     setError(null);
 
     try {
-      const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course-worker.sampidiablog.workers.dev';
+      const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course.sampidia.com';
       const cleanWorkerUrl = workerUrl.endsWith('/') ? workerUrl : workerUrl + '/';
 
       const res = await fetch(`${cleanWorkerUrl}api/verify-product-payment`, {
@@ -100,8 +100,8 @@ const ProductPage: React.FC = () => {
     } catch (err: any) {
       console.error('Product Payment Verification Error:', err);
       // Fallback display
-      setR2DownloadLink(`https://course-worker.sampidiablog.workers.dev/api/download-product-zip?token=demo&productId=${product.id}`);
-      setReceiptLink(`https://course-worker.sampidiablog.workers.dev/api/download-receipt?txId=${txRef}&email=${encodeURIComponent(email)}&courseId=${product.id}&currency=${encodeURIComponent(priceInfo.currency)}&amountPaid=${encodeURIComponent(priceInfo.formatted)}`);
+      setR2DownloadLink(`https://course.sampidia.com/api/download-product-zip?token=demo&productId=${product.id}`);
+      setReceiptLink(`https://course.sampidia.com/api/download-receipt?txId=${txRef}&email=${encodeURIComponent(email)}&courseId=${product.id}&currency=${encodeURIComponent(priceInfo.currency)}&amountPaid=${encodeURIComponent(priceInfo.formatted)}`);
       setIsPaid(true);
     } finally {
       setIsLoading(false);
@@ -147,7 +147,7 @@ const ProductPage: React.FC = () => {
       customizations: {
         title: product.name,
         description: 'Instant Plugin ZIP Download + Documentation & Official Receipt',
-        logo: 'https://sampidia.com/assets/ai-generator-logo.webp',
+        logo: 'https://afigo.sampidia.com/assets/favicon-32x32.png',
       },
       callback: (response: any) => {
         if (response.status === 'successful' || response.status === 'completed') {
@@ -267,7 +267,7 @@ const ProductPage: React.FC = () => {
               {/* Social Share Section (WhatsApp OpenGraph Preview Enabled) */}
               <div className="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
                 <a
-                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out "${product.name}" by Afigo Sam: https://course-worker.sampidia.com/share?type=product&id=${product.id}`)}`}
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out "${product.name}" by Afigo Sam: https://course.sampidia.com/share?type=product&id=${product.id}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20"
@@ -277,7 +277,7 @@ const ProductPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    const link = `https://course-worker.sampidia.com/share?type=product&id=${product.id}`;
+                    const link = `https://course.sampidia.com/share?type=product&id=${product.id}`;
                     navigator.clipboard.writeText(link);
                     alert('WhatsApp share link copied to clipboard!');
                   }}

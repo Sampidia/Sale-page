@@ -17,7 +17,7 @@ interface PurchasedCourseItem {
   sessionBooked?: boolean;
 }
 
-const WORKER_BASE_URL = (import.meta as any).env?.VITE_COURSE_WORKER_URL || (import.meta as any).env?.VITE_WORKER_URL || 'https://course-worker.sampidiablog.workers.dev';
+const WORKER_BASE_URL = (import.meta as any).env?.VITE_COURSE_WORKER_URL || (import.meta as any).env?.VITE_WORKER_URL || 'https://course.sampidia.com';
 
 const CourseDashboard: React.FC = () => {
   const [searchParams] = useSearchParams();
