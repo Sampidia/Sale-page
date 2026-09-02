@@ -24,12 +24,12 @@ export default {
     const url = new URL(request.url);
 
     // Helper: Store Purchase Record in Cloudflare D1
-    async function recordPurchaseToDB({ email, customerName, courseId, format, transactionId, downloadToken, amount = 30000, itemType = 'course' }) {
+    async function recordPurchaseToDB({ email, customerName, courseId, format, transactionId, downloadToken, amount = 30000, currency = 'NGN', amountPaid = null, itemType = 'course' }) {
       if (!env.DB) return;
       try {
         await env.DB.prepare(`
-          INSERT OR IGNORE INTO purchases (id, email, customer_name, course_id, format, transaction_id, amount, download_token, item_type)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          INSERT OR IGNORE INTO purchases (id, email, customer_name, course_id, format, transaction_id, amount, currency, amount_paid, download_token, item_type)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).bind(
           `purch_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
           String(email).trim().toLowerCase(),
@@ -38,11 +38,31 @@ export default {
           format || 'pdf',
           String(transactionId),
           amount,
+          currency || 'NGN',
+          amountPaid || null,
           downloadToken,
           itemType
         ).run();
       } catch (err) {
-        console.error('D1 purchase record error:', err);
+        // Fallback for pre-existing D1 schema without currency/amount_paid columns
+        try {
+          await env.DB.prepare(`
+            INSERT OR IGNORE INTO purchases (id, email, customer_name, course_id, format, transaction_id, amount, download_token, item_type)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            `purch_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+            String(email).trim().toLowerCase(),
+            customerName || 'Valued Customer',
+            courseId,
+            format || 'pdf',
+            String(transactionId),
+            amount,
+            downloadToken,
+            itemType
+          ).run();
+        } catch (fallbackErr) {
+          console.error('D1 purchase record error:', fallbackErr);
+        }
       }
     }
 
@@ -52,7 +72,7 @@ export default {
     if (request.method === 'POST' && url.pathname.endsWith('/api/verify-course-payment')) {
       try {
         const body = await request.json();
-        const { transactionId, courseId, format, customerName, customerEmail, customerPhone, preferredDate, preferredTime } = body || {};
+        const { transactionId, courseId, format, customerName, customerEmail, customerPhone, amount: paidAmountVal, currency: paidCurrency, amountPaid: paidAmountStr } = body || {};
 
         if (!transactionId || !courseId || !customerName || !customerEmail) {
           return new Response(
@@ -94,7 +114,9 @@ export default {
         // 2. Build R2 download URL & Receipt URL from this Worker's own origin
         const workerOrigin = new URL(request.url).origin;
         const r2DownloadLink = `${workerOrigin}/api/download-course-pdf?token=${downloadToken}&courseId=${courseId}`;
-        const receiptLink = `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(txStr)}&email=${encodeURIComponent(customerEmail)}&courseId=${encodeURIComponent(courseId)}`;
+        const receiptLink = `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(txStr)}&email=${encodeURIComponent(customerEmail)}&courseId=${encodeURIComponent(courseId)}`
+          + (paidCurrency ? `&currency=${encodeURIComponent(paidCurrency)}` : '')
+          + (paidAmountStr ? `&amountPaid=${encodeURIComponent(paidAmountStr)}` : '');
         const calendlyLink = `${workerOrigin}/api/calendly-redirect?txId=${encodeURIComponent(txStr)}&email=${encodeURIComponent(customerEmail)}`;
 
         // 3. Save purchase to Cloudflare D1
@@ -105,7 +127,10 @@ export default {
           format,
           transactionId: txStr,
           downloadToken,
-          amount: 30000
+          amount: paidAmountVal || (format === 'one-on-one' ? 30000 : 15000),
+          currency: paidCurrency || 'NGN',
+          amountPaid: paidAmountStr || null,
+          itemType: 'course'
         });
 
         // 4. Send Resend confirmation email with R2 download button & receipt link
@@ -325,6 +350,8 @@ export default {
           transactionId: txStr,
           downloadToken,
           amount: 25,
+          currency: paidCurrency || 'USD',
+          amountPaid: paidAmount || null,
           itemType: 'product'
         });
 
@@ -1375,7 +1402,9 @@ export default {
                 r2DownloadLink: p.item_type === 'product'
                   ? `${workerOrigin}/api/download-product-zip?token=${p.download_token}&productId=${p.course_id}`
                   : `${workerOrigin}/api/download-course-pdf?token=${p.download_token}&courseId=${p.course_id}`,
-                receiptLink: `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(p.transaction_id)}&email=${encodeURIComponent(normalizedEmail)}&courseId=${encodeURIComponent(p.course_id)}`,
+                receiptLink: `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(p.transaction_id)}&email=${encodeURIComponent(normalizedEmail)}&courseId=${encodeURIComponent(p.course_id)}`
+                  + (p.currency ? `&currency=${encodeURIComponent(p.currency)}` : '')
+                  + (p.amount_paid ? `&amountPaid=${encodeURIComponent(p.amount_paid)}` : ''),
                 calendlyUrl: p.format === 'one-on-one' ? `${workerOrigin}/api/calendly-redirect?txId=${encodeURIComponent(p.transaction_id)}&email=${encodeURIComponent(normalizedEmail)}` : null
               }));
             }

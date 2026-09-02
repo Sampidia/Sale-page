@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS purchases (
   format TEXT NOT NULL DEFAULT 'pdf', -- 'pdf' | 'one-on-one'
   transaction_id TEXT UNIQUE NOT NULL,
   amount INTEGER NOT NULL DEFAULT 30000, -- Amount in NGN or USD
+  currency TEXT DEFAULT 'NGN', -- Charged ISO 4217 Currency (e.g. 'USD', 'NGN', 'GHS')
+  amount_paid TEXT, -- Formatted amount string (e.g. '$10.00 USD', 'GH₵ 155.00 GHS')
   download_token TEXT NOT NULL,
   item_type TEXT DEFAULT 'course', -- 'course' | 'product'
   session_booked INTEGER DEFAULT 0, -- 0 = not booked, 1 = booked on Calendly
