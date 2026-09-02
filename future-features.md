@@ -255,3 +255,20 @@ Allow verified buyers in the Student Portal (`/my-downloads`) to submit 5-star r
 ### Benefits
 - ⭐ **Automated Social Proof**: Keeps testimonial sections fresh without manual code updates.
 
+---
+
+## 9. Facebook App ID & Meta Domain Insights Integration
+
+Register a developer App ID under Meta for Developers (`developers.facebook.com`) and integrate `fb:app_id` across primary `index.html` and worker OpenGraph HTML routes.
+
+### How It Works & Setup
+1. Create a **Consumer / Business** App ID on Meta for Developers.
+2. Add `<meta property="fb:app_id" content="YOUR_FACEBOOK_APP_ID" />` to `index.html` and the Cloudflare Worker `/share` SSR route.
+3. Verify domain ownership inside Facebook Business Manager.
+
+### Benefits
+- 📊 **Meta Domain Insights**: Tracks shares, clicks, and user engagement across Facebook, Instagram, and Messenger.
+- 🛡️ **Spam Filter Protection**: Reduces automated domain throttling by Meta security algorithms.
+- ⚡ **Clean Debugger Validation**: Clears non-fatal advisory warnings on Facebook Sharing Debugger.
+
+

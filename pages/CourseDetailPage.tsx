@@ -394,7 +394,7 @@ const CourseDetailPage: React.FC = () => {
         </span>
         <div className="flex items-center gap-2">
           <a
-            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out "${course.title}" by Afigo Sam: https://course.sampidia.com/share?type=course&id=${course.id}`)}`}
+            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out "${course.title}" by Afigo Sam: https://course.sampidia.com/share?type=course&id=${course.id}&v=2`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 text-xs font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5"
@@ -404,7 +404,7 @@ const CourseDetailPage: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              const link = `https://course.sampidia.com/share?type=course&id=${course.id}`;
+              const link = `https://course.sampidia.com/share?type=course&id=${course.id}&v=2`;
               navigator.clipboard.writeText(link);
               alert('WhatsApp share link copied to clipboard!');
             }}

@@ -267,7 +267,7 @@ const ProductPage: React.FC = () => {
               {/* Social Share Section (WhatsApp OpenGraph Preview Enabled) */}
               <div className="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
                 <a
-                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out "${product.name}" by Afigo Sam: https://course.sampidia.com/share?type=product&id=${product.id}`)}`}
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out "${product.name}" by Afigo Sam: https://course.sampidia.com/share?type=product&id=${product.id}&v=2`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20"
@@ -277,7 +277,7 @@ const ProductPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    const link = `https://course.sampidia.com/share?type=product&id=${product.id}`;
+                    const link = `https://course.sampidia.com/share?type=product&id=${product.id}&v=2`;
                     navigator.clipboard.writeText(link);
                     alert('WhatsApp share link copied to clipboard!');
                   }}

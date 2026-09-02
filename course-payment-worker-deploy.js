@@ -1571,24 +1571,30 @@ export default {
           ogImage: 'https://afigo.sampidia.com/assets/og-vibe-coding.png',
           targetUrl: 'https://afigo.sampidia.com/#/course/vibe-coding'
         },
+        'course:zero-to-n8n': {
+          title: 'Zero to n8n — Free Hosting Mastered',
+          description: 'Self-Host Enterprise AI Automation Pipelines for ₦0/Month with Afigo Sam. Includes complete PDF blueprint + 1-on-1 mentorship.',
+          ogImage: 'https://afigo.sampidia.com/assets/og-zero-to-n8n.png',
+          targetUrl: 'https://afigo.sampidia.com/#/course/zero-to-n8n'
+        },
         // Products / Plugins
         'product:ai-content-generator': {
           title: 'WordPress AI-Powered Automatic Content Generator ($25)',
           description: 'Automatically generate, optimize, and publish high-ranking blog posts using GPT-4o, Gemini, Claude 3.5 & DeepSeek directly in WordPress.',
-          ogImage: 'https://afigo.sampidia.com/assets/wordpress-ai-content-generator.webp',
+          ogImage: 'https://afigo.sampidia.com/assets/og-preview.png',
           targetUrl: 'https://afigo.sampidia.com/#/product/ai-content-generator'
         },
         'product:my-licenses-manager': {
           title: 'My Licenses Manager — Free WordPress Plugin',
           description: 'Central license server to remotely manage WordPress plugins and digital assets with Envato Marketplace API integration.',
-          ogImage: 'https://afigo.sampidia.com/assets/banner-772x250.webp',
+          ogImage: 'https://afigo.sampidia.com/assets/og-preview.png',
           targetUrl: 'https://afigo.sampidia.com/#/product/my-licenses-manager'
         },
         // Mobile Apps
         'app:naija-ayo-worldwide': {
           title: 'Naija Ayo Worldwide — Traditional Board Game for Android',
           description: 'Play the authentic traditional African Ayo/Mancala strategy game on mobile with smart AI opponents and pass-and-play multiplayer.',
-          ogImage: 'https://afigo.sampidia.com/assets/Naija%20Ayo%20Worldwide.webp',
+          ogImage: 'https://afigo.sampidia.com/assets/og-preview.png',
           targetUrl: 'https://afigo.sampidia.com/#/app/naija-ayo-worldwide'
         }
       };
@@ -1615,6 +1621,8 @@ export default {
   <meta property="og:title" content="${meta.title}">
   <meta property="og:description" content="${meta.description}">
   <meta property="og:image" content="${meta.ogImage}">
+  <meta property="og:image:secure_url" content="${meta.ogImage}">
+  <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:site_name" content="Afigo-Sam | SamPidia">
