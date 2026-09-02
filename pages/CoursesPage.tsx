@@ -168,7 +168,8 @@ const CoursesPage: React.FC = () => {
           {COURSES.map((course) => {
             const currentFormat = selectedFormat[course.id] || 'pdf';
             const currentCover = currentFormat === 'one-on-one' ? course.oneOnOneCoverUrl : course.pdfCoverUrl;
-            const priceInfo = formatCoursePrice(course.price);
+            const currentPrice = currentFormat === 'one-on-one' ? (course.oneOnOnePrice || 30000) : (course.pdfPrice || 15000);
+            const priceInfo = formatCoursePrice(currentPrice);
 
             return (
               <div

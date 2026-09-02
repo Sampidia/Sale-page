@@ -58,9 +58,13 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [exchangeRates, setExchangeRates] = useState<Record<SupportedCurrency, number>>(DEFAULT_FALLBACK_RATES);
   const [isLoadingRates, setIsLoadingRates] = useState<boolean>(true);
 
-  // 1. Fetch live exchange rates from Open Exchange Rates API (Free, $0 cost, 0 API keys)
+  // 1. Fetch live exchange rates with 3-Tier Failover & Admin Alert Ping
   useEffect(() => {
     const fetchRates = async () => {
+      let tier1Success = false;
+      let tier2Success = false;
+
+      // Tier 1: Primary API (open.er-api.com)
       try {
         const res = await fetch('https://open.er-api.com/v6/latest/USD');
         if (res.ok) {
@@ -73,13 +77,55 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               }
             });
             setExchangeRates(fetchedRates);
+            tier1Success = true;
           }
         }
       } catch (err) {
-        console.warn('[Currency API] Using fallback exchange rates due to network fetch:', err);
-      } finally {
-        setIsLoadingRates(false);
+        console.warn('[Currency API - Tier 1] Failed:', err);
       }
+
+      // Tier 2: Secondary Backup API (api.exchangerate-api.com) if Tier 1 fails
+      if (!tier1Success) {
+        try {
+          const res2 = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+          if (res2.ok) {
+            const data2 = await res2.json();
+            if (data2 && data2.rates) {
+              const fetchedRates = { ...DEFAULT_FALLBACK_RATES };
+              (Object.keys(DEFAULT_FALLBACK_RATES) as SupportedCurrency[]).forEach((code) => {
+                if (data2.rates[code]) {
+                  fetchedRates[code] = data2.rates[code];
+                }
+              });
+              setExchangeRates(fetchedRates);
+              tier2Success = true;
+              console.log('[Currency API - Tier 2 Backup] Successfully recovered rates via Secondary API.');
+            }
+          }
+        } catch (err2) {
+          console.warn('[Currency API - Tier 2 Backup] Failed:', err2);
+        }
+      }
+
+      // Tier 3: Static Rates + Trigger Admin Failover Alert Email Ping if Tier 1 & Tier 2 both failed
+      if (!tier1Success && !tier2Success) {
+        console.warn('[Currency API - Tier 3] Using resilient static fallback rates. Triggering admin alert...');
+        try {
+          const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course.sampidia.com';
+          fetch(`${workerUrl.endsWith('/') ? workerUrl : workerUrl + '/'}api/notify-currency-failure`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              reason: 'Tier 1 (open.er-api.com) and Tier 2 (exchangerate-api.com) both failed to respond.',
+              timestamp: new Date().toISOString(),
+            }),
+          }).catch(() => {});
+        } catch {
+          // Silent catch for background alert
+        }
+      }
+
+      setIsLoadingRates(false);
     };
 
     fetchRates();

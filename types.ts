@@ -91,7 +91,9 @@ export interface Course {
   title: string;
   subtitle: string;
   description: string;
-  price: number; // 30000 NGN
+  price: number; // Default base price (30000 NGN)
+  pdfPrice?: number; // PDF format price (15000 NGN)
+  oneOnOnePrice?: number; // 1-on-1 format price (30000 NGN)
   currency: string; // 'NGN'
   selarUrl: string;
   pdfCoverUrl: string;

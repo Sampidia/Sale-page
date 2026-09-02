@@ -214,6 +214,59 @@ export default {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 1.75: POST /api/notify-currency-failure (Admin Email Alert for Currency API Failures)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'POST' && url.pathname.endsWith('/api/notify-currency-failure')) {
+      try {
+        const body = await request.json().catch(() => ({}));
+        const { reason = 'Live exchange rate APIs failed', timestamp = new Date().toISOString() } = body;
+
+        if (env.RESEND_API_KEY) {
+          const emailSubject = '⚠️ Alert: Currency Exchange Rate API Failover Triggered';
+          const emailHtml = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1e293b; line-height: 1.6;">
+              <h2 style="color: #dc2626; border-bottom: 2px solid #fee2e2; padding-bottom: 12px; margin-top: 0;">
+                ⚠️ Currency API Failover Triggered
+              </h2>
+              <p>Hi Samson,</p>
+              <p>The Afigo-Sam multi-currency converter experienced an issue fetching live exchange rates:</p>
+              <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 16px; margin: 16px 0; color: #991b1b; font-size: 14px;">
+                <strong>Reason:</strong> ${reason}<br>
+                <strong>Timestamp:</strong> ${timestamp}
+              </div>
+              <p><strong>Status:</strong> The platform has automatically failed over to Tier 3 built-in static rates ($1 USD = ₦1,500 NGN). Visitors can still view prices and checkout without disruption.</p>
+              <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+              <p style="font-size: 12px; color: #64748b;">Afigo-Sam Technology System Automated Notification • admin@sampidia.com</p>
+            </div>
+          `;
+
+          const sendEmailPayload = (fromEmail) => ({
+            from: `Afigo-Sam Alert <${fromEmail}>`,
+            to: ['admin@sampidia.com', 'admin@afigo.sampidia.com'],
+            subject: emailSubject,
+            html: emailHtml,
+          });
+
+          fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(sendEmailPayload('admin@afigo.sampidia.com')),
+          }).catch(err => console.error('Currency alert email error:', err));
+        }
+
+        return new Response(JSON.stringify({ success: true, alerted: true }), {
+          status: 200,
+          headers: { ...headers, 'Content-Type': 'application/json' },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false }), { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } });
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // ROUTE 1.8: POST /api/verify-product-payment (Plugin & Digital Product Verification)
     // ─────────────────────────────────────────────────────────────────────────
     if (request.method === 'POST' && url.pathname.endsWith('/api/verify-product-payment')) {

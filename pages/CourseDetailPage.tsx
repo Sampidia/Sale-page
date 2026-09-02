@@ -7,15 +7,17 @@ import { useCurrency } from '../context/CurrencyContext';
 
 const CourseDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const course = COURSES.find((c) => c.id === id) || COURSES[0];
   const { formatCoursePrice } = useCurrency();
-  const coursePriceInfo = formatCoursePrice(course.price);
+  const course = COURSES.find((c) => c.id === id) || COURSES[0];
 
   // State selection
   const [format, setFormat] = useState<CourseFormat>('pdf');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+
+  const currentNgnPrice = format === 'one-on-one' ? (course.oneOnOnePrice || 30000) : (course.pdfPrice || 15000);
+  const coursePriceInfo = formatCoursePrice(currentNgnPrice);
 
   // Payment & SDK states
   const [sdkReady, setSdkReady] = useState(false);
@@ -167,7 +169,9 @@ const CourseDetailPage: React.FC = () => {
           customerName: name,
           customerEmail: email,
           customerPhone: phone,
-          amount: course.price,
+          amount: currentNgnPrice,
+          currency: coursePriceInfo.currency,
+          amountPaid: coursePriceInfo.formatted,
         }),
       });
 
@@ -221,8 +225,8 @@ const CourseDetailPage: React.FC = () => {
     (window as any).FlutterwaveCheckout({
       public_key: flwKey,
       tx_ref: txRef,
-      amount: course.price,
-      currency: course.currency,
+      amount: coursePriceInfo.currency === 'NGN' ? currentNgnPrice : coursePriceInfo.amount,
+      currency: coursePriceInfo.currency,
       payment_options: 'card, mobilemoney, banktransfer, ussd',
       customer: {
         email,
