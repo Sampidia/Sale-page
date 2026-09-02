@@ -243,9 +243,9 @@ const ProductPage: React.FC = () => {
                   <>
                     <button
                       onClick={() => setIsCheckoutOpen(true)}
-                      className="flex-1 text-center bg-red-600 text-white font-bold py-4 px-8 rounded-2xl hover:bg-red-700 transition-all text-lg shadow-xl shadow-red-200 hover:shadow-2xl hover:shadow-red-300 cursor-pointer"
+                      className="flex-1 text-center bg-red-600 text-white font-bold py-3.5 px-6 rounded-2xl hover:bg-red-700 transition-all text-sm sm:text-base shadow-xl shadow-red-200 hover:shadow-2xl hover:shadow-red-300 cursor-pointer flex items-center justify-center gap-2"
                     >
-                      Checkout — {priceInfo.formatted}
+                      💳 Checkout — {priceInfo.formatted}
                     </button>
                     {product.alternateUrl && (
                       <button
@@ -763,7 +763,7 @@ if ($data->result === 'success') {
                   <button
                     type="button"
                     onClick={() => setIsCheckoutOpen(true)}
-                    className="w-full sm:w-auto px-12 py-6 bg-red-600 text-white font-bold rounded-2xl hover:bg-red-700 transition-all text-xl shadow-2xl shadow-red-900/50 hover:shadow-red-900/70 cursor-pointer"
+                    className="w-full sm:w-auto px-8 py-4 bg-red-600 text-white font-bold rounded-2xl hover:bg-red-700 transition-all text-sm sm:text-base shadow-2xl shadow-red-900/50 hover:shadow-red-900/70 cursor-pointer flex items-center justify-center gap-2"
                   >
                     💳 Checkout — {priceInfo.formatted}
                   </button>
