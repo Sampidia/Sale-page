@@ -47,6 +47,7 @@ const ProductPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPaid, setIsPaid] = useState(false);
+  const [transactionRef, setTransactionRef] = useState<string | null>(null);
   const [r2DownloadLink, setR2DownloadLink] = useState<string | null>(null);
   const [receiptLink, setReceiptLink] = useState<string | null>(null);
 
@@ -95,19 +96,20 @@ const ProductPage: React.FC = () => {
               content_name: product.name,
               content_type: 'product',
             });
-            console.log('[Facebook Pixel] Product Purchase event tracked successfully:', product.id);
+            console.log('[Facebook Pixel] Product Purchase event tracked successfully:', transactionRef || product.id);
           } catch (err) {
             console.error('Failed to trigger Facebook Pixel Product Purchase event:', err);
           }
         }
       }
     }
-  }, [isPaid, product]);
+  }, [isPaid, product, transactionRef]);
 
   // Verify Product Payment with Worker
   const verifyProductPayment = async (txRef: string) => {
     setIsLoading(true);
     setError(null);
+    setTransactionRef(txRef);
 
     try {
       const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course.sampidia.com';
