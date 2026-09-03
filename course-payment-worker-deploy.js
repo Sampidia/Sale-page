@@ -1063,19 +1063,53 @@ export default {
 </html>`;
               return new Response(bookedHtml, { status: 200, headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' } });
             }
-
-            // On first click: mark session_booked = 1 in D1 so link cannot be re-used!
-            await env.DB.prepare(`
-              UPDATE purchases SET session_booked = 1, session_booked_at = datetime('now') WHERE id = ?
-            `).bind(record.id).run();
           }
         } catch (dbErr) {
           console.error('D1 check session_booked error:', dbErr);
         }
       }
 
+      // Pre-fill email in Calendly URL if available
+      const redirectUrl = email
+        ? `${targetCalendlyUrl}?email=${encodeURIComponent(email)}`
+        : targetCalendlyUrl;
+
       // If not booked or DB record absent, 302 redirect to Calendly
-      return Response.redirect(targetCalendlyUrl, 302);
+      return Response.redirect(redirectUrl, 302);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 3.55: POST /api/mark-session-booked (Records Successful Calendly Booking)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'POST' && url.pathname.endsWith('/api/mark-session-booked')) {
+      try {
+        const body = await request.json();
+        const txId = body.transactionId || body.txId || '';
+        const email = body.email || '';
+
+        if (env.DB && (txId || email)) {
+          if (txId) {
+            await env.DB.prepare(`
+              UPDATE purchases SET session_booked = 1, session_booked_at = datetime('now') WHERE transaction_id = ? OR id = ?
+            `).bind(txId, txId).run();
+          } else if (email) {
+            await env.DB.prepare(`
+              UPDATE purchases SET session_booked = 1, session_booked_at = datetime('now')
+              WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' ORDER BY purchased_at DESC LIMIT 1)
+            `).bind(email.toLowerCase()).run();
+          }
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, message: 'Session marked as booked successfully' }),
+          { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ error: err.message || 'Internal Server Error' }),
+          { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     // ─────────────────────────────────────────────────────────────────────────

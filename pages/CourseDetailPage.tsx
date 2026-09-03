@@ -28,6 +28,7 @@ const CourseDetailPage: React.FC = () => {
   const [isPaid, setIsPaid] = useState(false);
   const [downloadToken, setDownloadToken] = useState<string | null>(null);
   const [transactionRef, setTransactionRef] = useState<string | null>(null);
+  const [isSessionBooked, setIsSessionBooked] = useState(false);
 
   // Dynamic Cover Image depending on format selection
   const currentCover = format === 'one-on-one' ? course.oneOnOneCoverUrl : course.pdfCoverUrl;
@@ -125,6 +126,34 @@ const CourseDetailPage: React.FC = () => {
   useEffect(() => {
     loadFlutterwaveSdk(1);
   }, []);
+
+  // ── Listen for Calendly event_scheduled postMessage ───────────────────────
+  useEffect(() => {
+    const handleCalendlyMessage = async (e: MessageEvent) => {
+      if (e.data && e.data.event === 'calendly.event_scheduled') {
+        console.log('[Calendly] Booking successfully scheduled by user!');
+        setIsSessionBooked(true);
+
+        try {
+          const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course.sampidia.com';
+          const cleanUrl = workerUrl.endsWith('/') ? workerUrl : workerUrl + '/';
+          await fetch(`${cleanUrl}api/mark-session-booked`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              transactionId: transactionRef,
+              email: email,
+            }),
+          });
+        } catch (err) {
+          console.error('Failed to notify worker of Calendly booking:', err);
+        }
+      }
+    };
+
+    window.addEventListener('message', handleCalendlyMessage);
+    return () => window.removeEventListener('message', handleCalendlyMessage);
+  }, [transactionRef, email]);
 
   // ── Track Facebook Ads Purchase Event ONLY on Confirmed Payment ───────────
   useEffect(() => {
@@ -487,36 +516,70 @@ const CourseDetailPage: React.FC = () => {
             ) : (
               /* FORMAT B: 1-ON-1 MENTORSHIP CALENDLY EMBED */
               <div className="space-y-8">
-                <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-6 text-center space-y-2">
-                  <span className="bg-purple-500/20 text-purple-300 text-xs font-black uppercase px-3 py-1 rounded-full border border-purple-500/30">
-                    Mentorship Booking Confirmed
-                  </span>
-                  <h3 className="text-xl font-bold text-white mt-2">
-                    Schedule Your 1-on-1 Session with Afigo Sam
-                  </h3>
-                  <p className="text-purple-300 text-xs sm:text-sm font-semibold mb-4">
-                    👇 Please select your preferred date and time slot on the calendar widget below:
-                  </p>
-                  <a
-                    href={`${workerBase}/api/download-receipt?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}&courseId=${encodeURIComponent(course.id)}&currency=${encodeURIComponent(coursePriceInfo.currency)}&amountPaid=${encodeURIComponent(coursePriceInfo.formatted)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs px-5 py-2.5 rounded-xl border border-slate-700 transition-all"
-                  >
-                    <span>📄</span> Download Official Receipt (PDF)
-                  </a>
-                </div>
+                {isSessionBooked ? (
+                  <div className="bg-emerald-950/80 border border-emerald-500/40 rounded-2xl p-6 sm:p-8 text-center space-y-4 shadow-2xl backdrop-blur-md">
+                    <div className="text-5xl">🎉</div>
+                    <h3 className="text-2xl font-black text-white">
+                      Mentorship Session Successfully Scheduled!
+                    </h3>
+                    <p className="text-emerald-300 text-sm max-w-lg mx-auto leading-relaxed">
+                      Your 1-on-1 mentorship session with Afigo Sam has been confirmed. Please check your email inbox ({email}) for calendar invitation and meeting join link.
+                    </p>
+                    <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+                      <a
+                        href={`${workerBase}/api/download-receipt?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}&courseId=${encodeURIComponent(course.id)}&currency=${encodeURIComponent(coursePriceInfo.currency)}&amountPaid=${encodeURIComponent(coursePriceInfo.formatted)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs px-5 py-2.5 rounded-xl border border-slate-700 transition-all"
+                      >
+                        <span>📄</span> Download Official Receipt (PDF)
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-6 text-center space-y-3">
+                      <span className="bg-purple-500/20 text-purple-300 text-xs font-black uppercase px-3 py-1 rounded-full border border-purple-500/30">
+                        Step 2 of 2: Pick Your Live Mentorship Slot
+                      </span>
+                      <h3 className="text-xl sm:text-2xl font-bold text-white mt-1">
+                        Schedule Your 1-on-1 Session with Afigo Sam
+                      </h3>
+                      <p className="text-purple-300 text-xs sm:text-sm font-semibold max-w-md mx-auto">
+                        👇 Select your preferred date & time slot on the calendar widget below, or open Calendly in a new tab:
+                      </p>
+                      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                        <a
+                          href={`${workerBase}/api/calendly-redirect?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-purple-950/40"
+                        >
+                          <span>🗓️</span> Open Calendly Scheduler in New Tab ↗
+                        </a>
+                        <a
+                          href={`${workerBase}/api/download-receipt?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}&courseId=${encodeURIComponent(course.id)}&currency=${encodeURIComponent(coursePriceInfo.currency)}&amountPaid=${encodeURIComponent(coursePriceInfo.formatted)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs px-5 py-2.5 rounded-xl border border-slate-700 transition-all"
+                        >
+                          <span>📄</span> Download Receipt (PDF)
+                        </a>
+                      </div>
+                    </div>
 
-                {/* Embedded Calendly Scheduler Widget (via Worker Gatekeeper Redirect) */}
-                <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-white min-h-[650px]">
-                  <iframe
-                    src={`${workerBase}/api/calendly-redirect?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}`}
-                    width="100%"
-                    height="650"
-                    title="Schedule 1-on-1 Mentorship Session"
-                    style={{ border: 0, minHeight: '650px', width: '100%' }}
-                  />
-                </div>
+                    {/* Embedded Calendly Scheduler Widget (via Worker Gatekeeper Redirect) */}
+                    <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-white min-h-[650px]">
+                      <iframe
+                        src={`${workerBase}/api/calendly-redirect?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}`}
+                        width="100%"
+                        height="650"
+                        title="Schedule 1-on-1 Mentorship Session"
+                        style={{ border: 0, minHeight: '650px', width: '100%' }}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
