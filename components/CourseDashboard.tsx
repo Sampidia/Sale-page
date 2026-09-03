@@ -496,7 +496,8 @@ const CourseDashboard: React.FC = () => {
                                     const isRescheduleLocked = hoursLeft < 12;
                                     const isCancelLocked = hoursLeft < 24;
                                     const reschedUrl = item.rescheduleLink || item.calUrl || `${WORKER_BASE_URL}/api/cal-redirect?txId=${encodeURIComponent(item.transactionId)}`;
-                                    const cancelUrl = reschedUrl.includes('?') ? `${reschedUrl}&cancel=true` : `${reschedUrl}?cancel=true`;
+                                    const bookingBaseUrl = reschedUrl.replace('/reschedule/', '/booking/');
+                                    const cancelUrl = bookingBaseUrl.includes('?') ? `${bookingBaseUrl}&cancel=true` : `${bookingBaseUrl}?cancel=true`;
 
                                     return (
                                       <div className="space-y-2">
@@ -506,7 +507,7 @@ const CourseDashboard: React.FC = () => {
                                         <div className="flex flex-col sm:flex-row gap-2">
                                           {isRescheduleLocked ? (
                                             <span className="bg-slate-800 text-slate-500 font-bold py-2.5 px-3 rounded-xl text-xs text-center flex-1 cursor-not-allowed border border-slate-700">
-                                              🔒 Reschedule Locked (&lt; 12h)
+                                              🔒 Reschedule Locked
                                             </span>
                                           ) : (
                                             <a
@@ -521,7 +522,7 @@ const CourseDashboard: React.FC = () => {
 
                                           {isCancelLocked ? (
                                             <span className="bg-slate-800 text-slate-500 font-bold py-2.5 px-3 rounded-xl text-xs text-center flex-1 cursor-not-allowed border border-slate-700">
-                                              🔒 Cancel Locked (&lt; 24h)
+                                              🔒 Cancel Locked
                                             </span>
                                           ) : (
                                             <a
@@ -536,11 +537,15 @@ const CourseDashboard: React.FC = () => {
                                         </div>
                                         {isRescheduleLocked ? (
                                           <p className="text-[11px] text-red-400 font-medium text-center">
-                                            ⚠️ Rescheduling is locked because your meeting starts in less than 12 hours. Email admin@afigo.sampidia.com for emergencies.
+                                            ⚠️ Rescheduling and Cancellation is locked because your meeting starts in less than 24 hours. Support: admin@afigo.sampidia.com
+                                          </p>
+                                        ) : isCancelLocked ? (
+                                          <p className="text-[11px] text-amber-400 font-medium text-center">
+                                            ⚠️ Cancellation is locked because your meeting starts in less than 24 hours. Support: admin@afigo.sampidia.com
                                           </p>
                                         ) : (
                                           <p className="text-[11px] text-slate-400 font-medium text-center">
-                                            💡 Click Reschedule to change meeting platform (Google Meet ↔ CalVideo) or change time (&gt; 12h notice)
+                                            💡 Click Reschedule to change meeting platform (Google Meet ↔ CalVideo) or select a new date & time
                                           </p>
                                         )}
                                       </div>

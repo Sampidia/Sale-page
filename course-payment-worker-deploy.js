@@ -1105,7 +1105,8 @@ export default {
             // Case 3: Session Already Scheduled
             if (Number(record.session_booked) === 1) {
               const rescheduleUrl = record.reschedule_link || targetCalUrl;
-              const cancelUrl = rescheduleUrl.includes('?') ? `${rescheduleUrl}&cancel=true` : `${rescheduleUrl}?cancel=true`;
+              const bookingBaseUrl = rescheduleUrl.replace('/reschedule/', '/booking/');
+              const cancelUrl = bookingBaseUrl.includes('?') ? `${bookingBaseUrl}&cancel=true` : `${bookingBaseUrl}?cancel=true`;
 
               const meetingTime = record.meeting_start_time ? new Date(record.meeting_start_time).getTime() : null;
               const now = Date.now();
@@ -1142,25 +1143,28 @@ export default {
     
     ${isRescheduleLocked ? `
       <div class="warn-pill">
-        ⚠️ <strong>Rescheduling Locked (< 12 Hours):</strong><br>
-        Rescheduling is locked because your meeting starts in less than 12 hours. For emergency changes, email: <a href="mailto:admin@afigo.sampidia.com" style="color:#60a5fa;">admin@afigo.sampidia.com</a>
+        ⚠️ Rescheduling and Cancellation is locked because your meeting starts in less than 24 hours. Support: <a href="mailto:admin@afigo.sampidia.com" style="color:#60a5fa;">admin@afigo.sampidia.com</a>
+      </div>
+    ` : isCancelLocked ? `
+      <div class="warn-pill">
+        ⚠️ Cancellation is locked because your meeting starts in less than 24 hours. Support: <a href="mailto:admin@afigo.sampidia.com" style="color:#60a5fa;">admin@afigo.sampidia.com</a>
       </div>
     ` : `
       <div class="note-pill">
         💡 <strong>Platform Change & Rescheduling:</strong><br>
-        Click Reschedule below to change your meeting platform (Google Meet ↔ CalVideo) or select a new date & time (allowed up to 12 hours before meeting).
+        Click Reschedule below to change your meeting platform (Google Meet ↔ CalVideo) or select a new date & time.
       </div>
     `}
 
     <div class="btn-group">
       ${isRescheduleLocked ? `
-        <span class="btn btn-disabled">🔒 Rescheduling Locked (< 12h)</span>
+        <span class="btn btn-disabled">🔒 Reschedule Locked</span>
       ` : `
         <a href="${rescheduleUrl}" target="_blank" rel="noopener noreferrer" class="btn">🔄 Reschedule My Session</a>
       `}
 
       ${isCancelLocked ? `
-        <span class="btn btn-disabled">🔒 Cancellation Locked (< 24h)</span>
+        <span class="btn btn-disabled">🔒 Cancel Locked</span>
       ` : `
         <a href="${cancelUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-cancel">❌ Cancel Booking</a>
       `}
