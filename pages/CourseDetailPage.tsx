@@ -137,10 +137,14 @@ const CourseDetailPage: React.FC = () => {
       );
 
       if (isCalSuccess) {
-        console.log('[Cal.com] Booking successfully scheduled by user!');
+        console.log('[Cal.com] Booking successfully scheduled by user!', e.data);
         setIsSessionBooked(true);
 
         try {
+          const calData = e.data?.data || e.data?.detail || e.data?.payload || e.data || {};
+          const bookingUid = calData.uid || calData.booking?.uid || calData.bookingUid || '';
+          const reschedLink = calData.rescheduleUrl || calData.reschedule_url || (bookingUid ? `https://cal.com/reschedule/${bookingUid}` : '');
+
           const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course.sampidia.com';
           const cleanUrl = workerUrl.endsWith('/') ? workerUrl : workerUrl + '/';
           await fetch(`${cleanUrl}api/mark-session-booked`, {
@@ -149,6 +153,7 @@ const CourseDetailPage: React.FC = () => {
             body: JSON.stringify({
               transactionId: transactionRef,
               email: email,
+              rescheduleLink: reschedLink
             }),
           });
         } catch (err) {

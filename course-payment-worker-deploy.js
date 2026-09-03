@@ -149,7 +149,7 @@ export default {
                 🎉 Payment Confirmed — ${courseTitle}
               </h2>
               <p>Hi <strong>${customerName}</strong>,</p>
-              <p>Thank you for enrolling in <strong>${courseTitle}</strong> (${format === 'one-on-one' ? '1-on-1 Mentorship' : 'PDF Blueprint'}). Your payment of <strong>₦30,000 NGN</strong> has been verified.</p>
+              <p>Thank you for enrolling in <strong>${courseTitle}</strong> (${format === 'one-on-one' ? '1-on-1 Mentorship' : 'PDF Blueprint'}). Your payment of <strong>${paidAmountStr || ((paidAmountVal || (format === 'one-on-one' ? 30000 : 15000)).toLocaleString('en-US') + ' ' + (paidCurrency || 'NGN'))}</strong> has been verified.</p>
 
               ${format === 'one-on-one' ? `
                 <div style="background-color: #f3e8ff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 20px; margin: 20px 0;">
@@ -369,7 +369,7 @@ export default {
                 🎉 Order Confirmed — ${productName}
               </h2>
               <p>Hi <strong>${customerName}</strong>,</p>
-              <p>Thank you for purchasing <strong>${productName}</strong>. Your payment of <strong>$25 USD</strong> has been verified.</p>
+              <p>Thank you for purchasing <strong>${productName}</strong>. Your payment of <strong>${paidAmount || paidAmountStr || '$25 USD'}</strong> has been verified.</p>
 
               <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin: 20px 0;">
                 <h3 style="color: #166534; margin-top: 0;">📥 Download Your Plugin (.ZIP)</h3>
@@ -1496,7 +1496,11 @@ export default {
         // Extract transactionId custom question or query param
         const responses = payload.responses || body.responses || {};
         const txId = (responses.transactionId && responses.transactionId.value) || responses.transactionId || payload.transactionId || '';
-        const rescheduleUrl = payload.rescheduleUrl || body.rescheduleUrl || payload.reschedule_link || '';
+        const bookingUid = payload.uid || (payload.booking && payload.booking.uid) || payload.bookingUid || (payload.bookingId ? String(payload.bookingId) : '') || body.uid || '';
+        const rawReschedUrl = payload.rescheduleUrl || body.rescheduleUrl || payload.reschedule_link || '';
+        const rescheduleUrl = (rawReschedUrl && rawReschedUrl.startsWith('http'))
+          ? rawReschedUrl
+          : (bookingUid ? `https://cal.com/reschedule/${bookingUid}` : rawReschedUrl);
         const startTime = payload.startTime || body.startTime || '';
 
         if (env.DB && (studentEmail || txId)) {
