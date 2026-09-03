@@ -10,7 +10,23 @@ const MobileAppDetailPage: React.FC = () => {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [id]);
+
+    if (app && typeof window !== 'undefined') {
+      const fbqFunc = (window as any).fbq;
+      if (fbqFunc) {
+        try {
+          fbqFunc('track', 'ViewContent', {
+            content_name: app.name,
+            content_category: app.category,
+            content_ids: [app.id],
+            content_type: 'product',
+          });
+        } catch (err) {
+          console.error('Failed to trigger Facebook Pixel App ViewContent event:', err);
+        }
+      }
+    }
+  }, [id, app]);
 
   if (!app) {
     return (
@@ -105,6 +121,19 @@ const MobileAppDetailPage: React.FC = () => {
                   href={app.googlePlayUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && (window as any).fbq) {
+                      try {
+                        (window as any).fbq('track', 'Lead', {
+                          content_name: app.name,
+                          content_ids: [app.id],
+                          content_type: 'product',
+                        });
+                      } catch (err) {
+                        console.error('Failed to trigger Facebook Pixel App Download Lead event:', err);
+                      }
+                    }
+                  }}
                   className="hover:scale-105 transition-all inline-block shrink-0"
                 >
                   <img

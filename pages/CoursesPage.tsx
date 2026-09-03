@@ -136,7 +136,7 @@ const CoursesPage: React.FC = () => {
           </h1>
 
           <p className="text-slate-300 text-xs sm:text-base max-w-2xl mx-auto mb-4 leading-relaxed">
-            Choose your learning format: <span className="text-red-400 font-bold">Instant PDF Blueprint</span> or <span className="text-purple-400 font-bold">1-on-1 Live Coaching</span>. Standard fee is ₦30,000 NGN with instant fulfillment.
+            Choose your learning format: <span className="text-red-400 font-bold">Instant PDF Blueprint</span> or <span className="text-purple-400 font-bold">1-on-1 Live Coaching</span>.
           </p>
         </div>
       </section>

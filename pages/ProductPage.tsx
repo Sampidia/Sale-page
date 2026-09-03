@@ -60,6 +60,50 @@ const ProductPage: React.FC = () => {
     }
   }, []);
 
+  // ── Track Facebook Ads ViewContent Event on Page Load ──────────────────────
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const fbqFunc = (window as any).fbq;
+      if (fbqFunc) {
+        try {
+          fbqFunc('track', 'ViewContent', {
+            content_name: product.name,
+            content_category: product.category,
+            content_ids: [product.id],
+            content_type: 'product',
+            value: product.price || 25,
+            currency: 'USD',
+          });
+        } catch (err) {
+          console.error('Failed to trigger Facebook Pixel ViewContent event:', err);
+        }
+      }
+    }
+  }, [product.id]);
+
+  // ── Track Facebook Ads Purchase Event ONLY on Confirmed Payment ───────────
+  useEffect(() => {
+    if (isPaid) {
+      if (typeof window !== 'undefined') {
+        const fbqFunc = (window as any).fbq;
+        if (fbqFunc) {
+          try {
+            fbqFunc('track', 'Purchase', {
+              value: product.price || 25,
+              currency: 'USD',
+              content_ids: [product.id],
+              content_name: product.name,
+              content_type: 'product',
+            });
+            console.log('[Facebook Pixel] Product Purchase event tracked successfully:', product.id);
+          } catch (err) {
+            console.error('Failed to trigger Facebook Pixel Product Purchase event:', err);
+          }
+        }
+      }
+    }
+  }, [isPaid, product]);
+
   // Verify Product Payment with Worker
   const verifyProductPayment = async (txRef: string) => {
     setIsLoading(true);
@@ -131,6 +175,24 @@ const ProductPage: React.FC = () => {
 
     setError(null);
     setIsLoading(true);
+
+    // Track Facebook Ads InitiateCheckout Event
+    if (typeof window !== 'undefined') {
+      const fbqFunc = (window as any).fbq;
+      if (fbqFunc) {
+        try {
+          fbqFunc('track', 'InitiateCheckout', {
+            content_name: product.name,
+            content_ids: [product.id],
+            content_type: 'product',
+            value: product.price || 25,
+            currency: 'USD',
+          });
+        } catch (err) {
+          console.error('Failed to trigger Facebook Pixel InitiateCheckout event:', err);
+        }
+      }
+    }
 
     const txRef = `PLUGIN_${product.id.toUpperCase()}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
@@ -235,6 +297,19 @@ const ProductPage: React.FC = () => {
                 {product.price === 0 ? (
                   <a
                     href={product.buyUrl}
+                    onClick={() => {
+                      if (typeof window !== 'undefined' && (window as any).fbq) {
+                        try {
+                          (window as any).fbq('track', 'Lead', {
+                            content_name: product.name,
+                            content_ids: [product.id],
+                            content_type: 'product',
+                          });
+                        } catch (err) {
+                          console.error('Failed to trigger Facebook Pixel Lead event:', err);
+                        }
+                      }
+                    }}
                     className="flex-1 text-center bg-green-600 text-white font-bold py-4 px-8 rounded-2xl hover:bg-green-700 transition-all text-lg shadow-xl shadow-green-200 hover:shadow-2xl hover:shadow-green-300"
                   >
                     Get for free

@@ -10,6 +10,23 @@ type FilterOption = 'All' | ProductCategory;
 const ProductsListPage: React.FC = () => {
     const [activeFilter, setActiveFilter] = useState<FilterOption>('All');
 
+    React.useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const fbqFunc = (window as any).fbq;
+            if (fbqFunc) {
+                try {
+                    fbqFunc('track', 'ViewContent', {
+                        content_name: 'Products & Plugins Catalog',
+                        content_category: 'Catalog',
+                        content_type: 'product_group',
+                    });
+                } catch (err) {
+                    console.error('Failed to trigger Facebook Pixel Catalog ViewContent event:', err);
+                }
+            }
+        }
+    }, []);
+
     const filters: FilterOption[] = ['All', 'Plugin', 'Theme', 'Template', 'Script'];
 
     const filteredProducts = activeFilter === 'All'
