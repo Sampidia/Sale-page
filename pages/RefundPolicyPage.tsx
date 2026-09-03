@@ -66,11 +66,13 @@ const RefundPolicyPage: React.FC = () => {
               <span>🤝</span> 2. 1-on-1 Live Mentorship Sessions
             </h2>
             <p className="mb-4 text-slate-400">
-              Our 1-on-1 mentorship includes direct, live 60–120 minute video sessions and customized guidance scheduled via Calendly.
+              Our 1-on-1 mentorship includes direct, live 30-minute video sessions (Google Meet or CalVideo) and customized guidance scheduled via Cal.com.
             </p>
             <ul className="list-disc list-inside space-y-2 text-slate-300">
-              <li><strong>Rescheduling Policy:</strong> You may reschedule your 1-on-1 mentorship session free of charge up to <strong>24 hours before</strong> the scheduled meeting time by contacting support.</li>
-              <li><strong>No-Show / Late Cancellation:</strong> Cancellations made less than 6 hours prior to the session, or failure to attend without prior notice, are non-refundable as the instructor's dedicated time slot has been reserved.</li>
+              <li><strong>Rescheduling Policy:</strong> You may reschedule your 1-on-1 mentorship session free of charge up to <strong>12 hours before</strong> the scheduled meeting time directly from your Student Portal or session confirmation link.</li>
+              <li><strong>Cancellation Policy:</strong> You may cancel your scheduled session up to <strong>24 hours before</strong> the meeting time. Cancellations made more than 24 hours in advance are eligible for session re-booking or a full refund.</li>
+              <li><strong>Time Locks & Notice Windows:</strong> Cancellations are locked less than 24 hours prior to the session, and rescheduling is locked less than 12 hours prior to the session to preserve reserved instructor availability.</li>
+              <li><strong>Refund Request Submission:</strong> If you cancel your session in advance (more than 24 hours before meeting time) or experience an issue, you can request a payout refund directly inside your Student Portal. Refunds are processed to your bank or mobile money account within 3–5 business days.</li>
               <li><strong>Instructor Rescheduling Guarantee:</strong> In the rare event that the instructor must reschedule, you will be offered an immediate choice between an alternative priority time slot or a 100% full refund.</li>
             </ul>
           </div>

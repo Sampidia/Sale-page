@@ -1105,6 +1105,14 @@ export default {
             // Case 3: Session Already Scheduled
             if (Number(record.session_booked) === 1) {
               const rescheduleUrl = record.reschedule_link || targetCalUrl;
+              const cancelUrl = rescheduleUrl.includes('?') ? `${rescheduleUrl}&cancel=true` : `${rescheduleUrl}?cancel=true`;
+
+              const meetingTime = record.meeting_start_time ? new Date(record.meeting_start_time).getTime() : null;
+              const now = Date.now();
+              const hoursLeft = meetingTime ? (meetingTime - now) / (1000 * 3600) : 999;
+              const isRescheduleLocked = hoursLeft < 12;
+              const isCancelLocked = hoursLeft < 24;
+
               const bookedHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1118,8 +1126,11 @@ export default {
     h1 { font-size: 22px; font-weight: 800; color: #ffffff; margin: 0 0 12px 0; }
     p { font-size: 14px; color: #94a3b8; line-height: 1.6; margin: 0 0 20px 0; }
     .note-pill { background: #3b82f61a; border: 1px solid #3b82f640; color: #93c5fd; font-size: 12px; font-weight: 600; padding: 10px 14px; border-radius: 10px; margin-bottom: 20px; line-height: 1.4; text-align: left; }
+    .warn-pill { background: #ef44441a; border: 1px solid #ef444440; color: #fca5a5; font-size: 12px; font-weight: 600; padding: 10px 14px; border-radius: 10px; margin-bottom: 20px; line-height: 1.4; text-align: left; }
     .btn-group { display: flex; flex-direction: column; gap: 10px; }
     .btn { display: inline-block; background: #7c3aed; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 12px 24px; border-radius: 12px; text-align: center; }
+    .btn-cancel { background: #dc2626; color: #ffffff; }
+    .btn-disabled { background: #334155; color: #64748b; pointer-events: none; cursor: not-allowed; }
     .btn-sec { background: #334155; color: #cbd5e1; }
   </style>
 </head>
@@ -1128,12 +1139,32 @@ export default {
     <div class="icon">🗓️</div>
     <h1>Session Scheduled</h1>
     <p>Your 1-on-1 mentorship session with Afigo Sam has been confirmed.</p>
-    <div class="note-pill">
-      💡 <strong>Platform Change & Rescheduling:</strong><br>
-      Click Reschedule below to change your meeting platform (Google Meet ↔ CalVideo) or select a new date & time.
-    </div>
+    
+    ${isRescheduleLocked ? `
+      <div class="warn-pill">
+        ⚠️ <strong>Rescheduling Locked (< 12 Hours):</strong><br>
+        Rescheduling is locked because your meeting starts in less than 12 hours. For emergency changes, email: <a href="mailto:admin@afigo.sampidia.com" style="color:#60a5fa;">admin@afigo.sampidia.com</a>
+      </div>
+    ` : `
+      <div class="note-pill">
+        💡 <strong>Platform Change & Rescheduling:</strong><br>
+        Click Reschedule below to change your meeting platform (Google Meet ↔ CalVideo) or select a new date & time (allowed up to 12 hours before meeting).
+      </div>
+    `}
+
     <div class="btn-group">
-      <a href="${rescheduleUrl}" target="_blank" rel="noopener noreferrer" class="btn">🔄 Reschedule My Session</a>
+      ${isRescheduleLocked ? `
+        <span class="btn btn-disabled">🔒 Rescheduling Locked (< 12h)</span>
+      ` : `
+        <a href="${rescheduleUrl}" target="_blank" rel="noopener noreferrer" class="btn">🔄 Reschedule My Session</a>
+      `}
+
+      ${isCancelLocked ? `
+        <span class="btn btn-disabled">🔒 Cancellation Locked (< 24h)</span>
+      ` : `
+        <a href="${cancelUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-cancel">❌ Cancel Booking</a>
+      `}
+
       <a href="https://afigo.sampidia.com/#/my-courses" class="btn btn-sec">Return to Student Portal</a>
     </div>
   </div>
@@ -1869,6 +1900,7 @@ export default {
                 purchasedAt: p.purchased_at,
                 sessionBooked: Number(p.session_booked) === 1,
                 rescheduleLink: p.reschedule_link || null,
+                meetingStartTime: p.meeting_start_time || null,
                 noShow: Number(p.no_show) === 1,
                 meetingAttended: Number(p.meeting_attended) === 1,
                 certificateSent: Number(p.certificate_sent) === 1,

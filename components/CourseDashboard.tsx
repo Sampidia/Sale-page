@@ -489,24 +489,63 @@ const CourseDashboard: React.FC = () => {
                                       </button>
                                     </div>
                                   </div>
-                                ) : item.sessionBooked ? (
-                                  <div className="space-y-2">
-                                    <div className="bg-amber-950/80 border border-amber-800/60 text-amber-300 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 text-center">
-                                      <span>✅ Session Scheduled</span>
-                                    </div>
-                                    <a
-                                      href={item.rescheduleLink || item.calUrl || `${WORKER_BASE_URL}/api/cal-redirect?txId=${encodeURIComponent(item.transactionId)}`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center w-full shadow-lg shadow-purple-950/40"
-                                    >
-                                      <span>🔄 Reschedule Session</span>
-                                    </a>
-                                    <p className="text-[11px] text-slate-400 font-medium text-center">
-                                      💡 Click Reschedule to change your meeting platform (Google Meet ↔ CalVideo)
-                                    </p>
-                                  </div>
-                                ) : (
+                                ) : item.sessionBooked ? (() => {
+                                    const meetingTime = item.meetingStartTime ? new Date(item.meetingStartTime).getTime() : null;
+                                    const now = Date.now();
+                                    const hoursLeft = meetingTime ? (meetingTime - now) / (1000 * 3600) : 999;
+                                    const isRescheduleLocked = hoursLeft < 12;
+                                    const isCancelLocked = hoursLeft < 24;
+                                    const reschedUrl = item.rescheduleLink || item.calUrl || `${WORKER_BASE_URL}/api/cal-redirect?txId=${encodeURIComponent(item.transactionId)}`;
+                                    const cancelUrl = reschedUrl.includes('?') ? `${reschedUrl}&cancel=true` : `${reschedUrl}?cancel=true`;
+
+                                    return (
+                                      <div className="space-y-2">
+                                        <div className="bg-amber-950/80 border border-amber-800/60 text-amber-300 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 text-center">
+                                          <span>✅ Session Scheduled</span>
+                                        </div>
+                                        <div className="flex flex-col sm:flex-row gap-2">
+                                          {isRescheduleLocked ? (
+                                            <span className="bg-slate-800 text-slate-500 font-bold py-2.5 px-3 rounded-xl text-xs text-center flex-1 cursor-not-allowed border border-slate-700">
+                                              🔒 Reschedule Locked (&lt; 12h)
+                                            </span>
+                                          ) : (
+                                            <a
+                                              href={reschedUrl}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center flex-1 shadow-lg shadow-purple-950/40"
+                                            >
+                                              <span>🔄 Reschedule</span>
+                                            </a>
+                                          )}
+
+                                          {isCancelLocked ? (
+                                            <span className="bg-slate-800 text-slate-500 font-bold py-2.5 px-3 rounded-xl text-xs text-center flex-1 cursor-not-allowed border border-slate-700">
+                                              🔒 Cancel Locked (&lt; 24h)
+                                            </span>
+                                          ) : (
+                                            <a
+                                              href={cancelUrl}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="bg-red-700 hover:bg-red-600 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center flex-1"
+                                            >
+                                              <span>❌ Cancel Booking</span>
+                                            </a>
+                                          )}
+                                        </div>
+                                        {isRescheduleLocked ? (
+                                          <p className="text-[11px] text-red-400 font-medium text-center">
+                                            ⚠️ Rescheduling is locked because your meeting starts in less than 12 hours. Email admin@afigo.sampidia.com for emergencies.
+                                          </p>
+                                        ) : (
+                                          <p className="text-[11px] text-slate-400 font-medium text-center">
+                                            💡 Click Reschedule to change meeting platform (Google Meet ↔ CalVideo) or change time (&gt; 12h notice)
+                                          </p>
+                                        )}
+                                      </div>
+                                    );
+                                  })() : (
                                   <div className="flex flex-col sm:flex-row gap-2">
                                     <a
                                       href={item.calUrl || item.calendlyUrl || `${WORKER_BASE_URL}/api/cal-redirect?txId=${encodeURIComponent(item.transactionId)}`}
