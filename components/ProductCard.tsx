@@ -22,7 +22,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute top-4 left-4">
-          <span className="bg-red-600 text-white text-[10px] uppercase font-bold px-3 py-1 rounded-full shadow-lg">
+          <span className="bg-red-500/10 border border-red-500/20 backdrop-blur-md text-red-600 text-[10px] uppercase font-bold px-3 py-1 rounded-full select-none pointer-events-none">
             {product.category}
           </span>
         </div>

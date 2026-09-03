@@ -471,6 +471,7 @@ export const PRODUCTS: Product[] = [
     price: 25,
     alternatePrice: 35,
     imageUrl: 'assets/ai-generator-logo.webp',
+    ogImage: 'assets/og-ai-content-generator.jpg',
     category: 'Plugin',
     features: [
       'Multi-AI Provider Support (OpenAI, Gemini, Claude, DeepSeek)',
@@ -544,6 +545,7 @@ export const PRODUCTS: Product[] = [
     description: 'Central "license server" to remotely manage your Digital Assets with minimal manual effort. Supports Envato, WP Express Checkout, and WP eStore.',
     price: 0,
     imageUrl: 'assets/banner-772x250.webp',
+    ogImage: 'assets/og-my-licenses-manager.jpg',
     category: 'Plugin',
     features: [
       'Remote License Management',
@@ -637,6 +639,7 @@ export const MOBILE_APPS: MobileApp[] = [
     name: 'Naija Ayo Worldwide',
     category: 'Games',
     imageUrl: 'assets/Naija Ayo Worldwide banner (1).webp',
+    ogImage: 'assets/og-naija-ayo-worldwide.jpg',
     description: "Rediscover the timeless joy of Ayo, Nigeria's classic strategy board game, with Naija Ayo Worldwide! Whether you're a seasoned master or a curious newcomer, get ready for an authentic and captivating experience right on your mobile device. Challenge your friends, family, and players from across the globe in this beautiful digital adaptation of one of Africa's most beloved traditional games.",
     googlePlayUrl: 'https://play.google.com/store/apps/details?id=com.naijaayo.worldwide',
     features: [

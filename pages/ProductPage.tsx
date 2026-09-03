@@ -169,7 +169,7 @@ const ProductPage: React.FC = () => {
         title={`${product.name} - Premium ${product.category} | Afigo-Sam`}
         description={product.description}
         keywords={`${product.name}, wordpress ${product.category.toLowerCase()}, ${product.features.join(', ')}`}
-        ogImage={product.imageUrl}
+        ogImage={product.ogImage || product.imageUrl}
         ogType="product"
       />
       {/* Enhanced Hero Section */}
@@ -210,8 +210,8 @@ const ProductPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left: Content */}
             <div>
-              <div className="inline-flex items-center space-x-2 bg-red-600 text-white px-4 py-1.5 rounded-full mb-6 shadow-lg shadow-red-200">
-                <span className="flex h-2 w-2 rounded-full bg-white animate-pulse"></span>
+              <div className="inline-flex items-center space-x-2 bg-red-500/10 border border-red-500/20 backdrop-blur-md text-red-600 px-3.5 py-1 rounded-full mb-6 select-none pointer-events-none">
+                <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
                 <span className="text-xs font-bold uppercase tracking-widest">{product.badge || 'Best Seller'}</span>
               </div>
 
@@ -267,7 +267,7 @@ const ProductPage: React.FC = () => {
               {/* Social Share Section (WhatsApp OpenGraph Preview Enabled) */}
               <div className="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
                 <a
-                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out "${product.name}" by Afigo Sam: https://course.sampidia.com/share?type=product&id=${product.id}&v=2`)}`}
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out "${product.name}" by Afigo Sam: https://course.sampidia.com/share?type=product&id=${product.id}&v=3`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20"
@@ -277,7 +277,7 @@ const ProductPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    const link = `https://course.sampidia.com/share?type=product&id=${product.id}&v=2`;
+                    const link = `https://course.sampidia.com/share?type=product&id=${product.id}&v=3`;
                     navigator.clipboard.writeText(link);
                     alert('WhatsApp share link copied to clipboard!');
                   }}

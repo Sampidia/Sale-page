@@ -394,7 +394,7 @@ const CourseDetailPage: React.FC = () => {
         </span>
         <div className="flex items-center gap-2">
           <a
-            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out "${course.title}" by Afigo Sam: https://course.sampidia.com/share?type=course&id=${course.id}&v=2`)}`}
+            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out "${course.title}" by Afigo Sam: https://course.sampidia.com/share?type=course&id=${course.id}&v=3`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 text-xs font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5"
@@ -404,7 +404,7 @@ const CourseDetailPage: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              const link = `https://course.sampidia.com/share?type=course&id=${course.id}&v=2`;
+              const link = `https://course.sampidia.com/share?type=course&id=${course.id}&v=3`;
               navigator.clipboard.writeText(link);
               alert('WhatsApp share link copied to clipboard!');
             }}
@@ -570,7 +570,7 @@ const CourseDetailPage: React.FC = () => {
         {/* 1. Header Title & Subtitle (Full-width top on both Desktop & Mobile) */}
         <div className="mb-8">
           <div className="flex gap-2 mb-3 flex-wrap">
-            <span className="bg-red-600 text-white font-black text-xs px-3.5 py-1 rounded-full uppercase tracking-wider shadow-md">
+            <span className="bg-red-500/15 text-red-400 border border-red-500/30 backdrop-blur-md font-bold text-xs px-3.5 py-1 rounded-full uppercase tracking-wider select-none pointer-events-none">
               {course.badge}
             </span>
             <span className="bg-slate-900 border border-slate-800 text-slate-300 text-xs font-bold px-3.5 py-1 rounded-full">

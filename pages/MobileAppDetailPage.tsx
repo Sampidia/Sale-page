@@ -53,7 +53,7 @@ const MobileAppDetailPage: React.FC = () => {
         title={`${app.name} - Native Mobile App | Afigo-Sam`}
         description={app.description}
         keywords={`${app.name}, mobile app ${app.category.toLowerCase()}, android download, ${app.features.join(', ')}`}
-        ogImage={app.imageUrl}
+        ogImage={app.ogImage || app.imageUrl}
         ogType="website"
         jsonLd={appSchema}
       />
@@ -77,8 +77,8 @@ const MobileAppDetailPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left: Content */}
             <div>
-              <div className="inline-flex items-center space-x-2 bg-red-600 text-white px-4 py-1.5 rounded-full mb-6 shadow-lg shadow-red-200">
-                <span className="flex h-2 w-2 rounded-full bg-white animate-pulse"></span>
+              <div className="inline-flex items-center space-x-2 bg-red-500/10 border border-red-500/20 backdrop-blur-md text-red-600 px-3.5 py-1 rounded-full mb-6 select-none pointer-events-none">
+                <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
                 <span className="text-xs font-bold uppercase tracking-widest">{app.category}</span>
               </div>
 

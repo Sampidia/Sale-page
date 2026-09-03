@@ -8,6 +8,7 @@ export interface Product {
   price: number;
   alternatePrice?: number;
   imageUrl: string;
+  ogImage?: string;
   category: ProductCategory;
   features: string[];
   detailedFeatures?: { title: string; desc: string; icon: string; }[];
@@ -25,6 +26,7 @@ export interface MobileApp {
   name: string;
   description: string;
   imageUrl: string;
+  ogImage?: string;
   category: MobileAppCategory;
   googlePlayUrl: string;
   appStoreUrl?: string;

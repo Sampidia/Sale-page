@@ -180,7 +180,7 @@ const CoursesPage: React.FC = () => {
                   {/* Clean Top Info Bar (Prevents Mobile Collision) */}
                   <div className="p-4 bg-slate-950 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="bg-red-600 text-white font-black text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-md">
+                      <span className="bg-red-500/15 text-red-400 border border-red-500/30 backdrop-blur-md font-bold text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full uppercase tracking-wider select-none pointer-events-none">
                         {course.badge}
                       </span>
                       <span className="bg-slate-900 text-slate-300 border border-slate-800 text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full">
