@@ -1171,13 +1171,54 @@ export default {
 </html>`;
               return new Response(noShowHtml, { status: 200, headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' } });
             }
+            // Case 5: Unbooked or Cancelled Session (session_booked === 0)
+            if (Number(record.session_booked) === 0) {
+              const calParams = new URLSearchParams();
+              if (email || record.email) calParams.set('email', record.email || email);
+              if (txId || record.transaction_id) calParams.set('transactionId', record.transaction_id || txId);
+              const finalCalUrl = calParams.toString() ? `${targetCalUrl}?${calParams.toString()}` : targetCalUrl;
+
+              const unbookedHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedule or Request Refund - Afigo Sam</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 40px 16px; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; }
+    .card { max-width: 480px; width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 32px 24px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+    .icon { font-size: 48px; margin-bottom: 16px; }
+    h1 { font-size: 22px; font-weight: 800; color: #ffffff; margin: 0 0 12px 0; }
+    p { font-size: 14px; color: #94a3b8; line-height: 1.6; margin: 0 0 20px 0; }
+    .btn-group { display: flex; flex-direction: column; gap: 12px; }
+    .btn { display: inline-block; background: #7c3aed; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 13px 24px; border-radius: 12px; text-align: center; }
+    .btn-refund { background: #dc2626; color: #ffffff; }
+    .btn-sec { background: #334155; color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🗓️</div>
+    <h1>Mentorship Booking Options</h1>
+    <p>Your 1-on-1 mentorship session for purchase <strong>${record.transaction_id || txId}</strong> is currently unbooked or was cancelled.</p>
+    <p style="font-size: 13px; color: #cbd5e1;">Please select an option below:</p>
+    <div class="btn-group">
+      <a href="${finalCalUrl}" class="btn">🔄 Re-book Live Session on Cal.com</a>
+      <a href="https://afigo.sampidia.com/#/my-courses" class="btn btn-refund">💸 Request Refund (via Student Portal)</a>
+      <a href="https://afigo.sampidia.com/#/my-courses" class="btn btn-sec">Return to Student Portal</a>
+    </div>
+  </div>
+</body>
+</html>`;
+              return new Response(unbookedHtml, { status: 200, headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' } });
+            }
           }
         } catch (dbErr) {
           console.error('D1 check cal-redirect error:', dbErr);
         }
       }
 
-      // If not booked or DB record absent, redirect to Cal.com with pre-filled parameters
+      // If DB record absent, fallback redirect to Cal.com with pre-filled parameters
       const calParams = new URLSearchParams();
       if (email) calParams.set('email', email);
       if (txId) calParams.set('transactionId', txId);
@@ -1232,10 +1273,10 @@ export default {
         const body = await request.json();
         const txId = body.transactionId || body.txId || '';
         const email = body.email || '';
-        const bankName = body.bankName || '';
-        const accountNumber = body.accountNumber || '';
-        const accountName = body.accountName || '';
-        const refundReason = body.refundReason || 'Student requested refund';
+        const bankName = String(body.bankName || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
+        const accountNumber = String(body.accountNumber || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
+        const accountName = String(body.accountName || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
+        const refundReason = String(body.refundReason || 'Student requested refund').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/[\r\n]+/g, ' ').trim() || 'Student requested refund';
 
         if (!txId && !email) {
           return new Response(
