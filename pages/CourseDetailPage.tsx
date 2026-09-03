@@ -127,11 +127,17 @@ const CourseDetailPage: React.FC = () => {
     loadFlutterwaveSdk(1);
   }, []);
 
-  // ── Listen for Calendly event_scheduled postMessage ───────────────────────
+  // ── Listen for Cal.com / Calendly event_scheduled postMessage ───────────────
   useEffect(() => {
-    const handleCalendlyMessage = async (e: MessageEvent) => {
-      if (e.data && e.data.event === 'calendly.event_scheduled') {
-        console.log('[Calendly] Booking successfully scheduled by user!');
+    const handleBookingMessage = async (e: MessageEvent) => {
+      const isCalSuccess = e.data && (
+        e.data.event === 'cal:booking-successful' ||
+        e.data.event === 'calendly.event_scheduled' ||
+        e.data.action === 'bookingSuccessful'
+      );
+
+      if (isCalSuccess) {
+        console.log('[Cal.com] Booking successfully scheduled by user!');
         setIsSessionBooked(true);
 
         try {
@@ -146,13 +152,13 @@ const CourseDetailPage: React.FC = () => {
             }),
           });
         } catch (err) {
-          console.error('Failed to notify worker of Calendly booking:', err);
+          console.error('Failed to notify worker of Cal.com booking:', err);
         }
       }
     };
 
-    window.addEventListener('message', handleCalendlyMessage);
-    return () => window.removeEventListener('message', handleCalendlyMessage);
+    window.addEventListener('message', handleBookingMessage);
+    return () => window.removeEventListener('message', handleBookingMessage);
   }, [transactionRef, email]);
 
   // ── Track Facebook Ads Purchase Event ONLY on Confirmed Payment ───────────
@@ -514,7 +520,7 @@ const CourseDetailPage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              /* FORMAT B: 1-ON-1 MENTORSHIP CALENDLY EMBED */
+              /* FORMAT B: 1-ON-1 MENTORSHIP CAL.COM EMBED */
               <div className="space-y-8">
                 {isSessionBooked ? (
                   <div className="bg-emerald-950/80 border border-emerald-500/40 rounded-2xl p-6 sm:p-8 text-center space-y-4 shadow-2xl backdrop-blur-md">
@@ -523,8 +529,11 @@ const CourseDetailPage: React.FC = () => {
                       Mentorship Session Successfully Scheduled!
                     </h3>
                     <p className="text-emerald-300 text-sm max-w-lg mx-auto leading-relaxed">
-                      Your 1-on-1 mentorship session with Afigo Sam has been confirmed. Please check your email inbox ({email}) for calendar invitation and meeting join link.
+                      Your 1-on-1 mentorship session with Afigo Sam has been confirmed. Check your email ({email}) for Google Meet or CalVideo join link and calendar invite.
                     </p>
+                    <div className="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs px-4 py-2 rounded-xl max-w-md mx-auto font-medium">
+                      🎓 A Verifiable Certificate of Attendance will be awarded by email upon completion of your live session.
+                    </div>
                     <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
                       <a
                         href={`${workerBase}/api/download-receipt?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}&courseId=${encodeURIComponent(course.id)}&currency=${encodeURIComponent(coursePriceInfo.currency)}&amountPaid=${encodeURIComponent(coursePriceInfo.formatted)}`}
@@ -533,6 +542,14 @@ const CourseDetailPage: React.FC = () => {
                         className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs px-5 py-2.5 rounded-xl border border-slate-700 transition-all"
                       >
                         <span>📄</span> Download Official Receipt (PDF)
+                      </a>
+                      <a
+                        href={`${workerBase}/api/cal-redirect?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-purple-950/40"
+                      >
+                        <span>🔄</span> Reschedule or View Session Status ↗
                       </a>
                     </div>
                   </div>
@@ -546,16 +563,19 @@ const CourseDetailPage: React.FC = () => {
                         Schedule Your 1-on-1 Session with Afigo Sam
                       </h3>
                       <p className="text-purple-300 text-xs sm:text-sm font-semibold max-w-md mx-auto">
-                        👇 Select your preferred date & time slot on the calendar widget below, or open Calendly in a new tab:
+                        👇 Select your preferred date, time, and meeting platform (Google Meet or CalVideo) on the calendar widget below:
                       </p>
+                      <div className="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs px-4 py-2 rounded-xl max-w-md mx-auto font-medium">
+                        🎓 A Verifiable Certificate of Attendance will be awarded automatically upon completion of your live session.
+                      </div>
                       <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                         <a
-                          href={`${workerBase}/api/calendly-redirect?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}`}
+                          href={`${workerBase}/api/cal-redirect?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-purple-950/40"
                         >
-                          <span>🗓️</span> Open Calendly Scheduler in New Tab ↗
+                          <span>🗓️</span> Open Cal.com Scheduler in New Tab ↗
                         </a>
                         <a
                           href={`${workerBase}/api/download-receipt?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}&courseId=${encodeURIComponent(course.id)}&currency=${encodeURIComponent(coursePriceInfo.currency)}&amountPaid=${encodeURIComponent(coursePriceInfo.formatted)}`}
@@ -568,14 +588,14 @@ const CourseDetailPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Embedded Calendly Scheduler Widget (via Worker Gatekeeper Redirect) */}
-                    <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-white min-h-[650px]">
+                    {/* Embedded Cal.com Dark-Mode Scheduler Widget */}
+                    <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 min-h-[680px]">
                       <iframe
-                        src={`${workerBase}/api/calendly-redirect?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}`}
+                        src={`https://cal.com/afigo-sam/30min?theme=dark&embed=true&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&transactionId=${encodeURIComponent(transactionRef || '')}`}
                         width="100%"
-                        height="650"
-                        title="Schedule 1-on-1 Mentorship Session"
-                        style={{ border: 0, minHeight: '650px', width: '100%' }}
+                        height="680"
+                        title="Schedule 1-on-1 Mentorship Session via Cal.com"
+                        style={{ border: 0, minHeight: '680px', width: '100%' }}
                       />
                     </div>
                   </>

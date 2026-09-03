@@ -6,15 +6,21 @@ import { COURSES, PRODUCTS } from '../constants';
 interface PurchasedCourseItem {
   id: string;
   courseId: string;
-  format: 'pdf' | 'one-on-one' | 'zip';
+  format?: string;
   itemType?: 'course' | 'product';
-  customerName: string;
+  customerName?: string;
   transactionId: string;
   purchasedAt: string;
   r2DownloadLink: string;
   receiptLink: string;
   calendlyUrl?: string | null;
+  calUrl?: string | null;
   sessionBooked?: boolean;
+  rescheduleLink?: string | null;
+  noShow?: boolean;
+  meetingAttended?: boolean;
+  certificateSent?: boolean;
+  refundRequested?: boolean;
 }
 
 const WORKER_BASE_URL = (import.meta as any).env?.VITE_COURSE_WORKER_URL || (import.meta as any).env?.VITE_WORKER_URL || 'https://course.sampidia.com';
@@ -32,6 +38,51 @@ const CourseDashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [purchases, setPurchases] = useState<PurchasedCourseItem[]>([]);
+
+  // Refund Modal State
+  const [refundModalItem, setRefundModalItem] = useState<PurchasedCourseItem | null>(null);
+  const [bankName, setBankName] = useState('');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [accountName, setAccountName] = useState('');
+  const [refundReason, setRefundReason] = useState('');
+  const [isSubmittingRefund, setIsSubmittingRefund] = useState(false);
+  const [refundSuccessMsg, setRefundSuccessMsg] = useState<string | null>(null);
+
+  const handleRefundSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!refundModalItem || !bankName || !accountNumber || !accountName) {
+      alert('Please fill in your Bank Name, Account Number, and Account Name.');
+      return;
+    }
+
+    setIsSubmittingRefund(true);
+    try {
+      const res = await fetch(`${WORKER_BASE_URL}/api/request-refund`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transactionId: refundModalItem.transactionId,
+          email: email,
+          bankName,
+          accountNumber,
+          accountName,
+          refundReason,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to submit refund request');
+
+      setRefundSuccessMsg('Refund request submitted successfully! Our team will process it within 3-5 business days.');
+      
+      // Update local purchase state
+      setPurchases(prev => prev.map(p => p.transactionId === refundModalItem.transactionId ? { ...p, refundRequested: true, sessionBooked: false } : p));
+    } catch (err: any) {
+      alert(err.message || 'Error submitting refund request');
+    } finally {
+      setIsSubmittingRefund(false);
+    }
+  };
 
   // Dynamic Visual & Text Configurations
   const heroImage = isProductMode ? 'assets/product_portal_hero.png' : 'assets/student_portal_hero.png';
@@ -396,34 +447,93 @@ const CourseDashboard: React.FC = () => {
                               >
                                 <span>📥 Download Plugin ZIP</span>
                               </a>
+                            ) : item.format === 'one-on-one' ? (
+                              <div className="col-span-1 sm:col-span-2 space-y-2">
+                                {item.refundRequested ? (
+                                  <div className="bg-red-950/80 border border-red-800/60 text-red-300 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 text-center">
+                                    <span>🔴 Refund Request Pending (3-5 Business Days)</span>
+                                  </div>
+                                ) : item.meetingAttended ? (
+                                  <div className="space-y-2">
+                                    <div className="bg-emerald-950/80 border border-emerald-800/60 text-emerald-300 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 text-center">
+                                      <span>🎓 Mentorship Session Completed</span>
+                                    </div>
+                                    <a
+                                      href={`${WORKER_BASE_URL}/api/certificate?txId=${encodeURIComponent(item.transactionId)}&email=${encodeURIComponent(email)}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center w-full"
+                                    >
+                                      <span>📜 Download Certificate of Attendance</span>
+                                    </a>
+                                  </div>
+                                ) : item.noShow ? (
+                                  <div className="space-y-2">
+                                    <div className="bg-red-950/80 border border-red-800/60 text-red-300 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 text-center">
+                                      <span>⚠️ Missed Session</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <a
+                                        href={item.calUrl || item.calendlyUrl || `${WORKER_BASE_URL}/api/cal-redirect?txId=${encodeURIComponent(item.transactionId)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-3 rounded-xl text-xs flex-1 text-center"
+                                      >
+                                        🗓️ Re-book
+                                      </a>
+                                      <button
+                                        onClick={() => { setRefundModalItem(item); setRefundSuccessMsg(null); }}
+                                        className="bg-slate-800 hover:bg-slate-700 text-red-300 font-bold py-2 px-3 rounded-xl text-xs border border-slate-700 flex-1 text-center"
+                                      >
+                                        💸 Request Refund
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : item.sessionBooked ? (
+                                  <div className="space-y-2">
+                                    <div className="bg-amber-950/80 border border-amber-800/60 text-amber-300 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 text-center">
+                                      <span>✅ Session Scheduled</span>
+                                    </div>
+                                    <a
+                                      href={item.rescheduleLink || item.calUrl || `${WORKER_BASE_URL}/api/cal-redirect?txId=${encodeURIComponent(item.transactionId)}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center w-full shadow-lg shadow-purple-950/40"
+                                    >
+                                      <span>🔄 Reschedule Session</span>
+                                    </a>
+                                    <p className="text-[11px] text-slate-400 font-medium text-center">
+                                      💡 Click Reschedule to change your meeting platform (Google Meet ↔ CalVideo)
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <div className="flex flex-col sm:flex-row gap-2">
+                                    <a
+                                      href={item.calUrl || item.calendlyUrl || `${WORKER_BASE_URL}/api/cal-redirect?txId=${encodeURIComponent(item.transactionId)}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center flex-1"
+                                    >
+                                      <span>🗓️ Schedule Live Session</span>
+                                    </a>
+                                    <button
+                                      onClick={() => { setRefundModalItem(item); setRefundSuccessMsg(null); }}
+                                      className="bg-slate-900 hover:bg-slate-800 text-slate-300 font-semibold py-2 px-3 rounded-xl text-xs border border-slate-800 transition-all text-center"
+                                    >
+                                      💸 Request Refund
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
                             ) : (
-                              item.format !== 'one-on-one' && (
-                                <a
-                                  href={item.r2DownloadLink}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center"
-                                >
-                                  <span>📥 Download PDF</span>
-                                </a>
-                              )
-                            )}
-
-                            {item.format === 'one-on-one' && (
-                              item.sessionBooked ? (
-                                <div className="bg-amber-950/80 border border-amber-800/60 text-amber-300 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 text-center">
-                                  <span>✅ Session Scheduled</span>
-                                </div>
-                              ) : (
-                                <a
-                                  href={item.calendlyUrl || `${WORKER_BASE_URL}/api/calendly-redirect?txId=${encodeURIComponent(item.transactionId)}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center"
-                                >
-                                  <span>🗓️ Schedule Live Session</span>
-                                </a>
-                              )
+                              <a
+                                href={item.r2DownloadLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center"
+                              >
+                                <span>📥 Download PDF</span>
+                              </a>
                             )}
 
                             <a
@@ -451,6 +561,100 @@ const CourseDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* ── Refund Request Modal ─────────────────────────────────────────── */}
+      {refundModalItem && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 text-left shadow-2xl relative">
+            <button
+              onClick={() => setRefundModalItem(null)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-lg"
+            >
+              ✕
+            </button>
+            <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+              <span>💸</span> Request Refund
+            </h3>
+            <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+              Submit your payout details below for purchase ref <strong>{refundModalItem.transactionId}</strong>. Our team will review and process your refund within 3–5 business days.
+            </p>
+
+            {refundSuccessMsg ? (
+              <div className="bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs p-4 rounded-xl space-y-3">
+                <p className="font-bold">{refundSuccessMsg}</p>
+                <button
+                  onClick={() => setRefundModalItem(null)}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-xl text-xs w-full"
+                >
+                  Close Window
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleRefundSubmit} className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Bank / Mobile Money Provider Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Access Bank, Kuda, M-Pesa, MTN MoMo"
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Account / Mobile Number</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 0123456789"
+                    value={accountNumber}
+                    onChange={(e) => setAccountNumber(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Account Holder Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Samson Afigo"
+                    value={accountName}
+                    onChange={(e) => setAccountName(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Reason for Refund (Optional)</label>
+                  <textarea
+                    rows={2}
+                    placeholder="e.g. Schedule conflict / change of plans"
+                    value={refundReason}
+                    onChange={(e) => setRefundReason(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 resize-none"
+                  />
+                </div>
+                <div className="pt-2 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setRefundModalItem(null)}
+                    className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 px-4 rounded-xl text-xs flex-1"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmittingRefund}
+                    className="bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex-1"
+                  >
+                    {isSubmittingRefund ? 'Submitting...' : 'Submit Refund Request'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 };

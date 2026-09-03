@@ -1011,13 +1011,14 @@ export default {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // ROUTE 3.5: GET /api/calendly-redirect (Gatekeeper for Calendly Bookings)
     // ─────────────────────────────────────────────────────────────────────────
-    if (request.method === 'GET' && url.pathname.endsWith('/api/calendly-redirect')) {
+    // ROUTE 3.5: GET /api/cal-redirect (and /api/calendly-redirect alias)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'GET' && (url.pathname.endsWith('/api/cal-redirect') || url.pathname.endsWith('/api/calendly-redirect'))) {
       const txId = url.searchParams.get('txId') || url.searchParams.get('transactionId') || '';
       const email = url.searchParams.get('email') || '';
 
-      const targetCalendlyUrl = 'https://calendly.com/oghenekaroafigo/meeting';
+      const targetCalUrl = 'https://cal.com/afigo-sam/30min';
 
       if (env.DB && (txId || email)) {
         try {
@@ -1030,73 +1031,184 @@ export default {
           }
 
           if (record) {
-            if (Number(record.session_booked) === 1) {
-              const bookedHtml = `<!DOCTYPE html>
+            // Case 1: Refund Requested
+            if (Number(record.refund_requested) === 1) {
+              const refundHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Session Already Scheduled - Afigo Sam Page</title>
+  <title>Refund Request Pending - Afigo Sam</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 40px 16px; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; }
     .card { max-width: 480px; width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 32px 24px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
     .icon { font-size: 48px; margin-bottom: 16px; }
     h1 { font-size: 22px; font-weight: 800; color: #ffffff; margin: 0 0 12px 0; }
     p { font-size: 14px; color: #94a3b8; line-height: 1.6; margin: 0 0 24px 0; }
-    .info-box { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 16px; font-size: 13px; color: #cbd5e1; text-align: left; margin-bottom: 24px; }
-    .btn { display: inline-block; background: #dc2626; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 12px 24px; border-radius: 12px; }
+    .info-box { background: #0f172a; border: 1px solid #dc2626; border-radius: 12px; padding: 16px; font-size: 13px; color: #fca5a5; text-align: left; margin-bottom: 24px; }
+    .btn { display: inline-block; background: #334155; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 12px 24px; border-radius: 12px; }
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="icon">✅</div>
-    <h1>Session Already Scheduled</h1>
-    <p>Your 1-on-1 mentorship booking for this purchase has already been accessed.</p>
+    <div class="icon">🔴</div>
+    <h1>Refund Request Pending</h1>
+    <p>Your refund request for transaction <strong>${record.transaction_id || txId}</strong> has been received and is currently being processed.</p>
     <div class="info-box">
-      <strong>Need to reschedule or check your date?</strong><br>
-      Please check the confirmation email sent directly by Calendly, or contact support: <br>
-      <a href="mailto:admin@afigo.sampidia.com" style="color:#60a5fa;">admin@afigo.sampidia.com</a>
+      <strong>Processing Status:</strong><br>
+      Refunds are processed within 3–5 business days. Direct re-booking is disabled while your refund is pending.<br>
+      Questions? Contact: <a href="mailto:admin@afigo.sampidia.com" style="color:#60a5fa;">admin@afigo.sampidia.com</a>
     </div>
     <a href="https://afigo.sampidia.com/#/my-courses" class="btn">Return to Student Portal</a>
   </div>
 </body>
 </html>`;
+              return new Response(refundHtml, { status: 200, headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' } });
+            }
+
+            // Case 2: Meeting Attended & Certificate Available
+            if (Number(record.meeting_attended) === 1) {
+              const completedHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session Completed - Certificate Granted</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 40px 16px; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; }
+    .card { max-width: 500px; width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 32px 24px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+    .icon { font-size: 52px; margin-bottom: 16px; }
+    h1 { font-size: 22px; font-weight: 800; color: #ffffff; margin: 0 0 12px 0; }
+    p { font-size: 14px; color: #94a3b8; line-height: 1.6; margin: 0 0 24px 0; }
+    .info-box { background: #064e3b; border: 1px solid #10b981; border-radius: 12px; padding: 16px; font-size: 13px; color: #a7f3d0; text-align: left; margin-bottom: 24px; }
+    .btn-cert { display: inline-block; background: #10b981; color: #064e3b; text-decoration: none; font-weight: 800; font-size: 14px; padding: 14px 28px; border-radius: 12px; margin-bottom: 12px; }
+    .btn-secondary { display: inline-block; background: #334155; color: #cbd5e1; text-decoration: none; font-weight: 600; font-size: 13px; padding: 10px 20px; border-radius: 10px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🎓</div>
+    <h1>Mentorship Session Completed!</h1>
+    <p>Congratulations on completing your live 1-on-1 mentorship session with Afigo Sam.</p>
+    <div class="info-box">
+      <strong>Certificate Granted:</strong><br>
+      Your verifiable Certificate of Attendance is now available to download and print.
+    </div>
+    <a href="${new URL(request.url).origin}/api/certificate?txId=${encodeURIComponent(record.transaction_id || txId)}&email=${encodeURIComponent(record.email || email)}" class="btn-cert">📜 Download Certificate of Attendance</a><br>
+    <a href="https://afigo.sampidia.com/#/my-courses" class="btn-secondary">Return to Student Portal</a>
+  </div>
+</body>
+</html>`;
+              return new Response(completedHtml, { status: 200, headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' } });
+            }
+
+            // Case 3: Session Already Scheduled
+            if (Number(record.session_booked) === 1) {
+              const rescheduleUrl = record.reschedule_link || targetCalUrl;
+              const bookedHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session Scheduled - Afigo Sam</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 40px 16px; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; }
+    .card { max-width: 480px; width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 32px 24px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+    .icon { font-size: 48px; margin-bottom: 16px; }
+    h1 { font-size: 22px; font-weight: 800; color: #ffffff; margin: 0 0 12px 0; }
+    p { font-size: 14px; color: #94a3b8; line-height: 1.6; margin: 0 0 20px 0; }
+    .note-pill { background: #3b82f61a; border: 1px solid #3b82f640; color: #93c5fd; font-size: 12px; font-weight: 600; padding: 10px 14px; border-radius: 10px; margin-bottom: 20px; line-height: 1.4; text-align: left; }
+    .btn-group { display: flex; flex-direction: column; gap: 10px; }
+    .btn { display: inline-block; background: #7c3aed; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 12px 24px; border-radius: 12px; text-align: center; }
+    .btn-sec { background: #334155; color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🗓️</div>
+    <h1>Session Scheduled</h1>
+    <p>Your 1-on-1 mentorship session with Afigo Sam has been confirmed.</p>
+    <div class="note-pill">
+      💡 <strong>Platform Change & Rescheduling:</strong><br>
+      Click Reschedule below to change your meeting platform (Google Meet ↔ CalVideo) or select a new date & time.
+    </div>
+    <div class="btn-group">
+      <a href="${rescheduleUrl}" target="_blank" rel="noopener noreferrer" class="btn">🔄 Reschedule My Session</a>
+      <a href="https://afigo.sampidia.com/#/my-courses" class="btn btn-sec">Return to Student Portal</a>
+    </div>
+  </div>
+</body>
+</html>`;
               return new Response(bookedHtml, { status: 200, headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' } });
+            }
+
+            // Case 4: No Show
+            if (Number(record.no_show) === 1) {
+              const noShowHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Missed Session - Afigo Sam</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 40px 16px; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; }
+    .card { max-width: 480px; width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 32px 24px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+    .icon { font-size: 48px; margin-bottom: 16px; }
+    h1 { font-size: 22px; font-weight: 800; color: #ffffff; margin: 0 0 12px 0; }
+    p { font-size: 14px; color: #94a3b8; line-height: 1.6; margin: 0 0 20px 0; }
+    .btn { display: inline-block; background: #dc2626; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 12px 24px; border-radius: 12px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">⚠️</div>
+    <h1>Missed Mentorship Session</h1>
+    <p>It looks like you were unable to attend your scheduled 1-on-1 mentorship call.</p>
+    <p style="font-size: 13px; color: #cbd5e1;">Please contact support at <a href="mailto:admin@afigo.sampidia.com" style="color:#60a5fa;">admin@afigo.sampidia.com</a> to re-book your slot.</p>
+    <a href="https://afigo.sampidia.com/#/my-courses" class="btn">Return to Student Portal</a>
+  </div>
+</body>
+</html>`;
+              return new Response(noShowHtml, { status: 200, headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' } });
             }
           }
         } catch (dbErr) {
-          console.error('D1 check session_booked error:', dbErr);
+          console.error('D1 check cal-redirect error:', dbErr);
         }
       }
 
-      // Pre-fill email in Calendly URL if available
-      const redirectUrl = email
-        ? `${targetCalendlyUrl}?email=${encodeURIComponent(email)}`
-        : targetCalendlyUrl;
+      // If not booked or DB record absent, redirect to Cal.com with pre-filled parameters
+      const calParams = new URLSearchParams();
+      if (email) calParams.set('email', email);
+      if (txId) calParams.set('transactionId', txId);
 
-      // If not booked or DB record absent, 302 redirect to Calendly
-      return Response.redirect(redirectUrl, 302);
+      const finalCalUrl = calParams.toString() ? `${targetCalUrl}?${calParams.toString()}` : targetCalUrl;
+      return Response.redirect(finalCalUrl, 302);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // ROUTE 3.55: POST /api/mark-session-booked (Records Successful Calendly Booking)
+    // ROUTE 3.55: POST /api/mark-session-booked (Records Successful Booking)
     // ─────────────────────────────────────────────────────────────────────────
     if (request.method === 'POST' && url.pathname.endsWith('/api/mark-session-booked')) {
       try {
         const body = await request.json();
         const txId = body.transactionId || body.txId || '';
         const email = body.email || '';
+        const rescheduleLink = body.rescheduleLink || body.reschedule_link || '';
 
         if (env.DB && (txId || email)) {
           if (txId) {
             await env.DB.prepare(`
-              UPDATE purchases SET session_booked = 1, session_booked_at = datetime('now') WHERE transaction_id = ? OR id = ?
-            `).bind(txId, txId).run();
+              UPDATE purchases 
+              SET session_booked = 1, session_booked_at = datetime('now'), reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link)
+              WHERE transaction_id = ? OR id = ?
+            `).bind(rescheduleLink, txId, txId).run();
           } else if (email) {
             await env.DB.prepare(`
-              UPDATE purchases SET session_booked = 1, session_booked_at = datetime('now')
+              UPDATE purchases 
+              SET session_booked = 1, session_booked_at = datetime('now'), reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link)
               WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' ORDER BY purchased_at DESC LIMIT 1)
-            `).bind(email.toLowerCase()).run();
+            `).bind(rescheduleLink, email.toLowerCase()).run();
           }
         }
 
@@ -1113,35 +1225,317 @@ export default {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // ROUTE 3.6: POST /api/calendly-webhook (Receives Calendly Booking Webhooks)
+    // ROUTE 3.58: POST /api/request-refund (Handles Student Refund Requests)
     // ─────────────────────────────────────────────────────────────────────────
-    if (request.method === 'POST' && url.pathname.endsWith('/api/calendly-webhook')) {
+    if (request.method === 'POST' && url.pathname.endsWith('/api/request-refund')) {
       try {
         const body = await request.json();
-        const event = body && body.event;
-        const payload = (body && body.payload) || {};
+        const txId = body.transactionId || body.txId || '';
+        const email = body.email || '';
+        const bankName = body.bankName || '';
+        const accountNumber = body.accountNumber || '';
+        const accountName = body.accountName || '';
+        const refundReason = body.refundReason || 'Student requested refund';
 
-        if (event === 'invitee.created') {
-          const inviteeEmail = payload.email || (payload.invitee && payload.invitee.email);
+        if (!txId && !email) {
+          return new Response(
+            JSON.stringify({ error: 'Missing transactionId or email' }),
+            { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
 
-          if (inviteeEmail && env.DB) {
-            const normalizedEmail = String(inviteeEmail).trim().toLowerCase();
-            // Mark the oldest unbooked 1-on-1 purchase for this email as booked
+        if (env.DB) {
+          // Record refund request in D1
+          await env.DB.prepare(`
+            UPDATE purchases
+            SET refund_requested = 1, refund_requested_at = datetime('now')
+            WHERE transaction_id = ? OR id = ? OR LOWER(email) = ?
+          `).bind(txId, txId, email.toLowerCase()).run();
+        }
+
+        // Email Notification to Admin
+        if (env.RESEND_API_KEY) {
+          const adminSubject = `💸 Refund Requested: Transaction ${txId || email}`;
+          const adminHtml = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #0f172a;">
+              <h2 style="color: #dc2626; border-bottom: 2px solid #fee2e2; padding-bottom: 10px;">💸 Student Refund Request Submitted</h2>
+              <p>A student has submitted a refund request for a 1-on-1 mentorship purchase.</p>
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin: 20px 0;">
+                <p style="margin: 4px 0;"><strong>Transaction Ref:</strong> ${txId}</p>
+                <p style="margin: 4px 0;"><strong>Student Email:</strong> ${email}</p>
+                <p style="margin: 4px 0;"><strong>Bank / Provider:</strong> ${bankName}</p>
+                <p style="margin: 4px 0;"><strong>Account Number:</strong> ${accountNumber}</p>
+                <p style="margin: 4px 0;"><strong>Account Name:</strong> ${accountName}</p>
+                <p style="margin: 4px 0;"><strong>Reason:</strong> ${refundReason}</p>
+              </div>
+              <p style="font-size: 13px; color: #64748b;">Please review in Flutterwave merchant dashboard and issue payout once verified.</p>
+            </div>
+          `;
+
+          // Send to admin
+          await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+            },
+            body: JSON.stringify({
+              from: 'admin@afigo.sampidia.com',
+              to: ['admin@afigo.sampidia.com', 'admin@sampidia.com'],
+              subject: adminSubject,
+              html: adminHtml,
+            }),
+          }).catch(err => console.error('Admin refund email error:', err));
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, message: 'Refund request submitted successfully. We will process within 3-5 business days.' }),
+          { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ error: err.message || 'Internal Server Error' }),
+          { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 3.59: GET /api/certificate (Renders Verifiable Certificate of Attendance)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'GET' && url.pathname.endsWith('/api/certificate')) {
+      const txId = url.searchParams.get('txId') || url.searchParams.get('transactionId') || '';
+      const email = url.searchParams.get('email') || '';
+
+      if (env.DB && (txId || email)) {
+        try {
+          let record = null;
+          if (txId) {
+            record = await env.DB.prepare(`SELECT * FROM purchases WHERE transaction_id = ? OR id = ?`).bind(txId, txId).first();
+          }
+          if (!record && email) {
+            record = await env.DB.prepare(`SELECT * FROM purchases WHERE LOWER(email) = ? AND meeting_attended = 1 ORDER BY purchased_at DESC`).bind(email.toLowerCase()).first();
+          }
+
+          if (record && Number(record.meeting_attended) === 1) {
+            const studentName = record.customer_name || 'Valued Student';
+            const courseTitle = record.course_id === 'vibe-coding'
+              ? 'Vibe Coding: Building High-End Android Apps with AI'
+              : 'Zero to n8n — Free Hosting Mastered';
+            const issueDate = record.session_booked_at ? new Date(record.session_booked_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : new Date().toLocaleDateString();
+
+            const certHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate of Attendance - ${studentName}</title>
+  <style>
+    @page { size: landscape; margin: 0; }
+    body { font-family: 'Georgia', serif; background: #090d16; color: #f8fafc; margin: 0; padding: 40px; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; }
+    .cert-frame { max-width: 900px; width: 100%; background: #0f172a; border: 8px double #d97706; border-radius: 24px; padding: 48px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); position: relative; box-sizing: border-box; }
+    .gold-badge { font-size: 14px; font-weight: 800; font-family: sans-serif; letter-spacing: 3px; color: #f59e0b; text-transform: uppercase; margin-bottom: 24px; }
+    h1 { font-size: 36px; font-weight: 800; color: #ffffff; margin: 0 0 16px 0; letter-spacing: 1px; font-family: sans-serif; }
+    .subtitle { font-size: 16px; color: #94a3b8; margin-bottom: 24px; font-style: italic; }
+    .recipient { font-size: 40px; font-weight: 900; color: #fbbf24; margin: 0 0 24px 0; font-family: 'Times New Roman', serif; text-decoration: underline; text-underline-offset: 8px; }
+    .desc { font-size: 16px; color: #cbd5e1; line-height: 1.8; max-width: 680px; margin: 0 auto 36px auto; font-family: sans-serif; }
+    .footer-grid { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 40px; border-top: 1px solid #334155; padding-top: 24px; font-family: sans-serif; }
+    .sig-block { text-align: left; }
+    .sig-name { font-size: 18px; font-weight: 800; color: #ffffff; font-family: 'Brush Script MT', cursive, serif; margin: 0; }
+    .sig-title { font-size: 12px; color: #64748b; margin: 4px 0 0 0; }
+    .ref-block { text-align: right; font-size: 12px; color: #64748b; }
+    .print-btn { display: inline-block; margin-top: 32px; background: #d97706; color: #ffffff; text-decoration: none; font-family: sans-serif; font-weight: 700; font-size: 14px; padding: 12px 28px; border-radius: 12px; border: 0; cursor: pointer; }
+    @media print { .print-btn { display: none; } body { background: #ffffff; color: #000; padding: 0; } .cert-frame { border-color: #d97706; background: #ffffff; color: #000; box-shadow: none; } h1, .recipient { color: #000; } .desc, .subtitle { color: #333; } }
+  </style>
+</head>
+<body>
+  <div class="cert-frame">
+    <div class="gold-badge">🎓 OFFICIAL CERTIFICATE OF ATTENDANCE</div>
+    <h1>CERTIFICATE OF COMPLETION</h1>
+    <div class="subtitle">This is proudly presented and awarded to</div>
+    <div class="recipient">${studentName}</div>
+    <div class="desc">
+      for successfully completing the <strong>30-Minute 1-on-1 Live Mentorship Session</strong> with Afigo Sam, mastering real-world implementation, workflows, and best practices for <strong>${courseTitle}</strong>.
+    </div>
+    <div class="footer-grid">
+      <div class="sig-block">
+        <div class="sig-name">Oghenekaro Samson Afigo</div>
+        <div class="sig-title">Lead Instructor & Founder, Afigo-Sam Technology</div>
+      </div>
+      <div class="ref-block">
+        <strong>Date Issued:</strong> ${issueDate}<br>
+        <strong>Certificate ID:</strong> CERT-${record.transaction_id || txId}<br>
+        <strong>Verification:</strong> https://afigo.sampidia.com
+      </div>
+    </div>
+    <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF Certificate</button>
+  </div>
+</body>
+</html>`;
+            return new Response(certHtml, { status: 200, headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' } });
+          }
+        } catch (dbErr) {
+          console.error('D1 check certificate error:', dbErr);
+        }
+      }
+
+      // If not completed or DB record absent
+      const certPendingHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate Pending - Afigo Sam</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 40px 16px; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; }
+    .card { max-width: 480px; width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 32px 24px; text-align: center; }
+    .btn { display: inline-block; background: #334155; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 12px 24px; border-radius: 12px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div style="font-size: 48px; margin-bottom: 16px;">🎓</div>
+    <h1 style="font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 12px;">Certificate Pending</h1>
+    <p style="font-size: 14px; color: #94a3b8; line-height: 1.6;">Your Certificate of Attendance will be generated automatically upon completion of your live 1-on-1 mentorship session.</p>
+    <a href="https://afigo.sampidia.com/#/my-courses" class="btn">Return to Student Portal</a>
+  </div>
+</body>
+</html>`;
+      return new Response(certPendingHtml, { status: 200, headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' } });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 3.6: POST /api/cal-webhook (Receives Cal.com 5 Webhook Triggers)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'POST' && (url.pathname.endsWith('/api/cal-webhook') || url.pathname.endsWith('/api/calendly-webhook'))) {
+      try {
+        const bodyText = await request.text();
+        let body = {};
+        try { body = JSON.parse(bodyText); } catch (e) {}
+
+        const triggerEvent = body.triggerEvent || body.event || '';
+        const payload = body.payload || body; // MEETING_ENDED uses flat JSON payload
+
+        // Extract student details across nested or flat structures
+        const attendees = payload.attendees || body.attendees || [];
+        const studentEmail = (attendees[0] && attendees[0].email) || payload.email || body.email || '';
+        const studentName = (attendees[0] && attendees[0].name) || payload.name || body.name || 'Valued Student';
+        
+        // Extract transactionId custom question or query param
+        const responses = payload.responses || body.responses || {};
+        const txId = (responses.transactionId && responses.transactionId.value) || responses.transactionId || payload.transactionId || '';
+        const rescheduleUrl = payload.rescheduleUrl || body.rescheduleUrl || payload.reschedule_link || '';
+        const startTime = payload.startTime || body.startTime || '';
+
+        if (env.DB && (studentEmail || txId)) {
+          const normEmail = String(studentEmail).trim().toLowerCase();
+
+          if (triggerEvent === 'BOOKING_CREATED') {
             await env.DB.prepare(`
               UPDATE purchases
-              SET session_booked = 1, session_booked_at = datetime('now')
+              SET session_booked = 1, 
+                  session_booked_at = datetime('now'),
+                  reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
+                  meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
               WHERE id = (
                 SELECT id FROM purchases
-                WHERE LOWER(email) = ? AND format = 'one-on-one' AND (session_booked = 0 OR session_booked IS NULL)
-                ORDER BY purchased_at ASC
-                LIMIT 1
+                WHERE (transaction_id = ? OR LOWER(email) = ?) AND format = 'one-on-one'
+                ORDER BY purchased_at DESC LIMIT 1
               )
-            `).bind(normalizedEmail).run();
+            `).bind(rescheduleUrl, startTime, txId, normEmail).run();
+
+            // Send Stage 2 Booking Confirmation Email via Resend
+            if (env.RESEND_API_KEY && normEmail) {
+              const workerOrigin = new URL(request.url).origin;
+              const formattedDate = startTime ? new Date(startTime).toLocaleString() : 'Your scheduled date & time';
+              const emailSubject = `🗓️ Live Mentorship Session Confirmed with Afigo Sam`;
+              const emailHtml = `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1e293b; line-height: 1.6;">
+                  <h2 style="color: #7c3aed; border-bottom: 2px solid #ddd6fe; padding-bottom: 12px; margin-top: 0;">
+                    🗓️ 1-on-1 Mentorship Booking Confirmed!
+                  </h2>
+                  <p>Hi ${studentName},</p>
+                  <p>Your 30-minute 1-on-1 video mentorship call with Afigo Sam has been scheduled successfully.</p>
+                  <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin: 20px 0;">
+                    <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold; color: #334155;">📅 Session Date & Time:</p>
+                    <p style="margin: 0 0 12px 0; font-size: 16px; font-weight: 800; color: #7c3aed;">${formattedDate}</p>
+                    <p style="margin: 0; font-size: 12px; color: #64748b;">Check your calendar invite email for your Google Meet or CalVideo join link.</p>
+                  </div>
+                  ${rescheduleUrl ? `
+                    <div style="text-align: center; margin: 24px 0;">
+                      <a href="${rescheduleUrl}" target="_blank" style="background-color: #7c3aed; color: #ffffff; font-weight: bold; text-decoration: none; padding: 12px 24px; border-radius: 10px; display: inline-block; font-size: 14px;">
+                        🔄 Reschedule or Change Meeting Platform
+                      </a>
+                    </div>
+                  ` : ''}
+                  <p style="font-size: 12px; color: #64748b;">🎓 Certificate of Attendance will be awarded automatically upon completion of your live call.</p>
+                </div>
+              `;
+              
+              await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${env.RESEND_API_KEY}` },
+                body: JSON.stringify({ from: 'admin@afigo.sampidia.com', to: [normEmail], subject: emailSubject, html: emailHtml }),
+              }).catch(e => console.error('Booking notification email error:', e));
+            }
+          }
+          else if (triggerEvent === 'BOOKING_RESCHEDULED') {
+            await env.DB.prepare(`
+              UPDATE purchases
+              SET reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
+                  meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
+              WHERE transaction_id = ? OR LOWER(email) = ?
+            `).bind(rescheduleUrl, startTime, txId, normEmail).run();
+          }
+          else if (triggerEvent === 'BOOKING_CANCELLED') {
+            await env.DB.prepare(`
+              UPDATE purchases
+              SET session_booked = 0, reschedule_link = NULL
+              WHERE (transaction_id = ? OR LOWER(email) = ?) AND (refund_requested = 0 OR refund_requested IS NULL)
+            `).bind(txId, normEmail).run();
+          }
+          else if (triggerEvent === 'BOOKING_NO_SHOW_UPDATED') {
+            await env.DB.prepare(`
+              UPDATE purchases SET no_show = 1 WHERE transaction_id = ? OR LOWER(email) = ?
+            `).bind(txId, normEmail).run();
+          }
+          else if (triggerEvent === 'MEETING_ENDED') {
+            await env.DB.prepare(`
+              UPDATE purchases SET meeting_attended = 1, certificate_sent = 1 WHERE transaction_id = ? OR LOWER(email) = ?
+            `).bind(txId, normEmail).run();
+
+            // Send Stage 5 Certificate of Attendance Email via Resend
+            if (env.RESEND_API_KEY && normEmail) {
+              const workerOrigin = new URL(request.url).origin;
+              const certLink = `${workerOrigin}/api/certificate?txId=${encodeURIComponent(txId)}&email=${encodeURIComponent(normEmail)}`;
+              const certSubject = `🎓 Certificate of Attendance: 1-on-1 Mentorship with Afigo Sam`;
+              const certEmailHtml = `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1e293b; line-height: 1.6;">
+                  <h2 style="color: #059669; border-bottom: 2px solid #a7f3d0; padding-bottom: 12px; margin-top: 0;">
+                    🎓 Congratulations on Completing Your Mentorship Call!
+                  </h2>
+                  <p>Hi ${studentName},</p>
+                  <p>Thank you for attending your live 1-on-1 mentorship session with Afigo Sam. Your official Certificate of Attendance has been issued.</p>
+                  <div style="text-align: center; margin: 28px 0;">
+                    <a href="${certLink}" target="_blank" style="background-color: #059669; color: #ffffff; font-weight: bold; text-decoration: none; padding: 14px 28px; border-radius: 12px; display: inline-block; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                      📜 View & Download Certificate of Attendance
+                    </a>
+                  </div>
+                  <p style="font-size: 12px; color: #64748b;">Keep this certificate for your professional records and portfolio showcase.</p>
+                </div>
+              `;
+
+              await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${env.RESEND_API_KEY}` },
+                body: JSON.stringify({ from: 'admin@afigo.sampidia.com', to: [normEmail], subject: certSubject, html: certEmailHtml }),
+              }).catch(e => console.error('Certificate email error:', e));
+            }
           }
         }
 
         return new Response(
-          JSON.stringify({ success: true, message: 'Calendly webhook processed' }),
+          JSON.stringify({ success: true, message: `Cal.com event ${triggerEvent} processed successfully` }),
           { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
         );
       } catch (err) {
@@ -1433,13 +1827,19 @@ export default {
                 transactionId: p.transaction_id,
                 purchasedAt: p.purchased_at,
                 sessionBooked: Number(p.session_booked) === 1,
+                rescheduleLink: p.reschedule_link || null,
+                noShow: Number(p.no_show) === 1,
+                meetingAttended: Number(p.meeting_attended) === 1,
+                certificateSent: Number(p.certificate_sent) === 1,
+                refundRequested: Number(p.refund_requested) === 1,
                 r2DownloadLink: p.item_type === 'product'
                   ? `${workerOrigin}/api/download-product-zip?token=${p.download_token}&productId=${p.course_id}`
                   : `${workerOrigin}/api/download-course-pdf?token=${p.download_token}&courseId=${p.course_id}`,
                 receiptLink: `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(p.transaction_id)}&email=${encodeURIComponent(normalizedEmail)}&courseId=${encodeURIComponent(p.course_id)}`
                   + (p.currency ? `&currency=${encodeURIComponent(p.currency)}` : '')
                   + (p.amount_paid ? `&amountPaid=${encodeURIComponent(p.amount_paid)}` : ''),
-                calendlyUrl: p.format === 'one-on-one' ? `${workerOrigin}/api/calendly-redirect?txId=${encodeURIComponent(p.transaction_id)}&email=${encodeURIComponent(normalizedEmail)}` : null
+                calUrl: p.format === 'one-on-one' ? `${workerOrigin}/api/cal-redirect?txId=${encodeURIComponent(p.transaction_id)}&email=${encodeURIComponent(normalizedEmail)}` : null,
+                calendlyUrl: p.format === 'one-on-one' ? `${workerOrigin}/api/cal-redirect?txId=${encodeURIComponent(p.transaction_id)}&email=${encodeURIComponent(normalizedEmail)}` : null
               }));
             }
           } catch (dbErr) {
