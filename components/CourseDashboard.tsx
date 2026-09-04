@@ -16,6 +16,7 @@ interface PurchasedCourseItem {
   calendlyUrl?: string | null;
   calUrl?: string | null;
   sessionBooked?: boolean;
+  sessionCancelled?: boolean;
   rescheduleLink?: string | null;
   noShow?: boolean;
   meetingAttended?: boolean;
@@ -538,6 +539,28 @@ const CourseDashboard: React.FC = () => {
                                       <button
                                         onClick={() => { setRefundModalItem(item); setRefundSuccessMsg(null); }}
                                         className="bg-slate-800 hover:bg-slate-700 text-red-300 font-bold py-2 px-3 rounded-xl text-xs border border-slate-700 flex-1 text-center"
+                                      >
+                                        💸 Request Refund
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (item.sessionCancelled && !item.sessionBooked) ? (
+                                  <div className="space-y-2">
+                                    <div className="bg-rose-950/80 border border-rose-800/60 text-rose-300 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 text-center">
+                                      <span>❌ Session Cancelled</span>
+                                    </div>
+                                    <div className="flex flex-col sm:flex-row gap-2">
+                                      <a
+                                        href={item.calUrl || item.calendlyUrl || `${WORKER_BASE_URL}/api/cal-redirect?txId=${encodeURIComponent(item.transactionId)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center flex-1"
+                                      >
+                                        <span>🗓️ Re-book Session</span>
+                                      </a>
+                                      <button
+                                        onClick={() => { setRefundModalItem(item); setRefundSuccessMsg(null); }}
+                                        className="bg-slate-900 hover:bg-slate-800 text-slate-300 font-semibold py-2 px-3 rounded-xl text-xs border border-slate-800 transition-all text-center flex-1"
                                       >
                                         💸 Request Refund
                                       </button>

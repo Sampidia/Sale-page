@@ -12,7 +12,7 @@ export default {
     const headers = {
       'Access-Control-Allow-Origin': allowedOrigin,
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, X-Session-Token, Authorization',
       'Access-Control-Max-Age': '86400',
     };
 
@@ -1321,12 +1321,20 @@ export default {
         }
 
         if (env.DB) {
-          // Record refund request in D1
-          await env.DB.prepare(`
-            UPDATE purchases
-            SET refund_requested = 1, refund_requested_at = datetime('now')
-            WHERE transaction_id = ? OR id = ? OR LOWER(email) = ?
-          `).bind(txId, txId, email.toLowerCase()).run();
+          // Record refund request in D1 for specific transaction/item only
+          if (txId) {
+            await env.DB.prepare(`
+              UPDATE purchases
+              SET refund_requested = 1, refund_requested_at = datetime('now')
+              WHERE transaction_id = ? OR id = ?
+            `).bind(txId, txId).run();
+          } else if (email) {
+            await env.DB.prepare(`
+              UPDATE purchases
+              SET refund_requested = 1, refund_requested_at = datetime('now')
+              WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? ORDER BY purchased_at DESC LIMIT 1)
+            `).bind(email.toLowerCase()).run();
+          }
         }
 
         // Email Notification to Admin
@@ -1513,16 +1521,17 @@ export default {
           if (triggerEvent === 'BOOKING_CREATED') {
             await env.DB.prepare(`
               UPDATE purchases
-              SET session_booked = 1, 
+              SET session_booked = 1,
+                  session_cancelled = 0,
                   session_booked_at = datetime('now'),
                   reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
                   meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
               WHERE id = (
                 SELECT id FROM purchases
-                WHERE (transaction_id = ? OR LOWER(email) = ?) AND format = 'one-on-one'
+                WHERE (transaction_id = ? OR id = ? OR LOWER(email) = ?) AND format = 'one-on-one'
                 ORDER BY purchased_at DESC LIMIT 1
               )
-            `).bind(rescheduleUrl, startTime, txId, normEmail).run();
+            `).bind(rescheduleUrl, startTime, txId, txId, normEmail).run();
 
             // Send Stage 2 Booking Confirmation Email via Resend
             if (env.RESEND_API_KEY && normEmail) {
@@ -1560,29 +1569,62 @@ export default {
             }
           }
           else if (triggerEvent === 'BOOKING_RESCHEDULED') {
-            await env.DB.prepare(`
-              UPDATE purchases
-              SET reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
-                  meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
-              WHERE transaction_id = ? OR LOWER(email) = ?
-            `).bind(rescheduleUrl, startTime, txId, normEmail).run();
+            if (txId) {
+              await env.DB.prepare(`
+                UPDATE purchases
+                SET session_booked = 1,
+                    session_cancelled = 0,
+                    reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
+                    meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
+                WHERE transaction_id = ? OR id = ?
+              `).bind(rescheduleUrl, startTime, txId, txId).run();
+            } else {
+              await env.DB.prepare(`
+                UPDATE purchases
+                SET session_booked = 1,
+                    session_cancelled = 0,
+                    reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
+                    meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
+                WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' ORDER BY purchased_at DESC LIMIT 1)
+              `).bind(rescheduleUrl, startTime, normEmail).run();
+            }
           }
           else if (triggerEvent === 'BOOKING_CANCELLED') {
-            await env.DB.prepare(`
-              UPDATE purchases
-              SET session_booked = 0, reschedule_link = NULL
-              WHERE (transaction_id = ? OR LOWER(email) = ?) AND (refund_requested = 0 OR refund_requested IS NULL)
-            `).bind(txId, normEmail).run();
+            if (txId) {
+              await env.DB.prepare(`
+                UPDATE purchases
+                SET session_booked = 0, session_cancelled = 1, reschedule_link = NULL
+                WHERE (transaction_id = ? OR id = ?) AND (refund_requested = 0 OR refund_requested IS NULL)
+              `).bind(txId, txId).run();
+            } else {
+              await env.DB.prepare(`
+                UPDATE purchases
+                SET session_booked = 0, session_cancelled = 1, reschedule_link = NULL
+                WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' ORDER BY purchased_at DESC LIMIT 1) AND (refund_requested = 0 OR refund_requested IS NULL)
+              `).bind(normEmail).run();
+            }
           }
           else if (triggerEvent === 'BOOKING_NO_SHOW_UPDATED') {
-            await env.DB.prepare(`
-              UPDATE purchases SET no_show = 1 WHERE transaction_id = ? OR LOWER(email) = ?
-            `).bind(txId, normEmail).run();
+            if (txId) {
+              await env.DB.prepare(`
+                UPDATE purchases SET no_show = 1 WHERE transaction_id = ? OR id = ?
+              `).bind(txId, txId).run();
+            } else {
+              await env.DB.prepare(`
+                UPDATE purchases SET no_show = 1 WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' ORDER BY purchased_at DESC LIMIT 1)
+              `).bind(normEmail).run();
+            }
           }
           else if (triggerEvent === 'MEETING_ENDED') {
-            await env.DB.prepare(`
-              UPDATE purchases SET meeting_attended = 1, certificate_sent = 1 WHERE transaction_id = ? OR LOWER(email) = ?
-            `).bind(txId, normEmail).run();
+            if (txId) {
+              await env.DB.prepare(`
+                UPDATE purchases SET meeting_attended = 1, certificate_sent = 1 WHERE transaction_id = ? OR id = ?
+              `).bind(txId, txId).run();
+            } else {
+              await env.DB.prepare(`
+                UPDATE purchases SET meeting_attended = 1, certificate_sent = 1 WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' ORDER BY purchased_at DESC LIMIT 1)
+              `).bind(normEmail).run();
+            }
 
             // Send Stage 5 Certificate of Attendance Email via Resend
             if (env.RESEND_API_KEY && normEmail) {
@@ -1936,6 +1978,7 @@ export default {
                 transactionId: p.transaction_id,
                 purchasedAt: p.purchased_at,
                 sessionBooked: Number(p.session_booked) === 1,
+                sessionCancelled: Number(p.session_cancelled) === 1,
                 rescheduleLink: p.reschedule_link || null,
                 meetingStartTime: p.meeting_start_time || null,
                 noShow: Number(p.no_show) === 1,
@@ -2048,6 +2091,7 @@ export default {
                 transactionId: p.transaction_id,
                 purchasedAt: p.purchased_at,
                 sessionBooked: Number(p.session_booked) === 1,
+                sessionCancelled: Number(p.session_cancelled) === 1,
                 rescheduleLink: p.reschedule_link || null,
                 meetingStartTime: p.meeting_start_time || null,
                 noShow: Number(p.no_show) === 1,
