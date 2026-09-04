@@ -35,6 +35,7 @@ const CourseDashboard: React.FC = () => {
   const [step, setStep] = useState<'email' | 'otp' | 'dashboard'>('email');
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
+  const [sessionToken, setSessionToken] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [purchases, setPurchases] = useState<PurchasedCourseItem[]>([]);
@@ -44,7 +45,15 @@ const CourseDashboard: React.FC = () => {
     if (!email || isRefreshing) return;
     setIsRefreshing(true);
     try {
-      const response = await fetch(`${WORKER_BASE_URL}/api/student-purchases?email=${encodeURIComponent(email.trim())}`);
+      const cleanWorkerUrl = WORKER_BASE_URL.replace(/\/+$/, '');
+      const response = await fetch(
+        `${cleanWorkerUrl}/api/student-purchases?email=${encodeURIComponent(email.trim())}&token=${encodeURIComponent(sessionToken)}`,
+        {
+          headers: {
+            'X-Session-Token': sessionToken,
+          },
+        }
+      );
       if (response.ok) {
         const data = await response.json();
         if (data.purchases) {
@@ -177,6 +186,9 @@ const CourseDashboard: React.FC = () => {
       }
 
       setPurchases(data.purchases || []);
+      if (data.sessionToken) {
+        setSessionToken(data.sessionToken);
+      }
       setStep('dashboard');
     } catch (err: any) {
       setErrorMessage(err.message || 'Network error verifying access code.');
@@ -416,7 +428,7 @@ const CourseDashboard: React.FC = () => {
                       </svg>
                     </button>
                     <button
-                      onClick={() => { setStep('email'); setEmail(''); setCode(''); setPurchases([]); }}
+                      onClick={() => { setStep('email'); setEmail(''); setCode(''); setSessionToken(''); setPurchases([]); }}
                       className="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 px-3.5 py-1.5 rounded-full transition-colors font-medium cursor-pointer"
                     >
                       Sign Out

@@ -1763,6 +1763,22 @@ export default {
                 { status: 404, headers: { ...headers, 'Content-Type': 'application/json' } }
               );
             }
+
+            // Rate-limit: max 3 OTP requests per email in last 15 minutes
+            try {
+              const recentReqs = await env.DB.prepare(`
+                SELECT COUNT(*) as cnt FROM access_tokens
+                WHERE LOWER(email) = ? AND created_at > datetime('now', '-15 minutes')
+              `).bind(normalizedEmail).first('cnt');
+              if (recentReqs && Number(recentReqs) >= 3) {
+                return new Response(
+                  JSON.stringify({ error: 'Too many code requests. Please wait 15 minutes before requesting a new code.' }),
+                  { status: 429, headers: { ...headers, 'Content-Type': 'application/json' } }
+                );
+              }
+            } catch (rateErr) {
+              console.error('Rate-limit check error:', rateErr);
+            }
           } catch (dbErr) {
             console.error('D1 purchase check error:', dbErr);
           }
@@ -1883,6 +1899,19 @@ export default {
 
             // Mark token as used
             await env.DB.prepare(`UPDATE access_tokens SET used = 1 WHERE token = ?`).bind(inputCode).run();
+
+            // Generate and store a session token (8h expiry)
+            const sessionToken = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 18)}`;
+            const sessExpiry = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString();
+            try {
+              await env.DB.prepare(`
+                INSERT INTO session_tokens (token, email, expires_at) VALUES (?, ?, ?)
+              `).bind(sessionToken, normalizedEmail, sessExpiry).run();
+              // Attach session token to be returned in response
+              request._sessionToken = sessionToken;
+            } catch (sessErr) {
+              console.error('D1 session token insert error:', sessErr);
+            }
           } catch (dbErr) {
             console.error('D1 token verification error:', dbErr);
           }
@@ -1947,7 +1976,7 @@ export default {
         }
 
         return new Response(
-          JSON.stringify({ success: true, purchases }),
+          JSON.stringify({ success: true, purchases, sessionToken: request._sessionToken || undefined }),
           { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
         );
 
@@ -1960,8 +1989,97 @@ export default {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // ROUTE 6 (LEGACY): POST /delete-account (Account Deletion Request Handler)
+    // ROUTE 5.5: GET /api/student-purchases (Fetch Student Purchases by Email — Requires Session Token)
     // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'GET' && (url.pathname.endsWith('/api/student-purchases') || url.pathname.endsWith('/api/portal/purchases'))) {
+      try {
+        const emailParam = url.searchParams.get('email') || '';
+        const sessionTokenParam = url.searchParams.get('token') || request.headers.get('X-Session-Token') || '';
+
+        if (!emailParam) {
+          return new Response(
+            JSON.stringify({ error: 'Missing email parameter.' }),
+            { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+        if (!sessionTokenParam) {
+          return new Response(
+            JSON.stringify({ error: 'Unauthorized: Missing session token. Please log in again.' }),
+            { status: 401, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const normalizedEmail = String(emailParam).trim().toLowerCase();
+
+        // Validate session token
+        if (env.DB) {
+          try {
+            const sessRecord = await env.DB.prepare(`
+              SELECT * FROM session_tokens
+              WHERE token = ? AND LOWER(email) = ? AND expires_at > datetime('now')
+            `).bind(sessionTokenParam, normalizedEmail).first();
+            if (!sessRecord) {
+              return new Response(
+                JSON.stringify({ error: 'Unauthorized: Invalid or expired session. Please log in again.' }),
+                { status: 401, headers: { ...headers, 'Content-Type': 'application/json' } }
+              );
+            }
+          } catch (sessErr) {
+            console.error('Session token validation error:', sessErr);
+          }
+        }
+
+        const workerOrigin = new URL(request.url).origin;
+        let purchases = [];
+
+        if (env.DB) {
+          try {
+            const { results } = await env.DB.prepare(`
+              SELECT * FROM purchases WHERE LOWER(email) = ? ORDER BY purchased_at DESC
+            `).bind(normalizedEmail).all();
+
+            if (results && results.length > 0) {
+              purchases = results.map(p => ({
+                id: p.id,
+                courseId: p.course_id,
+                format: p.format,
+                itemType: p.item_type || 'course',
+                customerName: p.customer_name,
+                transactionId: p.transaction_id,
+                purchasedAt: p.purchased_at,
+                sessionBooked: Number(p.session_booked) === 1,
+                rescheduleLink: p.reschedule_link || null,
+                meetingStartTime: p.meeting_start_time || null,
+                noShow: Number(p.no_show) === 1,
+                meetingAttended: Number(p.meeting_attended) === 1,
+                certificateSent: Number(p.certificate_sent) === 1,
+                refundRequested: Number(p.refund_requested) === 1,
+                r2DownloadLink: p.item_type === 'product'
+                  ? `${workerOrigin}/api/download-product-zip?token=${p.download_token}&productId=${p.course_id}`
+                  : `${workerOrigin}/api/download-course-pdf?token=${p.download_token}&courseId=${p.course_id}`,
+                receiptLink: `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(p.transaction_id)}&email=${encodeURIComponent(normalizedEmail)}&courseId=${encodeURIComponent(p.course_id)}`
+                  + (p.currency ? `&currency=${encodeURIComponent(p.currency)}` : '')
+                  + (p.amount_paid ? `&amountPaid=${encodeURIComponent(p.amount_paid)}` : ''),
+                calUrl: p.format === 'one-on-one' ? `${workerOrigin}/api/cal-redirect?txId=${encodeURIComponent(p.transaction_id)}&email=${encodeURIComponent(normalizedEmail)}` : null,
+                calendlyUrl: p.format === 'one-on-one' ? `${workerOrigin}/api/cal-redirect?txId=${encodeURIComponent(p.transaction_id)}&email=${encodeURIComponent(normalizedEmail)}` : null
+              }));
+            }
+          } catch (dbErr) {
+            console.error('D1 fetch student purchases error:', dbErr);
+          }
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, purchases }),
+          { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ error: err.message || 'Internal Server Error' }),
+          { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
     if (request.method === 'POST' && (url.pathname === '/' || url.pathname.endsWith('/delete-account'))) {
       try {
         const { email, username, appName, token } = await request.json();
