@@ -4,6 +4,7 @@ import { PRODUCTS, BRAIN_LOGO, FLUTTERWAVE_URL, CODECANYON_URL } from '../consta
 import BookDocumentation from '../components/BookDocumentation';
 import SEO from '../components/SEO';
 import { useCurrency } from '../context/CurrencyContext';
+import { trackBeginCheckout } from '../utils/analytics';
 
 const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -162,6 +163,14 @@ const ProductPage: React.FC = () => {
       setError('Please enter your full name and email address.');
       return;
     }
+
+    trackBeginCheckout({
+      itemId: product.id,
+      itemName: product.name,
+      category: product.category,
+      value: product.price || 25,
+      currency: priceInfo.currency,
+    });
 
     const flwKey = import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY;
     if (!flwKey) {

@@ -207,11 +207,11 @@ const CourseDashboard: React.FC = () => {
 
       <div className="min-h-screen bg-[#0a0910] text-slate-100 pt-0 pb-8 sm:py-4 px-4 sm:px-6 flex items-center justify-center relative overflow-hidden">
         {/* Ambient Background Glows */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-purple-600/10 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-red-600/10 rounded-full blur-[140px] pointer-events-none" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-red-600/10 rounded-full blur-[120px] pointer-events-none" />
 
         {/* Main Split Luxury Modal Container */}
-        <div className="max-w-5xl w-full bg-[#12111c] border border-slate-800/80 rounded-[32px] overflow-hidden shadow-2xl shadow-purple-950/30 grid grid-cols-1 lg:grid-cols-12 relative z-10">
+        <div className="max-w-5xl w-full bg-[#12111c] border border-slate-800/80 rounded-[32px] overflow-hidden shadow-2xl shadow-red-950/20 grid grid-cols-1 lg:grid-cols-12 relative z-10">
           
           {/* LEFT HERO ARTWORK PANEL (Figma / Dribbble Style) */}
           <div className="lg:col-span-5 p-4 sm:p-6 flex flex-col justify-between relative rounded-[28px] overflow-hidden min-h-[300px] lg:min-h-[480px] m-2">
@@ -245,7 +245,7 @@ const CourseDashboard: React.FC = () => {
 
               {/* Slider Pagination Pills */}
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-1.5 bg-purple-500 rounded-full" />
+                <div className="w-8 h-1.5 bg-red-500 rounded-full" />
                 <div className="w-2 h-1.5 bg-slate-700 rounded-full" />
                 <div className="w-2 h-1.5 bg-slate-700 rounded-full" />
               </div>
@@ -285,7 +285,7 @@ const CourseDashboard: React.FC = () => {
                       placeholder="e.g. student@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-[#09080e] border border-slate-800 rounded-2xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-colors"
+                      className="w-full bg-[#09080e] border border-slate-800 rounded-2xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-red-500 transition-colors"
                     />
                   </div>
 
@@ -321,14 +321,14 @@ const CourseDashboard: React.FC = () => {
             {step === 'otp' && (
               <div className="space-y-6">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-950/80 text-purple-300 border border-purple-800/50 px-2.5 py-1 rounded-full">
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-red-950/80 text-red-300 border border-red-800/50 px-2.5 py-1 rounded-full">
                     Step 2 of 2
                   </span>
                   <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-3 mb-2">
                     Enter Access Code
                   </h1>
                   <p className="text-slate-400 text-xs sm:text-sm">
-                    We sent a 6-digit code to <strong className="text-purple-300">{email}</strong>.
+                    We sent a 6-digit code to <strong className="text-red-400">{email}</strong>.
                   </p>
                 </div>
 
@@ -351,7 +351,7 @@ const CourseDashboard: React.FC = () => {
                       placeholder="123456"
                       value={code}
                       onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                      className="w-full bg-[#09080e] border border-slate-800 rounded-2xl px-4 py-3.5 text-center text-xl font-mono tracking-[8px] text-white focus:outline-none focus:border-purple-500 transition-colors"
+                      className="w-full bg-[#09080e] border border-slate-800 rounded-2xl px-4 py-3.5 text-center text-xl font-mono tracking-[8px] text-white focus:outline-none focus:border-red-500 transition-colors"
                     />
                   </div>
 
@@ -386,7 +386,7 @@ const CourseDashboard: React.FC = () => {
                   </button>
                   <button
                     onClick={handleRequestAccess}
-                    className="text-purple-400 hover:text-purple-300 font-medium transition-colors"
+                    className="text-red-400 hover:text-red-300 font-medium transition-colors"
                   >
                     Resend Code 🔄
                   </button>
@@ -400,7 +400,7 @@ const CourseDashboard: React.FC = () => {
                 <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                   <div>
                     <h2 className="text-xl font-extrabold text-white">
-                      Welcome, <span className="text-purple-400">{purchases[0]?.customerName || 'Customer'}</span>
+                      Welcome, <span className="text-red-400">{purchases[0]?.customerName || 'Customer'}</span>
                     </h2>
                     <p className="text-xs text-slate-400">
                       {purchases.length} verified purchase{purchases.length === 1 ? '' : 's'} linked to {email}
@@ -415,7 +415,7 @@ const CourseDashboard: React.FC = () => {
                       className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-full transition-all cursor-pointer disabled:opacity-50"
                     >
                       <svg
-                        className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-purple-400' : ''}`}
+                        className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-red-400' : ''}`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -428,6 +428,12 @@ const CourseDashboard: React.FC = () => {
                         />
                       </svg>
                     </button>
+                    <Link
+                      to={`/delete-account?email=${encodeURIComponent(email)}&type=portal`}
+                      className="text-xs bg-red-950/80 hover:bg-red-900 text-red-300 border border-red-800/80 px-3 py-1.5 rounded-full transition-colors font-medium cursor-pointer"
+                    >
+                      Deactivate Account
+                    </Link>
                     <button
                       onClick={() => { setStep('email'); setEmail(''); setCode(''); setSessionToken(''); setPurchases([]); }}
                       className="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 px-3.5 py-1.5 rounded-full transition-colors font-medium cursor-pointer"
@@ -442,19 +448,19 @@ const CourseDashboard: React.FC = () => {
                   <div className="flex items-center space-x-2 pb-1">
                     <button
                       onClick={() => setActiveTab('all')}
-                      className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer ${activeTab === 'all' ? 'bg-purple-600 text-white shadow-lg' : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'}`}
+                      className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer ${activeTab === 'all' ? 'bg-red-600 text-white shadow-lg shadow-red-950/50' : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'}`}
                     >
                       All ({purchases.length})
                     </button>
                     <button
                       onClick={() => setActiveTab('course')}
-                      className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer ${activeTab === 'course' ? 'bg-purple-600 text-white shadow-lg' : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'}`}
+                      className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer ${activeTab === 'course' ? 'bg-red-600 text-white shadow-lg shadow-red-950/50' : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'}`}
                     >
                       📘 Masterclasses ({purchases.filter(p => (p.itemType || 'course') === 'course').length})
                     </button>
                     <button
                       onClick={() => setActiveTab('product')}
-                      className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer ${activeTab === 'product' ? 'bg-purple-600 text-white shadow-lg' : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'}`}
+                      className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer ${activeTab === 'product' ? 'bg-red-600 text-white shadow-lg shadow-red-950/50' : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'}`}
                     >
                       🔌 Plugins & Assets ({purchases.filter(p => p.itemType === 'product').length})
                     </button>
@@ -478,11 +484,11 @@ const CourseDashboard: React.FC = () => {
                       return (
                         <div
                           key={item.id || item.transactionId}
-                          className="bg-[#0c0b12] border border-slate-800/90 hover:border-purple-500/40 rounded-2xl p-5 transition-all space-y-4"
+                          className="bg-[#0c0b12] border border-slate-800/90 hover:border-red-500/40 rounded-2xl p-5 transition-all space-y-4"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div>
-                              <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-950/80 text-purple-300 border border-purple-800/50 px-2.5 py-0.5 rounded-full">
+                              <span className="text-[10px] font-bold uppercase tracking-wider bg-red-950/80 text-red-300 border border-red-800/50 px-2.5 py-0.5 rounded-full">
                                 {item.itemType === 'product' ? '🔌 Plugin Package' : (item.format === 'one-on-one' ? '🗓️ 1-on-1 Mentorship' : '📘 PDF Blueprint')}
                               </span>
                               <h3 className="text-sm font-bold text-white mt-2 leading-snug">
@@ -532,7 +538,7 @@ const CourseDashboard: React.FC = () => {
                                         href={item.calUrl || item.calendlyUrl || `${WORKER_BASE_URL}/api/cal-redirect?txId=${encodeURIComponent(item.transactionId)}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-3 rounded-xl text-xs flex-1 text-center"
+                                        className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex-1 text-center"
                                       >
                                         🗓️ Re-book
                                       </a>
@@ -554,7 +560,7 @@ const CourseDashboard: React.FC = () => {
                                         href={item.calUrl || item.calendlyUrl || `${WORKER_BASE_URL}/api/cal-redirect?txId=${encodeURIComponent(item.transactionId)}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center flex-1"
+                                        className="bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center flex-1"
                                       >
                                         <span>🗓️ Re-book Session</span>
                                       </a>
@@ -591,7 +597,7 @@ const CourseDashboard: React.FC = () => {
                                               href={reschedUrl}
                                               target="_blank"
                                               rel="noopener noreferrer"
-                                              className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center flex-1 shadow-lg shadow-purple-950/40"
+                                              className="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center flex-1 shadow-lg shadow-red-950/40"
                                             >
                                               <span>🔄 Reschedule</span>
                                             </a>
@@ -633,7 +639,7 @@ const CourseDashboard: React.FC = () => {
                                       href={item.calUrl || item.calendlyUrl || `${WORKER_BASE_URL}/api/cal-redirect?txId=${encodeURIComponent(item.transactionId)}`}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center flex-1"
+                                      className="bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center flex-1"
                                     >
                                       <span>🗓️ Schedule Live Session</span>
                                     </a>
@@ -720,7 +726,7 @@ const CourseDashboard: React.FC = () => {
                     placeholder="e.g. Access Bank, Kuda, M-Pesa, MTN MoMo"
                     value={bankName}
                     onChange={(e) => setBankName(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-red-500"
                   />
                 </div>
                 <div>
@@ -731,7 +737,7 @@ const CourseDashboard: React.FC = () => {
                     placeholder="e.g. 0123456789"
                     value={accountNumber}
                     onChange={(e) => setAccountNumber(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-red-500"
                   />
                 </div>
                 <div>
@@ -742,7 +748,7 @@ const CourseDashboard: React.FC = () => {
                     placeholder="e.g. Samson Afigo"
                     value={accountName}
                     onChange={(e) => setAccountName(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-red-500"
                   />
                 </div>
                 <div>
@@ -752,7 +758,7 @@ const CourseDashboard: React.FC = () => {
                     placeholder="e.g. Schedule conflict / change of plans"
                     value={refundReason}
                     onChange={(e) => setRefundReason(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 resize-none"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-red-500 resize-none"
                   />
                 </div>
                 <div className="pt-2 flex gap-2">

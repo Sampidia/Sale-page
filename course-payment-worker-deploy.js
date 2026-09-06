@@ -1795,10 +1795,26 @@ export default {
 
         const normalizedEmail = String(email).trim().toLowerCase();
 
+        // Check if account status is inactive in D1 database
+        if (env.DB) {
+          try {
+            const acct = await env.DB.prepare(`SELECT status FROM user_accounts WHERE LOWER(email) = ?`).bind(normalizedEmail).first();
+            if (acct && acct.status === 'inactive') {
+              return new Response(
+                JSON.stringify({ error: 'Account deleted/disabled, contact support' }),
+                { status: 403, headers: { ...headers, 'Content-Type': 'application/json' } }
+              );
+            }
+          } catch (acctErr) {
+            console.error('D1 account status check error:', acctErr);
+          }
+        }
+
         // Check if D1 database has records for this email (if DB is bound)
         if (env.DB) {
           try {
             const countRes = await env.DB.prepare(`SELECT COUNT(*) as cnt FROM purchases WHERE LOWER(email) = ?`).bind(normalizedEmail).first('cnt');
+
             if (!countRes || Number(countRes) === 0) {
               return new Response(
                 JSON.stringify({ error: 'No purchased courses found associated with this email address. Please check spelling or purchase a course.' }),
@@ -1925,7 +1941,23 @@ export default {
         const normalizedEmail = String(email).trim().toLowerCase();
         const inputCode = String(code).trim();
 
+        // Check if account status is inactive in D1 database
         if (env.DB) {
+          try {
+            const acct = await env.DB.prepare(`SELECT status FROM user_accounts WHERE LOWER(email) = ?`).bind(normalizedEmail).first();
+            if (acct && acct.status === 'inactive') {
+              return new Response(
+                JSON.stringify({ error: 'Account deleted/disabled, contact support' }),
+                { status: 403, headers: { ...headers, 'Content-Type': 'application/json' } }
+              );
+            }
+          } catch (acctErr) {
+            console.error('D1 account status check error:', acctErr);
+          }
+        }
+
+        if (env.DB) {
+
           try {
             const tokenRecord = await env.DB.prepare(`
               SELECT * FROM access_tokens 
@@ -2124,7 +2156,7 @@ export default {
         );
       }
     }
-    if (request.method === 'POST' && (url.pathname === '/' || url.pathname.endsWith('/delete-account'))) {
+    if (request.method === 'POST' && (url.pathname === '/' || url.pathname.endsWith('/delete-account') || url.pathname.endsWith('/api/deactivate-account'))) {
       try {
         const { email, username, appName, token } = await request.json();
 
@@ -2136,6 +2168,21 @@ export default {
               headers: { ...headers, 'Content-Type': 'application/json' },
             }
           );
+        }
+
+        const normalizedEmail = String(email).trim().toLowerCase();
+
+        // Update user_accounts status to inactive in D1 database
+        if (env.DB) {
+          try {
+            await env.DB.prepare(`
+              INSERT INTO user_accounts (email, status, deactivated_at, updated_at)
+              VALUES (?, 'inactive', datetime('now'), datetime('now'))
+              ON CONFLICT(email) DO UPDATE SET status = 'inactive', deactivated_at = datetime('now'), updated_at = datetime('now')
+            `).bind(normalizedEmail).run();
+          } catch (dbErr) {
+            console.error('D1 user_accounts status update error:', dbErr);
+          }
         }
 
         if (env.TURNSTILE_SECRET_KEY) {
@@ -2190,19 +2237,20 @@ export default {
           body: JSON.stringify({
             from: 'admin@afigo.sampidia.com',
             to: 'admin@sampidia.com',
-            subject: `Account Deletion Request: ${username} (${appName})`,
+            subject: `Account Deactivation/Deletion Request: ${username} (${appName})`,
             html: `
               <div style="font-family: sans-serif; padding: 20px; line-height: 1.6; color: #333;">
-                <h2 style="color: #dc2626; border-bottom: 1px solid #eee; padding-bottom: 10px;">Account Deletion Request</h2>
-                <p>A new account deletion request has been submitted from the <strong>Afigo Sam Page</strong> portal.</p>
+                <h2 style="color: #dc2626; border-bottom: 1px solid #eee; padding-bottom: 10px;">Account Deactivation Request</h2>
+                <p>A new account deactivation request has been submitted from the <strong>Afigo Sam Page</strong> portal.</p>
                 
                 <div style="background-color: #f9fafb; border: 1px solid #f3f4f6; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                  <p style="margin: 5px 0;"><strong>Username:</strong> ${username}</p>
+                  <p style="margin: 5px 0;"><strong>Username / Name:</strong> ${username}</p>
                   <p style="margin: 5px 0;"><strong>Email Address:</strong> ${email}</p>
-                  <p style="margin: 5px 0;"><strong>App Selection:</strong> ${appName}</p>
+                  <p style="margin: 5px 0;"><strong>App / Portal:</strong> ${appName}</p>
+                  <p style="margin: 5px 0; color: #dc2626;"><strong>Status Updated:</strong> INACTIVE</p>
                 </div>
                 
-                <p style="color: #d97706; font-weight: bold;">⚠️ SLA Note: Please process this request within 48 hours to meet platform terms.</p>
+                <p style="color: #d97706; font-weight: bold;">⚠️ SLA Note: Account status is now INACTIVE. Future login attempts with this email will display "Account deleted/disabled, contact support".</p>
               </div>
             `,
           }),
@@ -2219,10 +2267,11 @@ export default {
           );
         }
 
-        return new Response(JSON.stringify({ success: true, id: responseData.id }), {
+        return new Response(JSON.stringify({ success: true, status: 'inactive', id: responseData.id }), {
           status: 200,
           headers: { ...headers, 'Content-Type': 'application/json' },
         });
+
 
       } catch (err) {
         return new Response(JSON.stringify({ error: err.message || 'Internal Server Error' }), {

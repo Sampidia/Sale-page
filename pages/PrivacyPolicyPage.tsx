@@ -271,25 +271,67 @@ const PrivacyPolicyPage: React.FC = () => {
             <section id="data-erasure" className="mb-12 scroll-mt-24">
               <h2 className="text-3xl font-black text-gray-900 mb-6 flex items-center">
                 <span className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center text-sm font-bold mr-3 border border-red-100">5</span>
-                Right to Erasure & Account Deletion
+                Right to Erasure, Account Deletion & Deactivation
               </h2>
               <p className="text-gray-600 leading-relaxed text-justify mb-6">
-                In strict compliance with GDPR Art. 17 (Right to Erasure) and Google Play Store requirements, we provide an **automatic, transparent method** for all users to request the complete deletion of their account and all associated personal data from our systems.
+                In strict compliance with GDPR Art. 17 (Right to Erasure) and Google Play Store requirements, we provide transparent, self-service mechanisms for all users to request the deletion or deactivation of their account and associated personal data.
               </p>
-              
+
+              {/* Mobile App Deletion */}
               <div className="bg-[#0a0e27] text-white rounded-3xl p-8 border border-gray-800 relative overflow-hidden shadow-xl mb-6">
                 <div className="absolute top-0 right-0 p-6 opacity-5">{BRAIN_LOGO}</div>
-                <h4 className="text-xl font-bold mb-3 text-red-400">🛡️ Need to Delete Your Mobile Account?</h4>
+                <h4 className="text-xl font-bold mb-3 text-red-400">📱 Mobile App Account Deletion</h4>
                 <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                  You can submit an immediate account removal request through our secure portal. Once submitted and verified, your username, email registers, and preference history are **completely wiped** from our servers within **48 hours**.
+                  Users of our mobile applications (Naija Ayo Worldwide, Afro Short, Fake Detector) may submit an immediate removal request. Once verified, your username, email, and preference history are <strong className="text-white">permanently wiped</strong> from our servers within <strong className="text-white">48 hours</strong>.
                 </p>
                 <Link
                   to="/delete-account"
                   className="inline-flex items-center justify-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-900/30"
                 >
-                  Go to Data Deletion Portal →
+                  Go to Mobile App Data Deletion →
                 </Link>
               </div>
+
+              {/* Portal Account Deactivation */}
+              <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm mb-6">
+                <h4 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <span className="w-7 h-7 bg-red-50 text-red-600 rounded-lg flex items-center justify-center border border-red-100">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728A9 9 0 015.636 5.636" /></svg>
+                  </span>
+                  Student Portal & File Portal Account Deactivation
+                </h4>
+                <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                  Users of the <strong>Student Course Access Portal</strong> or the <strong>Plugin & Asset (File) Portal</strong> may request account deactivation at any time. When a deactivation request is submitted:
+                </p>
+                <ul className="space-y-3 text-sm text-gray-600 mb-5">
+                  <li className="flex items-start gap-3">
+                    <span className="text-red-500 font-bold mt-0.5">→</span>
+                    <span>Your account status is updated from <strong>Active</strong> to <strong>Inactive</strong>. This is not a full deletion — your purchase records are retained for licensing verification.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-red-500 font-bold mt-0.5">→</span>
+                    <span>Any future login attempt using the same email address will return the message: <em className="font-semibold text-gray-800">"Account deactivated/disabled. Please contact support."</em></span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-red-500 font-bold mt-0.5">→</span>
+                    <span>All <strong>new accounts</strong> are assigned <strong>Active</strong> status by default upon their first successful portal login.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-red-500 font-bold mt-0.5">→</span>
+                    <span>To <strong>reactivate</strong> a deactivated account, contact our support team at <strong>admin@sampidia.com</strong>. Reactivation is subject to our Terms of Service.</span>
+                  </li>
+                </ul>
+                <Link
+                  to="/delete-account?type=portal"
+                  className="inline-flex items-center justify-center px-6 py-3 bg-gray-900 hover:bg-black text-white font-bold rounded-xl transition-all text-sm"
+                >
+                  Request Portal Account Deactivation →
+                </Link>
+              </div>
+
+              <p className="text-xs text-gray-400 leading-relaxed">
+                For any data rights enquiries — including access, portability, correction, or objection requests — please email <strong className="text-gray-600">admin@sampidia.com</strong>. We will respond within <strong className="text-gray-600">72 hours</strong> in compliance with applicable data protection regulations.
+              </p>
             </section>
 
             <hr className="border-gray-100 my-8" />

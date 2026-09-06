@@ -37,3 +37,16 @@ CREATE TABLE IF NOT EXISTS access_tokens (
 
 -- Index for quick token lookup and cleanup
 CREATE INDEX IF NOT EXISTS idx_tokens_email ON access_tokens(email);
+
+-- Table 3: User Accounts (Account Deactivation & Status Tracking)
+CREATE TABLE IF NOT EXISTS user_accounts (
+  email TEXT PRIMARY KEY,
+  status TEXT NOT NULL DEFAULT 'active', -- 'active' | 'inactive'
+  deactivated_at DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index for quick account status lookup
+CREATE INDEX IF NOT EXISTS idx_user_accounts_email ON user_accounts(email);
+

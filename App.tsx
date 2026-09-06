@@ -18,11 +18,13 @@ import CourseDetailPage from './pages/CourseDetailPage';
 import CourseDashboard from './components/CourseDashboard';
 import ProjectsPage from './pages/ProjectsPage';
 import { CurrencyProvider } from './context/CurrencyContext';
+import AnalyticsTracker from './components/AnalyticsTracker';
 
 const App: React.FC = () => {
   return (
     <CurrencyProvider>
       <Router>
+        <AnalyticsTracker />
         <Layout>
         <Routes>
           <Route path="/" element={<LandingPage />} />

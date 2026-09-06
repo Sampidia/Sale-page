@@ -1,17 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { COURSES } from '../constants';
 import { CourseFormat } from '../types';
 import { useCurrency } from '../context/CurrencyContext';
+import { trackBeginCheckout, trackSelectContent } from '../utils/analytics';
 
 const CourseDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const { formatCoursePrice } = useCurrency();
   const course = COURSES.find((c) => c.id === id) || COURSES[0];
 
-  // State selection
+  // State selection — default to 'pdf', but honour ?format=1-on-1 deep-link
   const [format, setFormat] = useState<CourseFormat>('pdf');
+
+  // ── Deep-Link: pre-select format from URL query param ────────────────────
+  // Supports: /#/course/vibe-coding?format=1-on-1  →  pre-selects 1-on-1 tab
+  //           /#/course/vibe-coding?format=pdf      →  explicit PDF selection
+  useEffect(() => {
+    const urlFormat = searchParams.get('format');
+    if (urlFormat === '1-on-1' || urlFormat === 'one-on-one') {
+      setFormat('one-on-one');
+    } else if (urlFormat === 'pdf') {
+      setFormat('pdf');
+    }
+  }, [searchParams]);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -243,6 +257,14 @@ const CourseDetailPage: React.FC = () => {
       setError('Please provide your full name and email address.');
       return;
     }
+
+    trackBeginCheckout({
+      itemId: course.id,
+      itemName: course.title,
+      category: format === 'one-on-one' ? '1-on-1 Mentorship' : 'PDF Blueprint',
+      value: currentNgnPrice,
+      currency: coursePriceInfo.currency,
+    });
 
     const flwKey = import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY;
     if (!flwKey) {
