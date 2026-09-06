@@ -1590,6 +1590,15 @@ export default {
                     meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
                 WHERE (transaction_id = ? OR id = ?) AND format = 'one-on-one'
               `).bind(rescheduleUrl, startTime, txId, txId).run();
+            } else if (bookingUid) {
+              await env.DB.prepare(`
+                UPDATE purchases
+                SET session_booked = 1,
+                    session_cancelled = 0,
+                    reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
+                    meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
+                WHERE reschedule_link LIKE '%' || ? || '%' AND format = 'one-on-one'
+              `).bind(rescheduleUrl, startTime, bookingUid).run();
             } else {
               await env.DB.prepare(`
                 UPDATE purchases
@@ -1608,6 +1617,12 @@ export default {
                 SET session_booked = 0, session_cancelled = 1, reschedule_link = NULL
                 WHERE (transaction_id = ? OR id = ?) AND (refund_requested = 0 OR refund_requested IS NULL)
               `).bind(txId, txId).run();
+            } else if (bookingUid) {
+              await env.DB.prepare(`
+                UPDATE purchases
+                SET session_booked = 0, session_cancelled = 1, reschedule_link = NULL
+                WHERE reschedule_link LIKE '%' || ? || '%' AND (refund_requested = 0 OR refund_requested IS NULL)
+              `).bind(bookingUid).run();
             } else {
               await env.DB.prepare(`
                 UPDATE purchases
@@ -1621,6 +1636,10 @@ export default {
               await env.DB.prepare(`
                 UPDATE purchases SET no_show = 1 WHERE (transaction_id = ? OR id = ?) AND format = 'one-on-one'
               `).bind(txId, txId).run();
+            } else if (bookingUid) {
+              await env.DB.prepare(`
+                UPDATE purchases SET no_show = 1 WHERE reschedule_link LIKE '%' || ? || '%'
+              `).bind(bookingUid).run();
             } else {
               await env.DB.prepare(`
                 UPDATE purchases SET no_show = 1 WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' AND session_booked = 1 ORDER BY purchased_at DESC LIMIT 1)
@@ -1632,6 +1651,10 @@ export default {
               await env.DB.prepare(`
                 UPDATE purchases SET meeting_attended = 1, certificate_sent = 1 WHERE (transaction_id = ? OR id = ?) AND format = 'one-on-one'
               `).bind(txId, txId).run();
+            } else if (bookingUid) {
+              await env.DB.prepare(`
+                UPDATE purchases SET meeting_attended = 1, certificate_sent = 1 WHERE reschedule_link LIKE '%' || ? || '%'
+              `).bind(bookingUid).run();
             } else {
               await env.DB.prepare(`
                 UPDATE purchases SET meeting_attended = 1, certificate_sent = 1 WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' AND session_booked = 1 ORDER BY purchased_at DESC LIMIT 1)

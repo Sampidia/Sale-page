@@ -234,7 +234,7 @@ const CourseDetailPage: React.FC = () => {
         throw new Error(data.error || 'Payment verification failed. Please contact support.');
       }
 
-      setTransactionRef(txRef);
+      setTransactionRef(data.transactionId || txRef);
       setDownloadToken(data.downloadToken || 'token-' + Date.now());
       setIsPaid(true);
 
