@@ -1283,7 +1283,7 @@ export default {
             await env.DB.prepare(`
               UPDATE purchases 
               SET session_booked = 1, session_booked_at = datetime('now'), reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link)
-              WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' ORDER BY purchased_at DESC LIMIT 1)
+              WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' AND (session_booked = 0 OR session_booked IS NULL) ORDER BY purchased_at ASC LIMIT 1)
             `).bind(rescheduleLink, email.toLowerCase()).run();
           }
         }
@@ -1519,19 +1519,31 @@ export default {
           const normEmail = String(studentEmail).trim().toLowerCase();
 
           if (triggerEvent === 'BOOKING_CREATED') {
-            await env.DB.prepare(`
-              UPDATE purchases
-              SET session_booked = 1,
-                  session_cancelled = 0,
-                  session_booked_at = datetime('now'),
-                  reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
-                  meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
-              WHERE id = (
-                SELECT id FROM purchases
-                WHERE (transaction_id = ? OR id = ? OR LOWER(email) = ?) AND format = 'one-on-one'
-                ORDER BY purchased_at DESC LIMIT 1
-              )
-            `).bind(rescheduleUrl, startTime, txId, txId, normEmail).run();
+            if (txId) {
+              await env.DB.prepare(`
+                UPDATE purchases
+                SET session_booked = 1,
+                    session_cancelled = 0,
+                    session_booked_at = datetime('now'),
+                    reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
+                    meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
+                WHERE (transaction_id = ? OR id = ?) AND format = 'one-on-one'
+              `).bind(rescheduleUrl, startTime, txId, txId).run();
+            } else {
+              await env.DB.prepare(`
+                UPDATE purchases
+                SET session_booked = 1,
+                    session_cancelled = 0,
+                    session_booked_at = datetime('now'),
+                    reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
+                    meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
+                WHERE id = (
+                  SELECT id FROM purchases
+                  WHERE LOWER(email) = ? AND format = 'one-on-one' AND (session_booked = 0 OR session_booked IS NULL)
+                  ORDER BY purchased_at ASC LIMIT 1
+                )
+              `).bind(rescheduleUrl, startTime, normEmail).run();
+            }
 
             // Send Stage 2 Booking Confirmation Email via Resend
             if (env.RESEND_API_KEY && normEmail) {
@@ -1576,7 +1588,7 @@ export default {
                     session_cancelled = 0,
                     reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
                     meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
-                WHERE transaction_id = ? OR id = ?
+                WHERE (transaction_id = ? OR id = ?) AND format = 'one-on-one'
               `).bind(rescheduleUrl, startTime, txId, txId).run();
             } else {
               await env.DB.prepare(`
@@ -1585,7 +1597,7 @@ export default {
                     session_cancelled = 0,
                     reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
                     meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
-                WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' ORDER BY purchased_at DESC LIMIT 1)
+                WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' AND session_booked = 1 ORDER BY purchased_at DESC LIMIT 1)
               `).bind(rescheduleUrl, startTime, normEmail).run();
             }
           }
@@ -1600,29 +1612,29 @@ export default {
               await env.DB.prepare(`
                 UPDATE purchases
                 SET session_booked = 0, session_cancelled = 1, reschedule_link = NULL
-                WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' ORDER BY purchased_at DESC LIMIT 1) AND (refund_requested = 0 OR refund_requested IS NULL)
+                WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' AND session_booked = 1 ORDER BY purchased_at DESC LIMIT 1) AND (refund_requested = 0 OR refund_requested IS NULL)
               `).bind(normEmail).run();
             }
           }
           else if (triggerEvent === 'BOOKING_NO_SHOW_UPDATED') {
             if (txId) {
               await env.DB.prepare(`
-                UPDATE purchases SET no_show = 1 WHERE transaction_id = ? OR id = ?
+                UPDATE purchases SET no_show = 1 WHERE (transaction_id = ? OR id = ?) AND format = 'one-on-one'
               `).bind(txId, txId).run();
             } else {
               await env.DB.prepare(`
-                UPDATE purchases SET no_show = 1 WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' ORDER BY purchased_at DESC LIMIT 1)
+                UPDATE purchases SET no_show = 1 WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' AND session_booked = 1 ORDER BY purchased_at DESC LIMIT 1)
               `).bind(normEmail).run();
             }
           }
           else if (triggerEvent === 'MEETING_ENDED') {
             if (txId) {
               await env.DB.prepare(`
-                UPDATE purchases SET meeting_attended = 1, certificate_sent = 1 WHERE transaction_id = ? OR id = ?
+                UPDATE purchases SET meeting_attended = 1, certificate_sent = 1 WHERE (transaction_id = ? OR id = ?) AND format = 'one-on-one'
               `).bind(txId, txId).run();
             } else {
               await env.DB.prepare(`
-                UPDATE purchases SET meeting_attended = 1, certificate_sent = 1 WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' ORDER BY purchased_at DESC LIMIT 1)
+                UPDATE purchases SET meeting_attended = 1, certificate_sent = 1 WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' AND session_booked = 1 ORDER BY purchased_at DESC LIMIT 1)
               `).bind(normEmail).run();
             }
 
