@@ -150,9 +150,9 @@ const CourseDetailPage: React.FC = () => {
   useEffect(() => {
     const handleBookingMessage = async (e: MessageEvent) => {
       // Log raw postMessage for debugging iframe events
-      if (e.data && (typeof e.data === 'object' || typeof e.data === 'string')) {
-        console.log('[Cal.com raw window postMessage]', typeof e.data === 'string' ? e.data : JSON.stringify(e.data));
-      }
+      // if (e.data && (typeof e.data === 'object' || typeof e.data === 'string')) {
+      //   console.log('[Cal.com raw window postMessage]', typeof e.data === 'string' ? e.data : JSON.stringify(e.data));
+      // }
 
       const eventType = e.data?.type || e.data?.event || e.data?.action || (typeof e.data === 'string' ? e.data : '');
       const isCalSuccess = (
@@ -164,7 +164,7 @@ const CourseDetailPage: React.FC = () => {
       );
 
       if (isCalSuccess) {
-        console.log('[Cal.com] Booking successfully scheduled by user!', e.data);
+        // console.log('[Cal.com] Booking successfully scheduled by user!', e.data);
         setIsSessionBooked(true);
 
         try {
@@ -175,10 +175,10 @@ const CourseDetailPage: React.FC = () => {
           const targetTx = txRefCurrent.current || transactionRef || '';
           const targetEmail = emailCurrent.current || email || '';
 
-          console.log('[Cal.com postMessage] Full e.data:', JSON.stringify(e.data));
-          console.log('[Cal.com postMessage] Resolved calData:', JSON.stringify(calData));
-          console.log('[Cal.com postMessage] bookingUid:', bookingUid);
-          console.log('[Cal.com postMessage] Sending to mark-session-booked → transactionId:', targetTx, '| email:', targetEmail, '| bookingUid:', bookingUid);
+          // console.log('[Cal.com postMessage] Full e.data:', JSON.stringify(e.data));
+          // console.log('[Cal.com postMessage] Resolved calData:', JSON.stringify(calData));
+          // console.log('[Cal.com postMessage] bookingUid:', bookingUid);
+          // console.log('[Cal.com postMessage] Sending to mark-session-booked → transactionId:', targetTx, '| email:', targetEmail, '| bookingUid:', bookingUid);
 
           const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course.sampidia.com';
           const cleanUrl = workerUrl.endsWith('/') ? workerUrl : workerUrl + '/';
@@ -193,7 +193,7 @@ const CourseDetailPage: React.FC = () => {
             }),
           });
           const markData = await markRes.json().catch(() => ({}));
-          console.log('[Cal.com postMessage] mark-session-booked response:', markRes.status, markData);
+          // console.log('[Cal.com postMessage] mark-session-booked response:', markRes.status, markData);
         } catch (err) {
           console.error('Failed to notify worker of Cal.com booking:', err);
         }
