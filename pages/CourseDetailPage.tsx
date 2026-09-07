@@ -159,9 +159,14 @@ const CourseDetailPage: React.FC = () => {
           const bookingUid = calData.uid || calData.booking?.uid || calData.bookingUid || calData.bookingId || '';
           const reschedLink = calData.rescheduleUrl || calData.reschedule_url || (bookingUid ? `https://cal.com/reschedule/${bookingUid}` : '');
 
+          console.log('[Cal.com postMessage] Full e.data:', JSON.stringify(e.data));
+          console.log('[Cal.com postMessage] Resolved calData:', JSON.stringify(calData));
+          console.log('[Cal.com postMessage] bookingUid:', bookingUid);
+          console.log('[Cal.com postMessage] Sending to mark-session-booked → transactionId:', transactionRef, '| email:', email, '| bookingUid:', bookingUid);
+
           const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course.sampidia.com';
           const cleanUrl = workerUrl.endsWith('/') ? workerUrl : workerUrl + '/';
-          await fetch(`${cleanUrl}api/mark-session-booked`, {
+          const markRes = await fetch(`${cleanUrl}api/mark-session-booked`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -171,6 +176,8 @@ const CourseDetailPage: React.FC = () => {
               bookingUid: bookingUid,
             }),
           });
+          const markData = await markRes.json().catch(() => ({}));
+          console.log('[Cal.com postMessage] mark-session-booked response:', markRes.status, markData);
         } catch (err) {
           console.error('Failed to notify worker of Cal.com booking:', err);
         }

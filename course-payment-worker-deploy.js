@@ -1273,6 +1273,8 @@ export default {
         const rescheduleLink = body.rescheduleLink || body.reschedule_link || '';
         const bookingUid = String(body.bookingUid || body.booking_uid || '').trim();
 
+        console.log('[mark-booked] Received →', JSON.stringify({ txId, email, bookingUid, rescheduleLink }));
+
         if (env.DB && (txId || email)) {
           let updated = false;
           if (txId) {
@@ -1285,13 +1287,16 @@ export default {
               WHERE (transaction_id = ? OR id = ?) AND format = 'one-on-one'
             `).bind(rescheduleLink, bookingUid, txId, txId).run();
 
-            if (res && res.meta && Number(res.meta.changes) > 0) {
+            const changes = res && res.meta ? Number(res.meta.changes) : 0;
+            console.log('[mark-booked] txId match result → changes:', changes);
+            if (changes > 0) {
               updated = true;
             }
           }
 
           if (!updated && email) {
-            await env.DB.prepare(`
+            console.log('[mark-booked] ⚠ txId miss — falling to email fallback. email:', email);
+            const emailRes = await env.DB.prepare(`
               UPDATE purchases
               SET session_booked = 1,
                   session_booked_at = datetime('now'),
@@ -1301,10 +1306,13 @@ export default {
                 SELECT id FROM purchases
                 WHERE LOWER(email) = ? AND format = 'one-on-one'
                   AND (session_booked = 0 OR session_booked IS NULL)
-                  AND (session_booked_at IS NULL OR session_booked_at < datetime('now', '-30 seconds'))
+                  AND (session_cancelled = 0 OR session_cancelled IS NULL)
+                  AND (refund_requested = 0 OR refund_requested IS NULL)
                 ORDER BY purchased_at ASC LIMIT 1
               )
             `).bind(rescheduleLink, bookingUid, email.toLowerCase()).run();
+            const emailChanges = emailRes && emailRes.meta ? Number(emailRes.meta.changes) : 0;
+            console.log('[mark-booked] email fallback result → changes:', emailChanges);
           }
         }
 
@@ -1551,6 +1559,14 @@ export default {
           : (bookingUid ? `https://cal.com/reschedule/${bookingUid}` : rawReschedUrl);
         const startTime = payload.startTime || body.startTime || '';
 
+        console.log('[cal-webhook] triggerEvent:', triggerEvent);
+        console.log('[cal-webhook] RAW responses:', JSON.stringify(responses));
+        console.log('[cal-webhook] RAW customIn:', JSON.stringify(customIn));
+        console.log('[cal-webhook] RAW calMeta:', JSON.stringify(calMeta));
+        console.log('[cal-webhook] RAW payload.transactionId:', payload.transactionId);
+        console.log('[cal-webhook] RAW body.transactionId:', body.transactionId);
+        console.log('[cal-webhook] → Resolved txId:', JSON.stringify(txId), '| bookingUid:', bookingUid, '| email:', studentEmail);
+
         if (env.DB && (studentEmail || txId)) {
           const normEmail = String(studentEmail).trim().toLowerCase();
 
@@ -1567,7 +1583,9 @@ export default {
                 WHERE (transaction_id = ? OR id = ?) AND format = 'one-on-one'
               `).bind(rescheduleUrl, startTime, txId, txId).run();
 
-              if (res && res.meta && Number(res.meta.changes) > 0) {
+              const txChanges = res && res.meta ? Number(res.meta.changes) : 0;
+              console.log('[cal-webhook] BOOKING_CREATED txId match → changes:', txChanges);
+              if (txChanges > 0) {
                 updated = true;
                 // Store Cal.com bookingUid for precise secondary lookups on future events
                 if (bookingUid) {
@@ -1580,6 +1598,7 @@ export default {
             }
 
             if (!updated && normEmail) {
+              console.log('[cal-webhook] ⚠ txId miss — falling to email fallback. email:', normEmail);
               // Fallback: target the oldest unbooked session for this email
               // 30-second recency guard prevents overwriting a row just booked by mark-session-booked
               const emailRes = await env.DB.prepare(`
@@ -1593,13 +1612,18 @@ export default {
                   SELECT id FROM purchases
                   WHERE LOWER(email) = ? AND format = 'one-on-one'
                     AND (session_booked = 0 OR session_booked IS NULL)
+                    AND (session_cancelled = 0 OR session_cancelled IS NULL)
+                    AND (refund_requested = 0 OR refund_requested IS NULL)
                     AND (session_booked_at IS NULL OR session_booked_at < datetime('now', '-30 seconds'))
                   ORDER BY purchased_at ASC LIMIT 1
                 )
               `).bind(rescheduleUrl, startTime, normEmail).run();
 
+              const emailChanges = emailRes && emailRes.meta ? Number(emailRes.meta.changes) : 0;
+              console.log('[cal-webhook] email fallback result → changes:', emailChanges);
+
               // Also store bookingUid on the row the email fallback just booked
-              if (bookingUid && emailRes && emailRes.meta && Number(emailRes.meta.changes) > 0) {
+              if (bookingUid && emailChanges > 0) {
                 await env.DB.prepare(`
                   UPDATE purchases SET cal_booking_uid = COALESCE(NULLIF(?, ''), cal_booking_uid)
                   WHERE id = (
