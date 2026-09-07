@@ -1497,27 +1497,59 @@ export default {
       color: #f8fafc;
       margin: 0;
       padding: 0;
-      width: 100vw;
-      height: 100vh;
+      min-height: 100vh;
+      width: 100%;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      overflow: hidden;
+      justify-content: flex-start;
+      overflow-x: hidden;
+      overflow-y: auto;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
+    .print-bar {
+      position: sticky;
+      top: 16px;
+      z-index: 100;
+      margin: 20px 0 16px 0;
+      text-align: center;
+    }
+    .print-btn {
+      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      color: #ffffff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 12px 28px;
+      border-radius: 12px;
+      border: 1px solid #f59e0b;
+      cursor: pointer;
+      box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.6);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .print-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px -4px rgba(245, 158, 11, 0.7);
+    }
     .cert-container-main {
-      width: 100vw;
-      height: 100vh;
+      width: 95vw;
       max-width: 1000px;
-      max-height: 700px;
-      padding: 16px;
+      height: min(680px, 80vh);
+      min-height: 520px;
+      margin: 0 auto 30px auto;
+      padding: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       page-break-inside: avoid;
       page-break-after: avoid;
+      break-inside: avoid;
+      break-after: avoid;
     }
     .cert-outer {
       width: 100%;
@@ -1529,6 +1561,8 @@ export default {
       position: relative;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .cert-inner {
       width: 100%;
@@ -1536,7 +1570,7 @@ export default {
       background: radial-gradient(circle at 50% 30%, #111827 0%, #090d16 100%);
       border: 2px solid rgba(245, 158, 11, 0.5);
       border-radius: 18px;
-      padding: 36px 48px;
+      padding: 32px 44px;
       text-align: center;
       position: relative;
       overflow: hidden;
@@ -1545,6 +1579,8 @@ export default {
       justify-content: space-between;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .corner-flourish {
       position: absolute;
@@ -1565,7 +1601,7 @@ export default {
       letter-spacing: 4px;
       color: #f59e0b;
       text-transform: uppercase;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1578,38 +1614,38 @@ export default {
     }
     h1 {
       font-family: 'Cinzel', serif;
-      font-size: 36px;
+      font-size: 34px;
       font-weight: 900;
       letter-spacing: 2px;
       background: linear-gradient(135deg, #ffffff 0%, #fef3c7 50%, #f59e0b 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin: 0 0 8px 0;
+      margin: 0 0 6px 0;
     }
     .subtitle {
-      font-size: 14px;
+      font-size: 13px;
       color: #94a3b8;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       font-style: italic;
     }
     .recipient {
       font-family: 'Cinzel', serif;
-      font-size: 34px;
+      font-size: 32px;
       font-weight: 800;
       color: #fbbf24;
-      margin: 0 0 14px 0;
+      margin: 0 0 12px 0;
       letter-spacing: 1px;
     }
     .divider-gold {
       width: 160px;
       height: 2px;
       background: linear-gradient(90deg, transparent, #d97706, #fef3c7, #d97706, transparent);
-      margin: 0 auto 20px auto;
+      margin: 0 auto 16px auto;
     }
     .desc {
-      font-size: 14px;
+      font-size: 13.5px;
       color: #cbd5e1;
-      line-height: 1.7;
+      line-height: 1.65;
       max-width: 680px;
       margin: 0 auto;
     }
@@ -1622,8 +1658,8 @@ export default {
       grid-template-columns: 1fr auto 1fr;
       align-items: end;
       border-top: 1px solid rgba(255, 255, 255, 0.12);
-      padding-top: 20px;
-      margin-top: 16px;
+      padding-top: 16px;
+      margin-top: 14px;
     }
     .sig-block {
       text-align: left;
@@ -1662,29 +1698,15 @@ export default {
     .ref-block strong {
       color: #e2e8f0;
     }
-    .print-bar {
-      margin-top: 16px;
-      text-align: center;
-    }
-    .print-btn {
-      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-      color: #ffffff;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 800;
-      font-size: 13px;
-      padding: 12px 28px;
-      border-radius: 10px;
-      border: 1px solid #f59e0b;
-      cursor: pointer;
-      box-shadow: 0 8px 20px -4px rgba(217, 119, 6, 0.5);
-    }
     @media print {
-      @page { size: landscape; margin: 0; }
+      @page {
+        size: landscape;
+        margin: 0;
+      }
       html, body {
-        width: 100vw !important;
-        height: 100vh !important;
-        max-width: 100vw !important;
-        max-height: 100vh !important;
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
         overflow: hidden !important;
@@ -1692,17 +1714,24 @@ export default {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
-      .print-bar { display: none !important; }
+      .print-bar {
+        display: none !important;
+      }
       .cert-container-main {
         width: 100vw !important;
         height: 100vh !important;
         max-width: 100vw !important;
         max-height: 100vh !important;
-        padding: 12px !important;
+        min-height: 100vh !important;
+        padding: 8mm !important;
         margin: 0 !important;
+        box-sizing: border-box !important;
         page-break-inside: avoid !important;
-        page-break-after: avoid !important;
+        break-inside: avoid !important;
         page-break-before: avoid !important;
+        break-before: avoid !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
       }
       .cert-outer {
         width: 100% !important;
@@ -1712,19 +1741,26 @@ export default {
         box-shadow: none !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
       }
       .cert-inner {
         width: 100% !important;
         height: 100% !important;
-        padding: 28px 40px !important;
+        padding: 24px 36px !important;
         background: radial-gradient(circle at 50% 30%, #111827 0%, #090d16 100%) !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
       }
     }
   </style>
 </head>
 <body>
+  <div class="print-bar">
+    <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF Certificate</button>
+  </div>
   <div class="cert-container-main">
     <div class="cert-outer">
       <div class="cert-inner">
@@ -1808,9 +1844,6 @@ export default {
         </div>
       </div>
     </div>
-  </div>
-  <div class="print-bar">
-    <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF Certificate</button>
   </div>
 </body>
 </html>`;
