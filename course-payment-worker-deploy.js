@@ -1907,7 +1907,7 @@ export default {
           <div class="ref-block">
             <strong>Date Issued:</strong> ${issueDate}<br>
             <strong>Certificate ID:</strong> CERT-${record.transaction_id || txId}<br>
-            <strong>Verification:</strong> <a href="https://afigo.sampidia.com/#/verify?id=CERT-${record.transaction_id || txId}" target="_blank" style="color: #fbbf24; text-decoration: underline;">afigo.sampidia.com/verify</a>
+            <strong>Verification:</strong> <a href="https://afigo.sampidia.com/#/verify?id=CERT-${record.transaction_id || txId}" target="_blank" style="color: #fbbf24; text-decoration: none;">afigo.sampidia.com/verify</a>
           </div>
         </div>
       </div>

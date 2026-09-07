@@ -6,6 +6,7 @@ import SEO from '../components/SEO';
 import { trackLead } from '../utils/analytics';
 
 const WORKER_BASE_URL = import.meta.env.VITE_WORKER_URL || 'http://localhost:8787';
+const COURSE_WORKER_URL = import.meta.env.VITE_COURSE_WORKER_URL || 'https://course-worker.sampidiablog.workers.dev';
 
 // ─── Portal Deactivation Sub-Form ───────────────────────────────────────────
 const PortalDeactivationForm: React.FC<{ prefillEmail?: string }> = ({ prefillEmail }) => {
@@ -29,7 +30,7 @@ const PortalDeactivationForm: React.FC<{ prefillEmail?: string }> = ({ prefillEm
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${WORKER_BASE_URL}/api/deactivate-account`, {
+      const response = await fetch(`${COURSE_WORKER_URL}/api/deactivate-account`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
