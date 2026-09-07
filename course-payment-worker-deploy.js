@@ -1709,7 +1709,7 @@ export default {
         min-height: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
-        overflow: hidden !important;
+        overflow: visible !important;
         background: #060913 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -1723,7 +1723,7 @@ export default {
         max-width: 100vw !important;
         max-height: 100vh !important;
         min-height: 100vh !important;
-        padding: 8mm !important;
+        padding: 5mm !important;
         margin: 0 !important;
         box-sizing: border-box !important;
         page-break-inside: avoid !important;
@@ -1737,7 +1737,7 @@ export default {
         width: 100% !important;
         height: 100% !important;
         border-radius: 16px !important;
-        padding: 6px !important;
+        padding: 5px !important;
         box-shadow: none !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -1747,12 +1747,60 @@ export default {
       .cert-inner {
         width: 100% !important;
         height: 100% !important;
-        padding: 24px 36px !important;
+        padding: 16px 24px !important;
+        overflow: visible !important;
         background: radial-gradient(circle at 50% 30%, #111827 0%, #090d16 100%) !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+      }
+      .header-badge {
+        font-size: 10px !important;
+        margin-bottom: 4px !important;
+        letter-spacing: 3px !important;
+      }
+      h1 {
+        font-size: 25px !important;
+        margin: 0 0 3px 0 !important;
+        letter-spacing: 1px !important;
+      }
+      .subtitle {
+        font-size: 11px !important;
+        margin-bottom: 6px !important;
+      }
+      .recipient {
+        font-size: 26px !important;
+        margin: 0 0 6px 0 !important;
+      }
+      .divider-gold {
+        margin: 0 auto 8px auto !important;
+      }
+      .desc {
+        font-size: 11.5px !important;
+        line-height: 1.45 !important;
+        max-width: 620px !important;
+      }
+      .footer-grid {
+        margin-top: 8px !important;
+        padding-top: 8px !important;
+      }
+      .sig-name {
+        font-size: 28px !important;
+      }
+      .sig-title {
+        font-size: 10px !important;
+      }
+      .sig-sub {
+        font-size: 9px !important;
+      }
+      .seal-container svg {
+        width: 74px !important;
+        height: 74px !important;
+      }
+      .ref-block {
+        font-size: 9px !important;
+        line-height: 1.4 !important;
       }
     }
   </style>
