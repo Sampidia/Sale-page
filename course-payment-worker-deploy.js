@@ -1268,23 +1268,43 @@ export default {
     if (request.method === 'POST' && url.pathname.endsWith('/api/mark-session-booked')) {
       try {
         const body = await request.json();
-        const txId = body.transactionId || body.txId || '';
+        const txId = String(body.transactionId || body.txId || '').trim();
         const email = body.email || '';
         const rescheduleLink = body.rescheduleLink || body.reschedule_link || '';
+        const bookingUid = String(body.bookingUid || body.booking_uid || '').trim();
 
         if (env.DB && (txId || email)) {
+          let updated = false;
           if (txId) {
+            const res = await env.DB.prepare(`
+              UPDATE purchases
+              SET session_booked = 1,
+                  session_booked_at = datetime('now'),
+                  reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
+                  cal_booking_uid = COALESCE(NULLIF(?, ''), cal_booking_uid)
+              WHERE (transaction_id = ? OR id = ?) AND format = 'one-on-one'
+            `).bind(rescheduleLink, bookingUid, txId, txId).run();
+
+            if (res && res.meta && Number(res.meta.changes) > 0) {
+              updated = true;
+            }
+          }
+
+          if (!updated && email) {
             await env.DB.prepare(`
-              UPDATE purchases 
-              SET session_booked = 1, session_booked_at = datetime('now'), reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link)
-              WHERE transaction_id = ? OR id = ?
-            `).bind(rescheduleLink, txId, txId).run();
-          } else if (email) {
-            await env.DB.prepare(`
-              UPDATE purchases 
-              SET session_booked = 1, session_booked_at = datetime('now'), reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link)
-              WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' AND (session_booked = 0 OR session_booked IS NULL) ORDER BY purchased_at ASC LIMIT 1)
-            `).bind(rescheduleLink, email.toLowerCase()).run();
+              UPDATE purchases
+              SET session_booked = 1,
+                  session_booked_at = datetime('now'),
+                  reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
+                  cal_booking_uid = COALESCE(NULLIF(?, ''), cal_booking_uid)
+              WHERE id = (
+                SELECT id FROM purchases
+                WHERE LOWER(email) = ? AND format = 'one-on-one'
+                  AND (session_booked = 0 OR session_booked IS NULL)
+                  AND (session_booked_at IS NULL OR session_booked_at < datetime('now', '-30 seconds'))
+                ORDER BY purchased_at ASC LIMIT 1
+              )
+            `).bind(rescheduleLink, bookingUid, email.toLowerCase()).run();
           }
         }
 
@@ -1505,9 +1525,25 @@ export default {
         const studentEmail = (attendees[0] && attendees[0].email) || payload.email || body.email || '';
         const studentName = (attendees[0] && attendees[0].name) || payload.name || body.name || 'Valued Student';
         
-        // Extract transactionId custom question or query param
-        const responses = payload.responses || body.responses || {};
-        const txId = (responses.transactionId && responses.transactionId.value) || responses.transactionId || payload.transactionId || '';
+        // Extract transactionId from all known Cal.com payload locations (with trim() to prevent whitespace mismatches)
+        const responses  = payload.responses   || body.responses   || {};
+        const customIn   = payload.customInputs || body.customInputs || {};
+        const calMeta    = payload.metadata    || body.metadata    || {};
+
+        const txId = (
+          // Standard hidden-field response (most reliable with configured hidden field)
+          (responses.transactionId && String(responses.transactionId.value || '').trim()) ||
+          (typeof responses.transactionId === 'string' && responses.transactionId.trim()) ||
+          // Legacy Cal.com customInputs location
+          (customIn.transactionId && String(customIn.transactionId).trim()) ||
+          // Cal.com metadata location (some embed/pre-fill scenarios)
+          (calMeta.transactionId && String(calMeta.transactionId).trim()) ||
+          // Top-level payload flat field
+          (payload.transactionId && String(payload.transactionId).trim()) ||
+          // Top-level body flat field (MEETING_ENDED flat JSON structure)
+          (body.transactionId && String(body.transactionId).trim()) ||
+          ''
+        );
         const bookingUid = payload.uid || (payload.booking && payload.booking.uid) || payload.bookingUid || (payload.bookingId ? String(payload.bookingId) : '') || body.uid || '';
         const rawReschedUrl = payload.rescheduleUrl || body.rescheduleUrl || payload.reschedule_link || '';
         const rescheduleUrl = (rawReschedUrl && rawReschedUrl.startsWith('http'))
@@ -1519,8 +1555,9 @@ export default {
           const normEmail = String(studentEmail).trim().toLowerCase();
 
           if (triggerEvent === 'BOOKING_CREATED') {
+            let updated = false;
             if (txId) {
-              await env.DB.prepare(`
+              const res = await env.DB.prepare(`
                 UPDATE purchases
                 SET session_booked = 1,
                     session_cancelled = 0,
@@ -1529,8 +1566,23 @@ export default {
                     meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
                 WHERE (transaction_id = ? OR id = ?) AND format = 'one-on-one'
               `).bind(rescheduleUrl, startTime, txId, txId).run();
-            } else {
-              await env.DB.prepare(`
+
+              if (res && res.meta && Number(res.meta.changes) > 0) {
+                updated = true;
+                // Store Cal.com bookingUid for precise secondary lookups on future events
+                if (bookingUid) {
+                  await env.DB.prepare(`
+                    UPDATE purchases SET cal_booking_uid = COALESCE(NULLIF(?, ''), cal_booking_uid)
+                    WHERE (transaction_id = ? OR id = ?) AND format = 'one-on-one'
+                  `).bind(bookingUid, txId, txId).run();
+                }
+              }
+            }
+
+            if (!updated && normEmail) {
+              // Fallback: target the oldest unbooked session for this email
+              // 30-second recency guard prevents overwriting a row just booked by mark-session-booked
+              const emailRes = await env.DB.prepare(`
                 UPDATE purchases
                 SET session_booked = 1,
                     session_cancelled = 0,
@@ -1539,10 +1591,25 @@ export default {
                     meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
                 WHERE id = (
                   SELECT id FROM purchases
-                  WHERE LOWER(email) = ? AND format = 'one-on-one' AND (session_booked = 0 OR session_booked IS NULL)
+                  WHERE LOWER(email) = ? AND format = 'one-on-one'
+                    AND (session_booked = 0 OR session_booked IS NULL)
+                    AND (session_booked_at IS NULL OR session_booked_at < datetime('now', '-30 seconds'))
                   ORDER BY purchased_at ASC LIMIT 1
                 )
               `).bind(rescheduleUrl, startTime, normEmail).run();
+
+              // Also store bookingUid on the row the email fallback just booked
+              if (bookingUid && emailRes && emailRes.meta && Number(emailRes.meta.changes) > 0) {
+                await env.DB.prepare(`
+                  UPDATE purchases SET cal_booking_uid = COALESCE(NULLIF(?, ''), cal_booking_uid)
+                  WHERE id = (
+                    SELECT id FROM purchases
+                    WHERE LOWER(email) = ? AND format = 'one-on-one' AND session_booked = 1
+                      AND cal_booking_uid IS NULL
+                    ORDER BY session_booked_at DESC LIMIT 1
+                  )
+                `).bind(bookingUid, normEmail).run();
+              }
             }
 
             // Send Stage 2 Booking Confirmation Email via Resend
@@ -1581,25 +1648,32 @@ export default {
             }
           }
           else if (triggerEvent === 'BOOKING_RESCHEDULED') {
+            let rsUpdated = false;
             if (txId) {
-              await env.DB.prepare(`
+              const rsRes = await env.DB.prepare(`
                 UPDATE purchases
                 SET session_booked = 1,
                     session_cancelled = 0,
+                    cal_booking_uid = COALESCE(NULLIF(?, ''), cal_booking_uid),
                     reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
                     meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
                 WHERE (transaction_id = ? OR id = ?) AND format = 'one-on-one'
-              `).bind(rescheduleUrl, startTime, txId, txId).run();
-            } else if (bookingUid) {
-              await env.DB.prepare(`
+              `).bind(bookingUid, rescheduleUrl, startTime, txId, txId).run();
+              if (rsRes && rsRes.meta && Number(rsRes.meta.changes) > 0) rsUpdated = true;
+            }
+            if (!rsUpdated && bookingUid) {
+              const rsRes2 = await env.DB.prepare(`
                 UPDATE purchases
                 SET session_booked = 1,
                     session_cancelled = 0,
+                    cal_booking_uid = COALESCE(NULLIF(?, ''), cal_booking_uid),
                     reschedule_link = COALESCE(NULLIF(?, ''), reschedule_link),
                     meeting_start_time = COALESCE(NULLIF(?, ''), meeting_start_time)
-                WHERE reschedule_link LIKE '%' || ? || '%' AND format = 'one-on-one'
-              `).bind(rescheduleUrl, startTime, bookingUid).run();
-            } else {
+                WHERE (cal_booking_uid = ? OR reschedule_link LIKE '%' || ? || '%') AND format = 'one-on-one'
+              `).bind(bookingUid, rescheduleUrl, startTime, bookingUid, bookingUid).run();
+              if (rsRes2 && rsRes2.meta && Number(rsRes2.meta.changes) > 0) rsUpdated = true;
+            }
+            if (!rsUpdated && normEmail) {
               await env.DB.prepare(`
                 UPDATE purchases
                 SET session_booked = 1,
@@ -1611,19 +1685,24 @@ export default {
             }
           }
           else if (triggerEvent === 'BOOKING_CANCELLED') {
+            let cancelUpdated = false;
             if (txId) {
-              await env.DB.prepare(`
+              const cancelRes = await env.DB.prepare(`
                 UPDATE purchases
                 SET session_booked = 0, session_cancelled = 1, reschedule_link = NULL
                 WHERE (transaction_id = ? OR id = ?) AND (refund_requested = 0 OR refund_requested IS NULL)
               `).bind(txId, txId).run();
-            } else if (bookingUid) {
-              await env.DB.prepare(`
+              if (cancelRes && cancelRes.meta && Number(cancelRes.meta.changes) > 0) cancelUpdated = true;
+            }
+            if (!cancelUpdated && bookingUid) {
+              const cancelRes2 = await env.DB.prepare(`
                 UPDATE purchases
                 SET session_booked = 0, session_cancelled = 1, reschedule_link = NULL
-                WHERE reschedule_link LIKE '%' || ? || '%' AND (refund_requested = 0 OR refund_requested IS NULL)
-              `).bind(bookingUid).run();
-            } else {
+                WHERE (cal_booking_uid = ? OR reschedule_link LIKE '%' || ? || '%') AND (refund_requested = 0 OR refund_requested IS NULL)
+              `).bind(bookingUid, bookingUid).run();
+              if (cancelRes2 && cancelRes2.meta && Number(cancelRes2.meta.changes) > 0) cancelUpdated = true;
+            }
+            if (!cancelUpdated && normEmail) {
               await env.DB.prepare(`
                 UPDATE purchases
                 SET session_booked = 0, session_cancelled = 1, reschedule_link = NULL
@@ -1632,30 +1711,40 @@ export default {
             }
           }
           else if (triggerEvent === 'BOOKING_NO_SHOW_UPDATED') {
+            let noShowUpdated = false;
             if (txId) {
-              await env.DB.prepare(`
+              const nsRes = await env.DB.prepare(`
                 UPDATE purchases SET no_show = 1 WHERE (transaction_id = ? OR id = ?) AND format = 'one-on-one'
               `).bind(txId, txId).run();
-            } else if (bookingUid) {
-              await env.DB.prepare(`
-                UPDATE purchases SET no_show = 1 WHERE reschedule_link LIKE '%' || ? || '%'
-              `).bind(bookingUid).run();
-            } else {
+              if (nsRes && nsRes.meta && Number(nsRes.meta.changes) > 0) noShowUpdated = true;
+            }
+            if (!noShowUpdated && bookingUid) {
+              const nsRes2 = await env.DB.prepare(`
+                UPDATE purchases SET no_show = 1 WHERE (cal_booking_uid = ? OR reschedule_link LIKE '%' || ? || '%')
+              `).bind(bookingUid, bookingUid).run();
+              if (nsRes2 && nsRes2.meta && Number(nsRes2.meta.changes) > 0) noShowUpdated = true;
+            }
+            if (!noShowUpdated && normEmail) {
               await env.DB.prepare(`
                 UPDATE purchases SET no_show = 1 WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' AND session_booked = 1 ORDER BY purchased_at DESC LIMIT 1)
               `).bind(normEmail).run();
             }
           }
           else if (triggerEvent === 'MEETING_ENDED') {
+            let meUpdated = false;
             if (txId) {
-              await env.DB.prepare(`
+              const meRes = await env.DB.prepare(`
                 UPDATE purchases SET meeting_attended = 1, certificate_sent = 1 WHERE (transaction_id = ? OR id = ?) AND format = 'one-on-one'
               `).bind(txId, txId).run();
-            } else if (bookingUid) {
-              await env.DB.prepare(`
-                UPDATE purchases SET meeting_attended = 1, certificate_sent = 1 WHERE reschedule_link LIKE '%' || ? || '%'
-              `).bind(bookingUid).run();
-            } else {
+              if (meRes && meRes.meta && Number(meRes.meta.changes) > 0) meUpdated = true;
+            }
+            if (!meUpdated && bookingUid) {
+              const meRes2 = await env.DB.prepare(`
+                UPDATE purchases SET meeting_attended = 1, certificate_sent = 1 WHERE (cal_booking_uid = ? OR reschedule_link LIKE '%' || ? || '%')
+              `).bind(bookingUid, bookingUid).run();
+              if (meRes2 && meRes2.meta && Number(meRes2.meta.changes) > 0) meUpdated = true;
+            }
+            if (!meUpdated && normEmail) {
               await env.DB.prepare(`
                 UPDATE purchases SET meeting_attended = 1, certificate_sent = 1 WHERE id = (SELECT id FROM purchases WHERE LOWER(email) = ? AND format = 'one-on-one' AND session_booked = 1 ORDER BY purchased_at DESC LIMIT 1)
               `).bind(normEmail).run();

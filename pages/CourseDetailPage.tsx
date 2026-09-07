@@ -156,7 +156,7 @@ const CourseDetailPage: React.FC = () => {
 
         try {
           const calData = e.data?.data || e.data?.detail || e.data?.payload || e.data || {};
-          const bookingUid = calData.uid || calData.booking?.uid || calData.bookingUid || '';
+          const bookingUid = calData.uid || calData.booking?.uid || calData.bookingUid || calData.bookingId || '';
           const reschedLink = calData.rescheduleUrl || calData.reschedule_url || (bookingUid ? `https://cal.com/reschedule/${bookingUid}` : '');
 
           const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course.sampidia.com';
@@ -167,7 +167,8 @@ const CourseDetailPage: React.FC = () => {
             body: JSON.stringify({
               transactionId: transactionRef,
               email: email,
-              rescheduleLink: reschedLink
+              rescheduleLink: reschedLink,
+              bookingUid: bookingUid,
             }),
           });
         } catch (err) {
