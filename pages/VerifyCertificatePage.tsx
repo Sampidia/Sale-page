@@ -21,8 +21,8 @@ const VerifyCertificatePage: React.FC = () => {
   const [searchedId, setSearchedId] = useState('');
 
   const workerUrl =
-    import.meta.env.VITE_WORKER_URL ||
-    'https://course-payment-worker.karopidia.workers.dev';
+    import.meta.env.VITE_COURSE_WORKER_URL ||
+    'https://course-worker.sampidiablog.workers.dev';
 
   const verifyCertificate = async (idToVerify: string) => {
     const cleanId = idToVerify.trim();
