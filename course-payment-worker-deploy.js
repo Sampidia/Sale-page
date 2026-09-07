@@ -1493,7 +1493,7 @@ export default {
     * { box-sizing: border-box; }
     html, body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: #060913;
+      background: #ffffff;
       color: #f8fafc;
       margin: 0;
       padding: 0;
@@ -1536,12 +1536,13 @@ export default {
       box-shadow: 0 14px 30px -4px rgba(245, 158, 11, 0.7);
     }
     .cert-container-main {
-      width: 95vw;
-      max-width: 1000px;
-      height: min(680px, 80vh);
-      min-height: 520px;
+      width: 92vw;
+      max-width: 960px;
+      aspect-ratio: 1.414 / 1;
+      max-height: min(600px, 82vh);
       margin: 0 auto 30px auto;
       padding: 0;
+      background: transparent;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -1557,7 +1558,7 @@ export default {
       background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%);
       padding: 8px;
       border-radius: 24px;
-      box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.85);
+      box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.35);
       position: relative;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
@@ -1570,17 +1571,31 @@ export default {
       background: radial-gradient(circle at 50% 30%, #111827 0%, #090d16 100%);
       border: 2px solid rgba(245, 158, 11, 0.5);
       border-radius: 18px;
-      padding: 32px 44px;
+      padding: 28px 40px 36px 40px;
       text-align: center;
       position: relative;
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      align-items: center;
       justify-content: space-between;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
       page-break-inside: avoid;
       break-inside: avoid;
+    }
+    .cert-header-block {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .cert-body-block {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: auto 0;
     }
     .corner-flourish {
       position: absolute;
@@ -1601,7 +1616,7 @@ export default {
       letter-spacing: 4px;
       color: #f59e0b;
       text-transform: uppercase;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1614,39 +1629,39 @@ export default {
     }
     h1 {
       font-family: 'Cinzel', serif;
-      font-size: 34px;
+      font-size: 32px;
       font-weight: 900;
       letter-spacing: 2px;
       background: linear-gradient(135deg, #ffffff 0%, #fef3c7 50%, #f59e0b 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin: 0 0 6px 0;
+      margin: 0 0 4px 0;
     }
     .subtitle {
       font-size: 13px;
       color: #94a3b8;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       font-style: italic;
     }
     .recipient {
       font-family: 'Cinzel', serif;
-      font-size: 32px;
+      font-size: 30px;
       font-weight: 800;
       color: #fbbf24;
-      margin: 0 0 12px 0;
+      margin: 0 0 8px 0;
       letter-spacing: 1px;
     }
     .divider-gold {
       width: 160px;
       height: 2px;
       background: linear-gradient(90deg, transparent, #d97706, #fef3c7, #d97706, transparent);
-      margin: 0 auto 16px auto;
+      margin: 0 auto 12px auto;
     }
     .desc {
-      font-size: 13.5px;
+      font-size: 13px;
       color: #cbd5e1;
-      line-height: 1.65;
-      max-width: 680px;
+      line-height: 1.6;
+      max-width: 660px;
       margin: 0 auto;
     }
     .desc strong {
@@ -1654,19 +1669,20 @@ export default {
       font-weight: 700;
     }
     .footer-grid {
+      width: 100%;
       display: grid;
       grid-template-columns: 1fr auto 1fr;
       align-items: end;
       border-top: 1px solid rgba(255, 255, 255, 0.12);
-      padding-top: 16px;
-      margin-top: 14px;
+      padding-top: 12px;
+      margin-top: 0;
     }
     .sig-block {
       text-align: left;
     }
     .sig-name {
       font-family: 'Alex Brush', cursive;
-      font-size: 36px;
+      font-size: 34px;
       color: #fef3c7;
       margin: 0 0 2px 0;
       line-height: 1;
@@ -1709,8 +1725,8 @@ export default {
         min-height: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
-        overflow: visible !important;
-        background: #060913 !important;
+        overflow: hidden !important;
+        background: #ffffff !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
@@ -1718,13 +1734,13 @@ export default {
         display: none !important;
       }
       .cert-container-main {
-        width: 100vw !important;
-        height: 100vh !important;
-        max-width: 100vw !important;
-        max-height: 100vh !important;
-        min-height: 100vh !important;
-        padding: 5mm !important;
-        margin: 0 !important;
+        width: 95vw !important;
+        max-width: 95vw !important;
+        height: min(560px, 94vh) !important;
+        max-height: 94vh !important;
+        padding: 0 !important;
+        margin: auto !important;
+        background: transparent !important;
         box-sizing: border-box !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
@@ -1737,7 +1753,7 @@ export default {
         width: 100% !important;
         height: 100% !important;
         border-radius: 16px !important;
-        padding: 5px !important;
+        padding: 6px !important;
         box-shadow: none !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -1747,8 +1763,9 @@ export default {
       .cert-inner {
         width: 100% !important;
         height: 100% !important;
-        padding: 16px 24px !important;
-        overflow: visible !important;
+        padding: 20px 32px 28px 32px !important;
+        justify-content: space-between !important;
+        overflow: hidden !important;
         background: radial-gradient(circle at 50% 30%, #111827 0%, #090d16 100%) !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -1761,7 +1778,7 @@ export default {
         letter-spacing: 3px !important;
       }
       h1 {
-        font-size: 25px !important;
+        font-size: 26px !important;
         margin: 0 0 3px 0 !important;
         letter-spacing: 1px !important;
       }
@@ -1782,7 +1799,7 @@ export default {
         max-width: 620px !important;
       }
       .footer-grid {
-        margin-top: 8px !important;
+        margin-top: 0 !important;
         padding-top: 8px !important;
       }
       .sig-name {
@@ -1795,8 +1812,8 @@ export default {
         font-size: 9px !important;
       }
       .seal-container svg {
-        width: 74px !important;
-        height: 74px !important;
+        width: 76px !important;
+        height: 76px !important;
       }
       .ref-block {
         font-size: 9px !important;
@@ -1833,13 +1850,16 @@ export default {
           <path d="M 4 4 L 46 4 L 46 8 L 8 8 L 8 46 L 4 46 Z M 12 12 L 36 12 L 36 15 L 15 15 L 15 36 L 12 36 Z" fill="url(#goldGradCorners)" />
         </svg>
 
-        <div>
+        <div class="cert-header-block">
           <div class="header-badge">
             <span class="badge-line"></span>
             ✦ OFFICIAL CERTIFICATE OF COMPLETION ✦
             <span class="badge-line"></span>
           </div>
           <h1>CERTIFICATE OF ACCOMPLISHMENT</h1>
+        </div>
+
+        <div class="cert-body-block">
           <div class="subtitle">This credential is proudly awarded and presented to</div>
           <div class="recipient">${studentName}</div>
           <div class="divider-gold"></div>
@@ -1851,8 +1871,8 @@ export default {
         <div class="footer-grid">
           <div class="sig-block">
             <div class="sig-name">Oghenekaro Samson Afigo</div>
-            <div class="sig-title">Oghenekaro Samson Afigo</div>
-            <div class="sig-sub">Lead Instructor & Founder, Afigo-Sam Technology</div>
+            <div class="sig-title">Lead Instructor & Founder</div>
+            <div class="sig-sub">Afigo-Sam Technology</div>
           </div>
           <div class="seal-container">
             <!-- 36-Point Serrated Starburst Gold Medal SVG (Matching Screenshot 2) -->
@@ -1887,7 +1907,7 @@ export default {
           <div class="ref-block">
             <strong>Date Issued:</strong> ${issueDate}<br>
             <strong>Certificate ID:</strong> CERT-${record.transaction_id || txId}<br>
-            <strong>Verification:</strong> afigo.sampidia.com
+            <strong>Verification:</strong> <a href="https://afigo.sampidia.com/#/verify?id=CERT-${record.transaction_id || txId}" target="_blank" style="color: #fbbf24; text-decoration: underline;">afigo.sampidia.com/verify</a>
           </div>
         </div>
       </div>
@@ -1925,6 +1945,51 @@ export default {
 </body>
 </html>`;
       return new Response(certPendingHtml, { status: 200, headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' } });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 3.595: GET /api/verify-certificate (Verifies Certificate Authenticity)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'GET' && (url.pathname.endsWith('/api/verify-certificate') || url.pathname.endsWith('/api/verify'))) {
+      const rawCertId = url.searchParams.get('certId') || url.searchParams.get('id') || url.searchParams.get('txId') || '';
+      // Strip 'CERT-' or 'cert-' prefix if present
+      const cleanTxId = String(rawCertId).replace(/^CERT-/i, '').trim();
+
+      if (!cleanTxId) {
+        return new Response(JSON.stringify({ valid: false, message: 'No Certificate ID provided.' }), { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } });
+      }
+
+      if (env.DB) {
+        try {
+          const record = await env.DB.prepare(`SELECT customer_name, course_id, session_booked_at, purchased_at, meeting_attended, transaction_id FROM purchases WHERE (transaction_id = ? OR id = ?) AND meeting_attended = 1`).bind(cleanTxId, cleanTxId).first();
+
+          if (record && Number(record.meeting_attended) === 1) {
+            const studentName = record.customer_name || 'Valued Student';
+            const courseTitle = record.course_id === 'vibe-coding'
+              ? 'Vibe Coding: Building High-End Android Apps with AI'
+              : 'Zero to n8n - Free Hosting Mastered';
+            const issueDate = record.session_booked_at ? new Date(record.session_booked_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : new Date(record.purchased_at || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            return new Response(JSON.stringify({
+              valid: true,
+              certId: `CERT-${record.transaction_id || cleanTxId}`,
+              studentName,
+              courseTitle,
+              issueDate,
+              verificationStatus: 'AUTHENTIC & VERIFIED',
+              issuer: 'Afigo-Sam Technology'
+            }), { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } });
+          }
+        } catch (err) {
+          console.error('D1 verify certificate error:', err);
+        }
+      }
+
+      return new Response(JSON.stringify({
+        valid: false,
+        certId: rawCertId,
+        message: 'No authentic certificate found for the provided Certificate ID.'
+      }), { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } });
     }
 
     // ─────────────────────────────────────────────────────────────────────────

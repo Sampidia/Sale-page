@@ -13,6 +13,7 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import RefundPolicyPage from './pages/RefundPolicyPage';
 import ClaimPrizePage from './pages/ClaimPrizePage';
 import GetCodePage from './pages/GetCodePage';
+import VerifyCertificatePage from './pages/VerifyCertificatePage';
 import CoursesPage from './pages/CoursesPage';
 import CourseDetailPage from './pages/CourseDetailPage';
 import CourseDashboard from './components/CourseDashboard';
@@ -43,6 +44,7 @@ const App: React.FC = () => {
           <Route path="/refund-policy" element={<RefundPolicyPage />} />
           <Route path="/claim-prize" element={<ClaimPrizePage />} />
           <Route path="/get-code" element={<GetCodePage />} />
+          <Route path="/verify" element={<VerifyCertificatePage />} />
           <Route path="*" element={<LandingPage />} />
         </Routes>
       </Layout>
