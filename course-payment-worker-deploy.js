@@ -1491,43 +1491,81 @@ export default {
   <style>
     @page { size: landscape; margin: 0; }
     * { box-sizing: border-box; }
-    body {
+    html, body {
       font-family: 'Plus Jakarta Sans', sans-serif;
       background: #060913;
       color: #f8fafc;
       margin: 0;
-      padding: 32px;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      overflow: hidden;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .cert-container-main {
+      width: 100vw;
+      height: 100vh;
+      max-width: 1000px;
+      max-height: 700px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      page-break-inside: avoid;
+      page-break-after: avoid;
     }
     .cert-outer {
-      max-width: 1000px;
       width: 100%;
+      height: 100%;
       background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%);
-      padding: 10px;
-      border-radius: 28px;
-      box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.85);
+      padding: 8px;
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.85);
       position: relative;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
     .cert-inner {
+      width: 100%;
+      height: 100%;
       background: radial-gradient(circle at 50% 30%, #111827 0%, #090d16 100%);
-      border: 2px solid rgba(217, 119, 6, 0.4);
-      border-radius: 20px;
-      padding: 52px 64px;
+      border: 2px solid rgba(245, 158, 11, 0.5);
+      border-radius: 18px;
+      padding: 36px 48px;
       text-align: center;
       position: relative;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
+    .corner-flourish {
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .corner-tl { top: 12px; left: 12px; }
+    .corner-tr { top: 12px; right: 12px; transform: scaleX(-1); }
+    .corner-bl { bottom: 12px; left: 12px; transform: scaleY(-1); }
+    .corner-br { bottom: 12px; right: 12px; transform: scale(-1); }
+
     .header-badge {
       font-family: 'Cinzel', serif;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
       letter-spacing: 4px;
       color: #f59e0b;
       text-transform: uppercase;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1535,49 +1573,45 @@ export default {
     }
     .badge-line {
       height: 1px;
-      width: 40px;
+      width: 36px;
       background: linear-gradient(90deg, transparent, #f59e0b, transparent);
     }
     h1 {
       font-family: 'Cinzel', serif;
-      font-size: 42px;
+      font-size: 36px;
       font-weight: 900;
       letter-spacing: 2px;
       background: linear-gradient(135deg, #ffffff 0%, #fef3c7 50%, #f59e0b 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin: 0 0 12px 0;
-      text-shadow: 0 4px 20px rgba(245, 158, 11, 0.2);
+      margin: 0 0 8px 0;
     }
     .subtitle {
-      font-size: 15px;
+      font-size: 14px;
       color: #94a3b8;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
       font-style: italic;
-      letter-spacing: 0.5px;
     }
     .recipient {
       font-family: 'Cinzel', serif;
-      font-size: 38px;
+      font-size: 34px;
       font-weight: 800;
       color: #fbbf24;
-      margin: 0 0 20px 0;
+      margin: 0 0 14px 0;
       letter-spacing: 1px;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
     .divider-gold {
-      width: 180px;
-      height: 3px;
+      width: 160px;
+      height: 2px;
       background: linear-gradient(90deg, transparent, #d97706, #fef3c7, #d97706, transparent);
-      margin: 0 auto 28px auto;
-      border-radius: 2px;
+      margin: 0 auto 20px auto;
     }
     .desc {
-      font-size: 15px;
+      font-size: 14px;
       color: #cbd5e1;
-      line-height: 1.8;
-      max-width: 720px;
-      margin: 0 auto 36px auto;
+      line-height: 1.7;
+      max-width: 680px;
+      margin: 0 auto;
     }
     .desc strong {
       color: #ffffff;
@@ -1587,22 +1621,22 @@ export default {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
       align-items: end;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      padding-top: 28px;
-      margin-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      padding-top: 20px;
+      margin-top: 16px;
     }
     .sig-block {
       text-align: left;
     }
     .sig-name {
       font-family: 'Alex Brush', cursive;
-      font-size: 40px;
+      font-size: 36px;
       color: #fef3c7;
-      margin: 0 0 4px 0;
+      margin: 0 0 2px 0;
       line-height: 1;
     }
     .sig-title {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: #ffffff;
       text-transform: uppercase;
@@ -1610,46 +1644,26 @@ export default {
       margin: 0;
     }
     .sig-sub {
-      font-size: 11px;
+      font-size: 10px;
       color: #64748b;
       margin-top: 2px;
     }
     .seal-container {
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-    }
-    .seal-badge {
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #f59e0b 0%, #b45309 70%, #78350f 100%);
-      border: 3px solid #fef3c7;
-      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3), inset 0 2px 5px rgba(255,255,255,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 8px;
-      color: #0f172a;
-      font-family: 'Cinzel', serif;
-      font-size: 9px;
-      font-weight: 900;
-      letter-spacing: 0.5px;
-      line-height: 1.2;
     }
     .ref-block {
       text-align: right;
-      font-size: 11px;
+      font-size: 10px;
       color: #94a3b8;
-      line-height: 1.7;
+      line-height: 1.6;
     }
     .ref-block strong {
       color: #e2e8f0;
     }
     .print-bar {
-      margin-top: 32px;
+      margin-top: 16px;
       text-align: center;
     }
     .print-btn {
@@ -1657,41 +1671,99 @@ export default {
       color: #ffffff;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-weight: 800;
-      font-size: 14px;
-      padding: 14px 32px;
-      border-radius: 12px;
+      font-size: 13px;
+      padding: 12px 28px;
+      border-radius: 10px;
       border: 1px solid #f59e0b;
       cursor: pointer;
-      box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.5);
-      transition: transform 0.2s ease;
-    }
-    .print-btn:hover {
-      transform: translateY(-2px);
+      box-shadow: 0 8px 20px -4px rgba(217, 119, 6, 0.5);
     }
     @media print {
-      body { background: #ffffff !important; padding: 0 !important; color: #000 !important; }
+      @page { size: landscape; margin: 0; }
+      html, body {
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        background: #060913 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
       .print-bar { display: none !important; }
-      .cert-outer { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; padding: 6px !important; }
-      .cert-inner { background: #0f172a !important; color: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .cert-container-main {
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        padding: 12px !important;
+        margin: 0 !important;
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
+        page-break-before: avoid !important;
+      }
+      .cert-outer {
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 16px !important;
+        padding: 6px !important;
+        box-shadow: none !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .cert-inner {
+        width: 100% !important;
+        height: 100% !important;
+        padding: 28px 40px !important;
+        background: radial-gradient(circle at 50% 30%, #111827 0%, #090d16 100%) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
     }
   </style>
 </head>
 <body>
-  <div style="width: 100%; max-width: 1000px;">
+  <div class="cert-container-main">
     <div class="cert-outer">
       <div class="cert-inner">
-        <div class="header-badge">
-          <span class="badge-line"></span>
-          ✦ OFFICIAL CERTIFICATE OF COMPLETION ✦
-          <span class="badge-line"></span>
+        <!-- 4 Ornate Gold Corner Flourishes -->
+        <svg class="corner-flourish corner-tl" viewBox="0 0 50 50" width="44" height="44">
+          <path d="M 4 4 L 46 4 L 46 8 L 8 8 L 8 46 L 4 46 Z M 12 12 L 36 12 L 36 15 L 15 15 L 15 36 L 12 36 Z" fill="url(#goldGradCorners)" />
+          <defs>
+            <linearGradient id="goldGradCorners" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#bf953f" />
+              <stop offset="50%" stop-color="#fcf6ba" />
+              <stop offset="100%" stop-color="#aa771c" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <svg class="corner-flourish corner-tr" viewBox="0 0 50 50" width="44" height="44">
+          <path d="M 4 4 L 46 4 L 46 8 L 8 8 L 8 46 L 4 46 Z M 12 12 L 36 12 L 36 15 L 15 15 L 15 36 L 12 36 Z" fill="url(#goldGradCorners)" />
+        </svg>
+        <svg class="corner-flourish corner-bl" viewBox="0 0 50 50" width="44" height="44">
+          <path d="M 4 4 L 46 4 L 46 8 L 8 8 L 8 46 L 4 46 Z M 12 12 L 36 12 L 36 15 L 15 15 L 15 36 L 12 36 Z" fill="url(#goldGradCorners)" />
+        </svg>
+        <svg class="corner-flourish corner-br" viewBox="0 0 50 50" width="44" height="44">
+          <path d="M 4 4 L 46 4 L 46 8 L 8 8 L 8 46 L 4 46 Z M 12 12 L 36 12 L 36 15 L 15 15 L 15 36 L 12 36 Z" fill="url(#goldGradCorners)" />
+        </svg>
+
+        <div>
+          <div class="header-badge">
+            <span class="badge-line"></span>
+            ✦ OFFICIAL CERTIFICATE OF COMPLETION ✦
+            <span class="badge-line"></span>
+          </div>
+          <h1>CERTIFICATE OF ACCOMPLISHMENT</h1>
+          <div class="subtitle">This credential is proudly awarded and presented to</div>
+          <div class="recipient">${studentName}</div>
+          <div class="divider-gold"></div>
+          <div class="desc">
+            For successfully completing the <strong>30-Minute 1-on-1 Live Mentorship Session</strong> with Afigo Sam, mastering production execution, technical workflows, and architectural best practices for <strong>${courseTitle}</strong>.
+          </div>
         </div>
-        <h1>CERTIFICATE OF ACCOMPLISHMENT</h1>
-        <div class="subtitle">This credential is proudly awarded and presented to</div>
-        <div class="recipient">${studentName}</div>
-        <div class="divider-gold"></div>
-        <div class="desc">
-          For successfully completing the <strong>30-Minute 1-on-1 Live Mentorship Session</strong> with Afigo Sam, mastering production execution, technical workflows, and architectural best practices for <strong>${courseTitle}</strong>.
-        </div>
+
         <div class="footer-grid">
           <div class="sig-block">
             <div class="sig-name">Oghenekaro Samson Afigo</div>
@@ -1699,9 +1771,34 @@ export default {
             <div class="sig-sub">Lead Instructor & Founder, Afigo-Sam Technology</div>
           </div>
           <div class="seal-container">
-            <div class="seal-badge">
-              VERIFIED<br>MENTORSHIP<br>✦ CREDENTIAL ✦
-            </div>
+            <!-- 36-Point Serrated Starburst Gold Medal SVG (Matching Screenshot 2) -->
+            <svg viewBox="0 0 140 140" width="96" height="96">
+              <defs>
+                <linearGradient id="goldGradSeal" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fcf6ba" />
+                  <stop offset="25%" stop-color="#bf953f" />
+                  <stop offset="50%" stop-color="#b38728" />
+                  <stop offset="75%" stop-color="#fbf5b7" />
+                  <stop offset="100%" stop-color="#aa771c" />
+                </linearGradient>
+                <linearGradient id="goldInnerDark" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#d97706" />
+                  <stop offset="50%" stop-color="#b45309" />
+                  <stop offset="100%" stop-color="#78350f" />
+                </linearGradient>
+              </defs>
+              <!-- 36-Tooth Starburst Outer Teeth -->
+              <path d="M70 2 L73.5 8 L80 4 L82.5 11 L89.5 9 L90.5 16 L98 16 L97.5 23 L105 25 L103 32 L110 35 L106.5 42 L113 47 L108.5 53 L114 60 L108.5 65 L113 72 L106.5 77 L110 84 L103 87 L105 94 L97.5 96 L98 103 L90.5 103 L89.5 110 L82.5 108 L80 115 L73.5 111 L70 117 L66.5 111 L60 115 L57.5 108 L50.5 110 L49.5 103 L42 103 L42.5 96 L35 94 L37 87 L30 84 L33.5 77 L27 72 L31.5 65 L26 60 L31.5 53 L27 47 L33.5 42 L30 35 L37 32 L35 25 L42.5 23 L42 16 L49.5 16 L50.5 9 L57.5 11 L60 4 L66.5 8 Z" fill="url(#goldGradSeal)" filter="drop-shadow(0px 4px 6px rgba(0,0,0,0.6))" />
+              <!-- Concentric Outer Ring -->
+              <circle cx="70" cy="60" r="46" fill="none" stroke="url(#goldGradSeal)" stroke-width="2.5" />
+              <circle cx="70" cy="60" r="42" fill="url(#goldInnerDark)" stroke="url(#goldGradSeal)" stroke-width="1.5" />
+              <circle cx="70" cy="60" r="39" fill="none" stroke="#fef3c7" stroke-width="1" stroke-dasharray="2 2" />
+              <!-- Text Inside Seal -->
+              <text x="70" y="47" text-anchor="middle" fill="#fef3c7" font-family="'Cinzel', serif" font-weight="900" font-size="10" letter-spacing="1">VERIFIED</text>
+              <text x="70" y="60" text-anchor="middle" fill="#fef3c7" font-family="'Cinzel', serif" font-weight="900" font-size="9" letter-spacing="0.8">MENTORSHIP</text>
+              <!-- Bold Checkmark Icon -->
+              <path d="M62 70 L67 75 L78 63" fill="none" stroke="#fef3c7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
           </div>
           <div class="ref-block">
             <strong>Date Issued:</strong> ${issueDate}<br>
@@ -1711,9 +1808,9 @@ export default {
         </div>
       </div>
     </div>
-    <div class="print-bar">
-      <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF Certificate</button>
-    </div>
+  </div>
+  <div class="print-bar">
+    <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF Certificate</button>
   </div>
 </body>
 </html>`;
