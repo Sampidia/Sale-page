@@ -142,12 +142,25 @@ const CourseDetailPage: React.FC = () => {
   }, []);
 
   // ── Listen for Cal.com / Calendly event_scheduled postMessage ───────────────
+  const txRefCurrent = useRef(transactionRef);
+  txRefCurrent.current = transactionRef;
+  const emailCurrent = useRef(email);
+  emailCurrent.current = email;
+
   useEffect(() => {
     const handleBookingMessage = async (e: MessageEvent) => {
-      const isCalSuccess = e.data && (
-        e.data.event === 'cal:booking-successful' ||
-        e.data.event === 'calendly.event_scheduled' ||
-        e.data.action === 'bookingSuccessful'
+      // Log raw postMessage for debugging iframe events
+      if (e.data && (typeof e.data === 'object' || typeof e.data === 'string')) {
+        console.log('[Cal.com raw window postMessage]', typeof e.data === 'string' ? e.data : JSON.stringify(e.data));
+      }
+
+      const eventType = e.data?.type || e.data?.event || e.data?.action || (typeof e.data === 'string' ? e.data : '');
+      const isCalSuccess = (
+        eventType === 'cal:booking-successful' ||
+        eventType === 'bookingSuccessful' ||
+        eventType === 'BOOKING_SUCCESSFUL' ||
+        eventType === 'calendly.event_scheduled' ||
+        (typeof e.data === 'object' && (e.data?.type === 'bookingSuccessful' || e.data?.type === 'cal:booking-successful'))
       );
 
       if (isCalSuccess) {
@@ -159,10 +172,13 @@ const CourseDetailPage: React.FC = () => {
           const bookingUid = calData.uid || calData.booking?.uid || calData.bookingUid || calData.bookingId || '';
           const reschedLink = calData.rescheduleUrl || calData.reschedule_url || (bookingUid ? `https://cal.com/reschedule/${bookingUid}` : '');
 
+          const targetTx = txRefCurrent.current || transactionRef || '';
+          const targetEmail = emailCurrent.current || email || '';
+
           console.log('[Cal.com postMessage] Full e.data:', JSON.stringify(e.data));
           console.log('[Cal.com postMessage] Resolved calData:', JSON.stringify(calData));
           console.log('[Cal.com postMessage] bookingUid:', bookingUid);
-          console.log('[Cal.com postMessage] Sending to mark-session-booked → transactionId:', transactionRef, '| email:', email, '| bookingUid:', bookingUid);
+          console.log('[Cal.com postMessage] Sending to mark-session-booked → transactionId:', targetTx, '| email:', targetEmail, '| bookingUid:', bookingUid);
 
           const workerUrl = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course.sampidia.com';
           const cleanUrl = workerUrl.endsWith('/') ? workerUrl : workerUrl + '/';
@@ -170,8 +186,8 @@ const CourseDetailPage: React.FC = () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              transactionId: transactionRef,
-              email: email,
+              transactionId: targetTx,
+              email: targetEmail,
               rescheduleLink: reschedLink,
               bookingUid: bookingUid,
             }),
@@ -626,7 +642,7 @@ const CourseDetailPage: React.FC = () => {
                     {/* Embedded Cal.com Dark-Mode Scheduler Widget */}
                     <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 min-h-[680px]">
                       <iframe
-                        src={`https://cal.com/afigo-sam/30min?theme=dark&embed=true&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&transactionId=${encodeURIComponent(transactionRef || '')}`}
+                        src={`https://cal.com/afigo-sam/30min?theme=dark&embed=true&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&transactionId=${encodeURIComponent(transactionRef || '')}&responses[transactionId]=${encodeURIComponent(transactionRef || '')}&metadata[transactionId]=${encodeURIComponent(transactionRef || '')}`}
                         width="100%"
                         height="680"
                         title="Schedule 1-on-1 Mentorship Session via Cal.com"

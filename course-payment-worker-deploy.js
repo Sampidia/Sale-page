@@ -1209,8 +1209,14 @@ export default {
             // Case 5: Unbooked or Cancelled Session (session_booked === 0)
             if (Number(record.session_booked) === 0) {
               const calParams = new URLSearchParams();
-              if (email || record.email) calParams.set('email', record.email || email);
-              if (txId || record.transaction_id) calParams.set('transactionId', record.transaction_id || txId);
+              const currentEmail = record.email || email;
+              const currentTx = record.transaction_id || txId;
+              if (currentEmail) calParams.set('email', currentEmail);
+              if (currentTx) {
+                calParams.set('transactionId', currentTx);
+                calParams.set('responses[transactionId]', currentTx);
+                calParams.set('metadata[transactionId]', currentTx);
+              }
               const finalCalUrl = calParams.toString() ? `${targetCalUrl}?${calParams.toString()}` : targetCalUrl;
 
               const unbookedHtml = `<!DOCTYPE html>
@@ -1256,7 +1262,11 @@ export default {
       // If DB record absent, fallback redirect to Cal.com with pre-filled parameters
       const calParams = new URLSearchParams();
       if (email) calParams.set('email', email);
-      if (txId) calParams.set('transactionId', txId);
+      if (txId) {
+        calParams.set('transactionId', txId);
+        calParams.set('responses[transactionId]', txId);
+        calParams.set('metadata[transactionId]', txId);
+      }
 
       const finalCalUrl = calParams.toString() ? `${targetCalUrl}?${calParams.toString()}` : targetCalUrl;
       return Response.redirect(finalCalUrl, 302);
