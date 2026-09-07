@@ -137,7 +137,7 @@ export default {
         if (env.RESEND_API_KEY) {
           const courseTitle = courseId === 'vibe-coding'
             ? 'Vibe Coding: Building High-End Android Apps with Android Studio & Antigravity + AI'
-            : 'Zero to n8n — Free Hosting Mastered';
+            : 'Zero to n8n - Free Hosting Mastered';
 
           const emailSubject = format === 'one-on-one'
             ? `🗓️ Mentorship Booking Confirmed: ${courseTitle}`
@@ -146,7 +146,7 @@ export default {
           const emailHtml = `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1e293b; line-height: 1.6;">
               <h2 style="color: #dc2626; border-bottom: 2px solid #fee2e2; padding-bottom: 12px; margin-top: 0;">
-                🎉 Payment Confirmed — ${courseTitle}
+                🎉 Payment Confirmed - ${courseTitle}
               </h2>
               <p>Hi <strong>${customerName}</strong>,</p>
               <p>Thank you for enrolling in <strong>${courseTitle}</strong> (${format === 'one-on-one' ? '1-on-1 Mentorship' : 'PDF Blueprint'}). Your payment of <strong>${paidAmountStr || ((paidAmountVal || (format === 'one-on-one' ? 30000 : 15000)).toLocaleString('en-US') + ' ' + (paidCurrency || 'NGN'))}</strong> has been verified.</p>
@@ -194,32 +194,49 @@ export default {
           `;
 
           try {
-            const sendEmailPayload = (fromAddress) => ({
+            const sendEmailPayload = (fromAddress, recipient) => ({
               from: fromAddress,
-              to: [customerEmail, 'admin@sampidia.com'],
+              to: recipient,
               subject: emailSubject,
               html: emailHtml,
             });
 
+            // Send to customer
             let resendRes = await fetch('https://api.resend.com/emails', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${env.RESEND_API_KEY}`,
               },
-              body: JSON.stringify(sendEmailPayload('admin@afigo.sampidia.com')),
+              body: JSON.stringify(sendEmailPayload('admin@afigo.sampidia.com', customerEmail)),
             });
 
             if (!resendRes.ok) {
+              const errBody = await resendRes.text();
+              console.error('[Resend Error - Student Primary] Status:', resendRes.status, errBody);
+
               resendRes = await fetch('https://api.resend.com/emails', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                   'Authorization': `Bearer ${env.RESEND_API_KEY}`,
                 },
-                body: JSON.stringify(sendEmailPayload('onboarding@resend.dev')),
+                body: JSON.stringify(sendEmailPayload('onboarding@resend.dev', customerEmail)),
               });
+              if (!resendRes.ok) {
+                console.error('[Resend Error - Student Fallback] Status:', resendRes.status, await resendRes.text());
+              }
             }
+
+            // Send separate copy to admin
+            fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+              },
+              body: JSON.stringify(sendEmailPayload('admin@afigo.sampidia.com', 'admin@sampidia.com')),
+            }).catch(() => {});
           } catch (emailErr) {
             console.error('Failed to send Resend email:', emailErr);
           }
@@ -508,7 +525,7 @@ export default {
         if (env.RESEND_API_KEY) {
           const courseTitle = courseId === 'vibe-coding'
             ? 'Vibe Coding: Building High-End Android Apps with Android Studio & Antigravity + AI'
-            : 'Zero to n8n — Free Hosting Mastered';
+            : 'Zero to n8n - Free Hosting Mastered';
 
           const workerOrigin = new URL(request.url).origin;
           const r2DownloadLink = `${workerOrigin}/api/download-course-pdf?token=${downloadToken}&courseId=${courseId}`;
@@ -522,7 +539,7 @@ export default {
           const emailHtml = `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1e293b; line-height: 1.6;">
               <h2 style="color: #dc2626; border-bottom: 2px solid #fee2e2; padding-bottom: 12px; margin-top: 0;">
-                🎉 Payment Confirmed via Webhook — ${courseTitle}
+                🎉 Payment Confirmed via Webhook - ${courseTitle}
               </h2>
               <p>Hi <strong>${customerName}</strong>,</p>
               <p>Thank you for enrolling in <strong>${courseTitle}</strong> (${format === 'one-on-one' ? '1-on-1 Mentorship' : 'PDF Blueprint'}). Your payment has been verified by our automated webhook handler.</p>
@@ -567,9 +584,9 @@ export default {
           `;
 
           try {
-            const sendEmailPayload = (fromAddress) => ({
+            const sendEmailPayload = (fromAddress, recipient) => ({
               from: fromAddress,
-              to: [customerEmail, 'admin@sampidia.com'],
+              to: recipient,
               subject: emailSubject,
               html: emailHtml,
             });
@@ -580,19 +597,35 @@ export default {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${env.RESEND_API_KEY}`,
               },
-              body: JSON.stringify(sendEmailPayload('admin@afigo.sampidia.com')),
+              body: JSON.stringify(sendEmailPayload('admin@afigo.sampidia.com', customerEmail)),
             });
 
             if (!resendRes.ok) {
-              await fetch('https://api.resend.com/emails', {
+              const errText = await resendRes.text();
+              console.error('[Resend Error - Webhook Primary] Status:', resendRes.status, errText);
+
+              resendRes = await fetch('https://api.resend.com/emails', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                   'Authorization': `Bearer ${env.RESEND_API_KEY}`,
                 },
-                body: JSON.stringify(sendEmailPayload('onboarding@resend.dev')),
+                body: JSON.stringify(sendEmailPayload('onboarding@resend.dev', customerEmail)),
               });
+              if (!resendRes.ok) {
+                console.error('[Resend Error - Webhook Fallback] Status:', resendRes.status, await resendRes.text());
+              }
             }
+
+            // Separate admin copy
+            fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+              },
+              body: JSON.stringify(sendEmailPayload('admin@afigo.sampidia.com', 'admin@sampidia.com')),
+            }).catch(() => {});
           } catch (emailErr) {
             console.error('Failed to send webhook fulfillment email:', emailErr);
           }
@@ -721,7 +754,7 @@ export default {
       // Map all known course/product IDs to their display names
       const COURSE_PRODUCT_TITLES = {
         'vibe-coding': 'Vibe Coding: Building High-End Android Apps with Android Studio & Antigravity + AI',
-        'zero-to-n8n': 'Zero to n8n — Free Hosting Mastered',
+        'zero-to-n8n': 'Zero to n8n - Free Hosting Mastered',
         'ai-content-generator': 'WordPress AI-Powered Automatic Content Generator & Auto Posting Plugin',
         'my-licenses-manager': 'My Licenses Manager — WordPress License Key Management Plugin',
         'booking-theme': 'Hotel Booking WordPress Theme (Pro Edition)',
@@ -1443,7 +1476,7 @@ export default {
             const studentName = record.customer_name || 'Valued Student';
             const courseTitle = record.course_id === 'vibe-coding'
               ? 'Vibe Coding: Building High-End Android Apps with AI'
-              : 'Zero to n8n — Free Hosting Mastered';
+              : 'Zero to n8n - Free Hosting Mastered';
             const issueDate = record.session_booked_at ? new Date(record.session_booked_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : new Date().toLocaleDateString();
 
             const certHtml = `<!DOCTYPE html>
@@ -1451,46 +1484,236 @@ export default {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Certificate of Attendance - ${studentName}</title>
+  <title>Official Certificate of Attendance - ${studentName}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     @page { size: landscape; margin: 0; }
-    body { font-family: 'Georgia', serif; background: #090d16; color: #f8fafc; margin: 0; padding: 40px; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; }
-    .cert-frame { max-width: 900px; width: 100%; background: #0f172a; border: 8px double #d97706; border-radius: 24px; padding: 48px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); position: relative; box-sizing: border-box; }
-    .gold-badge { font-size: 14px; font-weight: 800; font-family: sans-serif; letter-spacing: 3px; color: #f59e0b; text-transform: uppercase; margin-bottom: 24px; }
-    h1 { font-size: 36px; font-weight: 800; color: #ffffff; margin: 0 0 16px 0; letter-spacing: 1px; font-family: sans-serif; }
-    .subtitle { font-size: 16px; color: #94a3b8; margin-bottom: 24px; font-style: italic; }
-    .recipient { font-size: 40px; font-weight: 900; color: #fbbf24; margin: 0 0 24px 0; font-family: 'Times New Roman', serif; text-decoration: underline; text-underline-offset: 8px; }
-    .desc { font-size: 16px; color: #cbd5e1; line-height: 1.8; max-width: 680px; margin: 0 auto 36px auto; font-family: sans-serif; }
-    .footer-grid { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 40px; border-top: 1px solid #334155; padding-top: 24px; font-family: sans-serif; }
-    .sig-block { text-align: left; }
-    .sig-name { font-size: 18px; font-weight: 800; color: #ffffff; font-family: 'Brush Script MT', cursive, serif; margin: 0; }
-    .sig-title { font-size: 12px; color: #64748b; margin: 4px 0 0 0; }
-    .ref-block { text-align: right; font-size: 12px; color: #64748b; }
-    .print-btn { display: inline-block; margin-top: 32px; background: #d97706; color: #ffffff; text-decoration: none; font-family: sans-serif; font-weight: 700; font-size: 14px; padding: 12px 28px; border-radius: 12px; border: 0; cursor: pointer; }
-    @media print { .print-btn { display: none; } body { background: #ffffff; color: #000; padding: 0; } .cert-frame { border-color: #d97706; background: #ffffff; color: #000; box-shadow: none; } h1, .recipient { color: #000; } .desc, .subtitle { color: #333; } }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #060913;
+      color: #f8fafc;
+      margin: 0;
+      padding: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .cert-outer {
+      max-width: 1000px;
+      width: 100%;
+      background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%);
+      padding: 10px;
+      border-radius: 28px;
+      box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.85);
+      position: relative;
+    }
+    .cert-inner {
+      background: radial-gradient(circle at 50% 30%, #111827 0%, #090d16 100%);
+      border: 2px solid rgba(217, 119, 6, 0.4);
+      border-radius: 20px;
+      padding: 52px 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .header-badge {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      color: #f59e0b;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .badge-line {
+      height: 1px;
+      width: 40px;
+      background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+    }
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #ffffff 0%, #fef3c7 50%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0 0 12px 0;
+      text-shadow: 0 4px 20px rgba(245, 158, 11, 0.2);
+    }
+    .subtitle {
+      font-size: 15px;
+      color: #94a3b8;
+      margin-bottom: 24px;
+      font-style: italic;
+      letter-spacing: 0.5px;
+    }
+    .recipient {
+      font-family: 'Cinzel', serif;
+      font-size: 38px;
+      font-weight: 800;
+      color: #fbbf24;
+      margin: 0 0 20px 0;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    .divider-gold {
+      width: 180px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #d97706, #fef3c7, #d97706, transparent);
+      margin: 0 auto 28px auto;
+      border-radius: 2px;
+    }
+    .desc {
+      font-size: 15px;
+      color: #cbd5e1;
+      line-height: 1.8;
+      max-width: 720px;
+      margin: 0 auto 36px auto;
+    }
+    .desc strong {
+      color: #ffffff;
+      font-weight: 700;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: end;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 28px;
+      margin-top: 20px;
+    }
+    .sig-block {
+      text-align: left;
+    }
+    .sig-name {
+      font-family: 'Alex Brush', cursive;
+      font-size: 40px;
+      color: #fef3c7;
+      margin: 0 0 4px 0;
+      line-height: 1;
+    }
+    .sig-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+    .sig-sub {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .seal-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .seal-badge {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #f59e0b 0%, #b45309 70%, #78350f 100%);
+      border: 3px solid #fef3c7;
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3), inset 0 2px 5px rgba(255,255,255,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8px;
+      color: #0f172a;
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+    .ref-block {
+      text-align: right;
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.7;
+    }
+    .ref-block strong {
+      color: #e2e8f0;
+    }
+    .print-bar {
+      margin-top: 32px;
+      text-align: center;
+    }
+    .print-btn {
+      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      color: #ffffff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      border: 1px solid #f59e0b;
+      cursor: pointer;
+      box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.5);
+      transition: transform 0.2s ease;
+    }
+    .print-btn:hover {
+      transform: translateY(-2px);
+    }
+    @media print {
+      body { background: #ffffff !important; padding: 0 !important; color: #000 !important; }
+      .print-bar { display: none !important; }
+      .cert-outer { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; padding: 6px !important; }
+      .cert-inner { background: #0f172a !important; color: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
   </style>
 </head>
 <body>
-  <div class="cert-frame">
-    <div class="gold-badge">🎓 OFFICIAL CERTIFICATE OF ATTENDANCE</div>
-    <h1>CERTIFICATE OF COMPLETION</h1>
-    <div class="subtitle">This is proudly presented and awarded to</div>
-    <div class="recipient">${studentName}</div>
-    <div class="desc">
-      for successfully completing the <strong>30-Minute 1-on-1 Live Mentorship Session</strong> with Afigo Sam, mastering real-world implementation, workflows, and best practices for <strong>${courseTitle}</strong>.
-    </div>
-    <div class="footer-grid">
-      <div class="sig-block">
-        <div class="sig-name">Oghenekaro Samson Afigo</div>
-        <div class="sig-title">Lead Instructor & Founder, Afigo-Sam Technology</div>
+  <div style="width: 100%; max-width: 1000px;">
+    <div class="cert-outer">
+      <div class="cert-inner">
+        <div class="header-badge">
+          <span class="badge-line"></span>
+          ✦ OFFICIAL CERTIFICATE OF COMPLETION ✦
+          <span class="badge-line"></span>
+        </div>
+        <h1>CERTIFICATE OF ACCOMPLISHMENT</h1>
+        <div class="subtitle">This credential is proudly awarded and presented to</div>
+        <div class="recipient">${studentName}</div>
+        <div class="divider-gold"></div>
+        <div class="desc">
+          For successfully completing the <strong>30-Minute 1-on-1 Live Mentorship Session</strong> with Afigo Sam, mastering production execution, technical workflows, and architectural best practices for <strong>${courseTitle}</strong>.
+        </div>
+        <div class="footer-grid">
+          <div class="sig-block">
+            <div class="sig-name">Oghenekaro Samson Afigo</div>
+            <div class="sig-title">Oghenekaro Samson Afigo</div>
+            <div class="sig-sub">Lead Instructor & Founder, Afigo-Sam Technology</div>
+          </div>
+          <div class="seal-container">
+            <div class="seal-badge">
+              VERIFIED<br>MENTORSHIP<br>✦ CREDENTIAL ✦
+            </div>
+          </div>
+          <div class="ref-block">
+            <strong>Date Issued:</strong> ${issueDate}<br>
+            <strong>Certificate ID:</strong> CERT-${record.transaction_id || txId}<br>
+            <strong>Verification:</strong> afigo.sampidia.com
+          </div>
+        </div>
       </div>
-      <div class="ref-block">
-        <strong>Date Issued:</strong> ${issueDate}<br>
-        <strong>Certificate ID:</strong> CERT-${record.transaction_id || txId}<br>
-        <strong>Verification:</strong> https://afigo.sampidia.com
-      </div>
     </div>
-    <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF Certificate</button>
+    <div class="print-bar">
+      <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF Certificate</button>
+    </div>
   </div>
 </body>
 </html>`;
