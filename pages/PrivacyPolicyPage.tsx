@@ -306,7 +306,7 @@ const PrivacyPolicyPage: React.FC = () => {
                 <ul className="space-y-3 text-sm text-gray-600 mb-5">
                   <li className="flex items-start gap-3">
                     <span className="text-red-500 font-bold mt-0.5">→</span>
-                    <span>Your account status is updated from <strong>Active</strong> to <strong>Inactive</strong>. This is not a full deletion — your purchase records are retained for licensing verification.</span>
+                    <span>Your account status is updated from <strong>Active</strong> to <strong>Inactive</strong>.</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-red-500 font-bold mt-0.5">→</span>

@@ -111,7 +111,6 @@ const PortalDeactivationForm: React.FC<{ prefillEmail?: string }> = ({ prefillEm
 
       <div className="bg-red-50 rounded-xl p-4 border border-red-100 text-xs text-red-800 leading-relaxed">
         <strong>⚠️ This action will deactivate your portal account.</strong> You will no longer be able to log in.
-        Your data is not deleted — contact support to reactivate.
       </div>
 
       {import.meta.env.VITE_TURNSTILE_SITE_KEY ? (
@@ -357,7 +356,7 @@ const DeleteAccountPage: React.FC = () => {
 
   const pageTitle = isPortalMode ? 'Deactivate Portal Account' : 'Request Mobile App Account Deletion';
   const pageDesc = isPortalMode
-    ? 'Submit a request to deactivate your Student or File Portal account. Your account status will be set to inactive.'
+    ? 'Submit a request to deactivate your Student or File Portal account.'
     : 'Request the deletion of your account and personal data from any of Afigo-Sam\'s mobile applications.';
 
   return (
