@@ -92,7 +92,7 @@ const ProductPage: React.FC = () => {
           productId: product.id,
           customerName: name,
           customerEmail: email,
-          amount: product.price,
+          amount: priceInfo.amount,
           currency: priceInfo.currency,
           amountPaid: priceInfo.formatted,
         }),

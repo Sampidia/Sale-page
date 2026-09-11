@@ -251,7 +251,7 @@ const CourseDetailPage: React.FC = () => {
           customerName: name,
           customerEmail: email,
           customerPhone: phone,
-          amount: currentNgnPrice,
+          amount: coursePriceInfo.amount,
           currency: coursePriceInfo.currency,
           amountPaid: coursePriceInfo.formatted,
         }),

@@ -239,7 +239,9 @@ export default {
     if (request.method === 'POST' && url.pathname.endsWith('/api/verify-course-payment')) {
       try {
         const body = await request.json();
-        const { transactionId, courseId, format, customerName, customerEmail, customerPhone, amount: paidAmountVal, currency: paidCurrency, amountPaid: paidAmountStr } = body || {};
+        const { transactionId, courseId, format, customerName, customerEmail, customerPhone, amount: paidAmountValInput, currency: paidCurrencyInput, amountPaid: paidAmountStr } = body || {};
+        let bodyAmountVal = paidAmountValInput;
+        let bodyCurrencyVal = paidCurrencyInput;
 
         if (!transactionId || !courseId || !customerName || !customerEmail) {
           return new Response(
@@ -273,6 +275,11 @@ export default {
               JSON.stringify({ error: 'Payment transaction was not successful' }),
               { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
             );
+          }
+
+          if (flwData && flwData.data) {
+            if (flwData.data.amount) bodyAmountVal = flwData.data.amount;
+            if (flwData.data.currency) bodyCurrencyVal = flwData.data.currency;
           }
         }
 
@@ -422,15 +429,15 @@ export default {
               lastName: String(customerName || '').split(' ').slice(1).join(' '),
             },
             customData: {
-              value: paidAmountVal || (format === 'one-on-one' ? 30000 : 15000),
-              currency: paidCurrency || 'NGN',
+              value: bodyAmountVal || (format === 'one-on-one' ? 30000 : 15000),
+              currency: bodyCurrencyVal || 'NGN',
               content_ids: [courseId],
               content_name: courseId === 'vibe-coding' ? 'Vibe Coding Masterclass' : 'Zero to n8n Masterclass',
               content_type: 'product',
               content_category: 'Course',
               order_id: txStr,
               num_items: 1,
-              contents: [{ id: courseId, quantity: 1, item_price: paidAmountVal || (format === 'one-on-one' ? 30000 : 15000) }],
+              contents: [{ id: courseId, quantity: 1, item_price: bodyAmountVal || (format === 'one-on-one' ? 30000 : 15000) }],
             },
             clientIp: request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For'),
             userAgent: request.headers.get('User-Agent'),
@@ -509,7 +516,9 @@ export default {
     if (request.method === 'POST' && url.pathname.endsWith('/api/verify-product-payment')) {
       try {
         const body = await request.json();
-        const { transactionId, productId = 'ai-content-generator', customerName, customerEmail, currency: paidCurrency, amountPaid: paidAmount } = body || {};
+        const { transactionId, productId = 'ai-content-generator', customerName, customerEmail, currency: paidCurrencyInput, amount: amountInput, amountPaid: paidAmount } = body || {};
+        let bodyAmountVal = amountInput || paidAmount;
+        let bodyCurrencyVal = paidCurrencyInput;
 
         if (!transactionId || !customerName || !customerEmail) {
           return new Response(
@@ -543,6 +552,11 @@ export default {
               JSON.stringify({ error: 'Payment transaction was not successful' }),
               { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
             );
+          }
+
+          if (flwData && flwData.data) {
+            if (flwData.data.amount) bodyAmountVal = flwData.data.amount;
+            if (flwData.data.currency) bodyCurrencyVal = flwData.data.currency;
           }
         }
 
@@ -644,8 +658,8 @@ export default {
         } // end if (env.RESEND_API_KEY)
 
         // 4. Send CAPI Purchase Event for Digital Product
-        const productPriceVal = parseFloat(String(paidAmount || paidAmountStr || '25').replace(/[^0-9.]/g, '')) || 25.00;
-        const productCurrencyVal = (paidCurrency || 'USD').toUpperCase();
+        const productPriceVal = parseFloat(String(bodyAmountVal || '25').replace(/[^0-9.]/g, '')) || 25.00;
+        const productCurrencyVal = (bodyCurrencyVal || 'USD').toUpperCase();
 
         ctx.waitUntil(
           sendMetaCapiEvent({
