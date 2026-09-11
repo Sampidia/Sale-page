@@ -985,7 +985,6 @@ export const EBOOKS: Ebook[] = [
   {
     id: 'adas-golden-thread',
     title: "Ada's Golden Thread",
-    subtitle: 'An Inspiring Story of Courage, Hope and Education',
     description: 'A girl child in a rural village facing hardships, overcoming obstacles to go to school...',
     category: 'Kids',
     price: 1, // $1 USD
@@ -1027,7 +1026,6 @@ export const EBOOKS: Ebook[] = [
   {
     id: 'prompt-engineering-ai-agents',
     title: 'Prompt Engineering & Autonomous AI Agent Systems',
-    subtitle: 'Build Enterprise Workflow Pipelines with Gemini, Claude & n8n',
     description: 'Practical guide to crafting production-grade prompts, chaining LLM agents, and automating complex tasks...',
     category: 'Tech',
     price: 2500,
@@ -1052,7 +1050,6 @@ export const EBOOKS: Ebook[] = [
   {
     id: 'digital-wealth-saas-monetization',
     title: 'Digital Wealth & SaaS Monetization Blueprint',
-    subtitle: 'From Code to Cashflow: Building Recurring Income Online',
     description: 'Package software scripts, plugins, and digital services into automated passive income streams...',
     category: 'Finance',
     price: 3500,
@@ -1077,7 +1074,6 @@ export const EBOOKS: Ebook[] = [
   {
     id: 'green-nanotechnology-chemistry',
     title: 'Green Nanotechnology & Applied Plant Extract Synthesis',
-    subtitle: 'Eco-Friendly Metallic Nanoparticles & Antimicrobial Characterization',
     description: 'Scientific synthesis, FTIR/UV-Vis spectroscopic analysis, and eco-friendly nanoparticle characterization...',
     category: 'Science',
     price: 0,
@@ -1103,7 +1099,6 @@ export const EBOOKS: Ebook[] = [
   {
     id: 'corrosion-rate-dissimilar-welded-metals',
     title: 'Assessment of Corrosion Rate of Dissimilar Welded Metals',
-    subtitle: 'Gravimetric Analysis of Galvanic Corrosion in Welded Metal Pairs',
     description: 'Accelerated galvanic corrosion in welded mild steel, galvanised steel, stainless steel and zinc samples...',
     category: 'Science',
     price: 0,

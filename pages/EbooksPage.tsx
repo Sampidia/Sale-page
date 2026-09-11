@@ -240,7 +240,7 @@ const EbooksPage: React.FC = () => {
           </p>
 
           {/* Category Filter Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2 max-w-xl mx-auto bg-slate-900/90 border border-slate-800/90 p-2 rounded-2xl backdrop-blur-xl">
+          <div className="flex flex-wrap items-center justify-center gap-2 max-w-2xl sm:max-w-3xl mx-auto bg-slate-900/90 border border-slate-800/90 p-2 rounded-2xl backdrop-blur-xl">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -335,13 +335,10 @@ const EbooksPage: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Title & Subtitle */}
-                  <h3 className="text-xl font-bold text-white mb-1 leading-snug group-hover:text-amber-400 transition-colors">
+                  {/* Title */}
+                  <h3 className="text-xl font-bold text-white mb-2 leading-snug group-hover:text-amber-400 transition-colors">
                     {book.title}
                   </h3>
-                  <p className="text-xs text-slate-400 font-medium mb-3">
-                    {book.subtitle}
-                  </p>
 
                   <p className="text-slate-300 text-xs leading-relaxed line-clamp-3 mb-5">
                     {book.description}

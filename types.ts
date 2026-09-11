@@ -4,7 +4,7 @@ export type EbookCategory = 'Kids' | 'Tech' | 'Finance' | 'Science';
 export interface Ebook {
   id: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   description: string;
   category: EbookCategory;
   price: number; // 0 for free, or numeric price e.g. 2500

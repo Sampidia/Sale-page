@@ -161,8 +161,7 @@ const EbookDetailPage: React.FC = () => {
               <span className="text-xs font-bold uppercase tracking-wider bg-red-950/80 text-red-300 border border-red-800/60 px-3 py-1 rounded-full">
                 {ebook.category} Ebook
               </span>
-              <h1 className="text-3xl font-extrabold text-white mt-3 mb-2">{ebook.title}</h1>
-              <p className="text-slate-400 text-sm font-medium mb-4">{ebook.subtitle}</p>
+              <h1 className="text-3xl font-extrabold text-white mt-3 mb-4">{ebook.title}</h1>
               <p className="text-slate-300 text-sm leading-relaxed">{ebook.description}</p>
             </div>
 
