@@ -227,7 +227,7 @@ const CourseDetailPage: React.FC = () => {
         currency: coursePriceInfo.currency,
         transactionRef,
         email,
-        name,
+        customerName: name,
         phone,
       });
     }
@@ -301,7 +301,7 @@ const CourseDetailPage: React.FC = () => {
       value: coursePriceInfo.amount,
       currency: coursePriceInfo.currency,
       email,
-      name,
+      customerName: name,
       phone,
     });
 

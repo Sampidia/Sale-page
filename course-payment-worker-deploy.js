@@ -64,6 +64,8 @@ export default {
           console.error('D1 purchase record error:', fallbackErr);
         }
       }
+    } // end recordPurchaseToDB
+
     // ── Helper: SHA-256 Hashing for CAPI User Data ─────────────────────────
     async function hashCapiField(str) {
       if (!str) return undefined;
@@ -386,6 +388,8 @@ export default {
           } catch (emailErr) {
             console.error('Failed to send Resend email:', emailErr);
           }
+        } // end if (env.RESEND_API_KEY)
+
         // 5. Send CAPI Purchase Event
         ctx.waitUntil(
           sendMetaCapiEvent({
@@ -618,6 +622,8 @@ export default {
           } catch (emailErr) {
             console.error('Failed to send product fulfillment email:', emailErr);
           }
+        } // end if (env.RESEND_API_KEY)
+
         // 4. Send CAPI Purchase Event for Digital Product
         ctx.waitUntil(
           sendMetaCapiEvent({
@@ -826,6 +832,8 @@ export default {
           } catch (emailErr) {
             console.error('Failed to send webhook fulfillment email:', emailErr);
           }
+        } // end if (env.RESEND_API_KEY)
+
         // Send CAPI Purchase Event for Webhook Confirmation
         ctx.waitUntil(
           sendMetaCapiEvent({

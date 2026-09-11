@@ -179,7 +179,7 @@ const ProductPage: React.FC = () => {
       value: priceInfo.amount,
       currency: priceInfo.currency,
       email,
-      name,
+      customerName: name,
     });
 
     const txRef = `PLUGIN_${product.id.toUpperCase()}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
