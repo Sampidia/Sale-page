@@ -5,6 +5,7 @@ import BookDocumentation from '../components/BookDocumentation';
 import SEO from '../components/SEO';
 import { useCurrency } from '../context/CurrencyContext';
 import { trackBeginCheckout } from '../utils/analytics';
+import { trackFBViewContent, trackFBInitiateCheckout, trackFBPurchase, trackFBLead } from '../utils/facebookPixel';
 
 const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -64,47 +65,30 @@ const ProductPage: React.FC = () => {
 
   // ── Track Facebook Ads ViewContent Event on Page Load ──────────────────────
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const fbqFunc = (window as any).fbq;
-      if (fbqFunc) {
-        try {
-          fbqFunc('track', 'ViewContent', {
-            content_name: product.name,
-            content_category: product.category,
-            content_ids: [product.id],
-            content_type: 'product',
-            value: product.price || 25,
-            currency: 'USD',
-          });
-        } catch (err) {
-          console.error('Failed to trigger Facebook Pixel ViewContent event:', err);
-        }
-      }
-    }
-  }, [product.id]);
+    trackFBViewContent({
+      id: product.id,
+      name: product.name,
+      category: product.category,
+      value: priceInfo.amount,
+      currency: priceInfo.currency,
+    });
+  }, [product.id, product.name, product.category, priceInfo.amount, priceInfo.currency]);
 
   // ── Track Facebook Ads Purchase Event ONLY on Confirmed Payment ───────────
   useEffect(() => {
-    if (isPaid) {
-      if (typeof window !== 'undefined') {
-        const fbqFunc = (window as any).fbq;
-        if (fbqFunc) {
-          try {
-            fbqFunc('track', 'Purchase', {
-              value: product.price || 25,
-              currency: 'USD',
-              content_ids: [product.id],
-              content_name: product.name,
-              content_type: 'product',
-            });
-            console.log('[Facebook Pixel] Product Purchase event tracked successfully:', transactionRef || product.id);
-          } catch (err) {
-            console.error('Failed to trigger Facebook Pixel Product Purchase event:', err);
-          }
-        }
-      }
+    if (isPaid && transactionRef) {
+      trackFBPurchase({
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        value: priceInfo.amount,
+        currency: priceInfo.currency,
+        transactionRef,
+        email,
+        customerName: name,
+      });
     }
-  }, [isPaid, product, transactionRef]);
+  }, [isPaid, product.id, product.name, product.category, priceInfo.amount, priceInfo.currency, transactionRef, email, name]);
 
   // Verify Product Payment with Worker
   const verifyProductPayment = async (txRef: string) => {
@@ -188,22 +172,15 @@ const ProductPage: React.FC = () => {
     setIsLoading(true);
 
     // Track Facebook Ads InitiateCheckout Event
-    if (typeof window !== 'undefined') {
-      const fbqFunc = (window as any).fbq;
-      if (fbqFunc) {
-        try {
-          fbqFunc('track', 'InitiateCheckout', {
-            content_name: product.name,
-            content_ids: [product.id],
-            content_type: 'product',
-            value: product.price || 25,
-            currency: 'USD',
-          });
-        } catch (err) {
-          console.error('Failed to trigger Facebook Pixel InitiateCheckout event:', err);
-        }
-      }
-    }
+    trackFBInitiateCheckout({
+      id: product.id,
+      name: product.name,
+      category: product.category,
+      value: priceInfo.amount,
+      currency: priceInfo.currency,
+      email,
+      name,
+    });
 
     const txRef = `PLUGIN_${product.id.toUpperCase()}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
@@ -309,17 +286,11 @@ const ProductPage: React.FC = () => {
                   <a
                     href={product.buyUrl}
                     onClick={() => {
-                      if (typeof window !== 'undefined' && (window as any).fbq) {
-                        try {
-                          (window as any).fbq('track', 'Lead', {
-                            content_name: product.name,
-                            content_ids: [product.id],
-                            content_type: 'product',
-                          });
-                        } catch (err) {
-                          console.error('Failed to trigger Facebook Pixel Lead event:', err);
-                        }
-                      }
+                      trackFBLead({
+                        id: product.id,
+                        name: product.name,
+                        category: product.category,
+                      });
                     }}
                     className="flex-1 text-center bg-green-600 text-white font-bold py-4 px-8 rounded-2xl hover:bg-green-700 transition-all text-lg shadow-xl shadow-green-200 hover:shadow-2xl hover:shadow-green-300"
                   >

@@ -4,26 +4,19 @@ import { PRODUCTS } from '../constants';
 import { ProductCategory } from '../types';
 import SEO from '../components/SEO';
 
+import { trackFBViewContent } from '../utils/facebookPixel';
+
 type FilterOption = 'All' | ProductCategory;
 
 const ProductsListPage: React.FC = () => {
     const [activeFilter, setActiveFilter] = useState<FilterOption>('All');
 
     React.useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const fbqFunc = (window as any).fbq;
-            if (fbqFunc) {
-                try {
-                    fbqFunc('track', 'ViewContent', {
-                        content_name: 'Products & Plugins Catalog',
-                        content_category: 'Catalog',
-                        content_type: 'product_group',
-                    });
-                } catch (err) {
-                    console.error('Failed to trigger Facebook Pixel Catalog ViewContent event:', err);
-                }
-            }
-        }
+        trackFBViewContent({
+            id: 'products-catalog',
+            name: 'Products & Plugins Catalog',
+            category: 'Catalog',
+        });
     }, []);
 
     const filters: FilterOption[] = ['All', 'Plugin', 'Theme', 'Template', 'Script'];

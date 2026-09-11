@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MOBILE_APPS } from '../constants';
 import SEO from '../components/SEO';
+import { trackFBViewContent, trackFBLead } from '../utils/facebookPixel';
 
 const MobileAppDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -11,20 +12,12 @@ const MobileAppDetailPage: React.FC = () => {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
 
-    if (app && typeof window !== 'undefined') {
-      const fbqFunc = (window as any).fbq;
-      if (fbqFunc) {
-        try {
-          fbqFunc('track', 'ViewContent', {
-            content_name: app.name,
-            content_category: app.category,
-            content_ids: [app.id],
-            content_type: 'product',
-          });
-        } catch (err) {
-          console.error('Failed to trigger Facebook Pixel App ViewContent event:', err);
-        }
-      }
+    if (app) {
+      trackFBViewContent({
+        id: app.id,
+        name: app.name,
+        category: app.category,
+      });
     }
   }, [id, app]);
 
@@ -122,16 +115,12 @@ const MobileAppDetailPage: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => {
-                    if (typeof window !== 'undefined' && (window as any).fbq) {
-                      try {
-                        (window as any).fbq('track', 'Lead', {
-                          content_name: app.name,
-                          content_ids: [app.id],
-                          content_type: 'product',
-                        });
-                      } catch (err) {
-                        console.error('Failed to trigger Facebook Pixel App Download Lead event:', err);
-                      }
+                    if (app) {
+                      trackFBLead({
+                        id: app.id,
+                        name: app.name,
+                        category: app.category,
+                      });
                     }
                   }}
                   className="hover:scale-105 transition-all inline-block shrink-0"

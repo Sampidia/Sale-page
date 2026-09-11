@@ -64,6 +64,152 @@ export default {
           console.error('D1 purchase record error:', fallbackErr);
         }
       }
+    // ── Helper: SHA-256 Hashing for CAPI User Data ─────────────────────────
+    async function hashCapiField(str) {
+      if (!str) return undefined;
+      const clean = String(str).trim().toLowerCase();
+      if (!clean) return undefined;
+      const encoder = new TextEncoder();
+      const data = encoder.encode(clean);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // ── Helper: Send Meta Conversions API (CAPI) Event ────────────────────
+    async function sendMetaCapiEvent({
+      eventName,
+      eventId,
+      eventSourceUrl,
+      userData = {},
+      customData = {},
+      clientIp = null,
+      userAgent = null
+    }) {
+      const pixelId = env.FB_PIXEL_ID || '636162258059569';
+      const accessToken = env.FB_CAPI_ACCESS_TOKEN;
+
+      if (!accessToken) {
+        console.log(`[CAPI Log] CAPI token env.FB_CAPI_ACCESS_TOKEN not set. Event "${eventName}" logged.`);
+        return;
+      }
+
+      try {
+        const hashedEmail = await hashCapiField(userData.email);
+        const hashedPhone = await hashCapiField(userData.phone);
+        const hashedFirstName = await hashCapiField(userData.firstName);
+        const hashedLastName = await hashCapiField(userData.lastName);
+        const hashedPostcode = await hashCapiField(userData.postcode);
+        const hashedExternalId = await hashCapiField(userData.externalId || userData.email);
+
+        const capiUserData = {
+          ...(hashedEmail ? { em: [hashedEmail] } : {}),
+          ...(hashedPhone ? { ph: [hashedPhone] } : {}),
+          ...(hashedFirstName ? { fn: [hashedFirstName] } : {}),
+          ...(hashedLastName ? { ln: [hashedLastName] } : {}),
+          ...(hashedPostcode ? { zp: [hashedPostcode] } : {}),
+          ...(hashedExternalId ? { external_id: [hashedExternalId] } : {}),
+          ...(userData.fbp ? { fbp: userData.fbp } : {}),
+          ...(userData.fbc ? { fbc: userData.fbc } : {}),
+          client_ip_address: clientIp || request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || '127.0.0.1',
+          client_user_agent: userAgent || request.headers.get('User-Agent') || '',
+        };
+
+        // Guarantee value is a numeric float > 0
+        let val = customData.value;
+        if (val !== undefined && val !== null) {
+          const parsed = parseFloat(String(val).replace(/[^0-9.]/g, ''));
+          if (!isNaN(parsed) && parsed > 0) {
+            val = Number(parsed.toFixed(2));
+          } else {
+            val = undefined;
+          }
+        }
+
+        const capiCustomData = {
+          ...(val !== undefined ? { value: val } : {}),
+          ...(customData.currency ? { currency: String(customData.currency).toUpperCase() } : {}),
+          ...(customData.content_ids ? { content_ids: customData.content_ids } : {}),
+          ...(customData.content_name ? { content_name: customData.content_name } : {}),
+          ...(customData.content_type ? { content_type: customData.content_type } : { content_type: 'product' }),
+          ...(customData.content_category ? { content_category: customData.content_category } : {}),
+          ...(customData.order_id ? { order_id: customData.order_id } : {}),
+          ...(customData.num_items ? { num_items: customData.num_items } : {}),
+          ...(customData.contents ? { contents: customData.contents } : {}),
+        };
+
+        const capiPayload = {
+          data: [
+            {
+              event_name: eventName,
+              event_time: Math.floor(Date.now() / 1000),
+              event_id: eventId,
+              event_source_url: eventSourceUrl || 'https://afigo.sampidia.com/',
+              action_source: 'website',
+              user_data: capiUserData,
+              custom_data: capiCustomData,
+            }
+          ]
+        };
+
+        if (env.FB_TEST_EVENT_CODE) {
+          capiPayload.test_event_code = env.FB_TEST_EVENT_CODE;
+        }
+
+        const capiRes = await fetch(`https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${accessToken}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(capiPayload),
+        });
+
+        const capiResText = await capiRes.text();
+        if (capiRes.ok) {
+          console.log(`[CAPI Success] Event "${eventName}" (${eventId}) dispatched to Meta successfully.`);
+        } else {
+          console.error(`[CAPI Error] Meta CAPI API returned ${capiRes.status}:`, capiResText);
+        }
+      } catch (err) {
+        console.error(`[CAPI Exception] Failed to send CAPI event "${eventName}":`, err);
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 0.5: POST /api/track-event (Frontend Meta CAPI Edge Relay)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'POST' && url.pathname.endsWith('/api/track-event')) {
+      try {
+        const body = await request.json().catch(() => ({}));
+        const { eventName, eventId, eventSourceUrl, fbp, fbc, userData = {}, customData = {} } = body;
+
+        if (!eventName || !eventId) {
+          return new Response(JSON.stringify({ error: 'Missing required fields: eventName, eventId' }), {
+            status: 400,
+            headers: { ...headers, 'Content-Type': 'application/json' },
+          });
+        }
+
+        ctx.waitUntil(
+          sendMetaCapiEvent({
+            eventName,
+            eventId,
+            eventSourceUrl,
+            userData: { ...userData, fbp, fbc },
+            customData,
+            clientIp: request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For'),
+            userAgent: request.headers.get('User-Agent'),
+          })
+        );
+
+        return new Response(JSON.stringify({ success: true, eventId }), {
+          status: 200,
+          headers: { ...headers, 'Content-Type': 'application/json' },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 500,
+          headers: { ...headers, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -240,7 +386,33 @@ export default {
           } catch (emailErr) {
             console.error('Failed to send Resend email:', emailErr);
           }
-        }
+        // 5. Send CAPI Purchase Event
+        ctx.waitUntil(
+          sendMetaCapiEvent({
+            eventName: 'Purchase',
+            eventId: `PURCHASE_${txStr}`,
+            eventSourceUrl: `https://afigo.sampidia.com/#/course/${courseId}`,
+            userData: {
+              email: customerEmail,
+              phone: customerPhone,
+              firstName: String(customerName || '').split(' ')[0],
+              lastName: String(customerName || '').split(' ').slice(1).join(' '),
+            },
+            customData: {
+              value: paidAmountVal || (format === 'one-on-one' ? 30000 : 15000),
+              currency: paidCurrency || 'NGN',
+              content_ids: [courseId],
+              content_name: courseId === 'vibe-coding' ? 'Vibe Coding Masterclass' : 'Zero to n8n Masterclass',
+              content_type: 'product',
+              content_category: 'Course',
+              order_id: txStr,
+              num_items: 1,
+              contents: [{ id: courseId, quantity: 1, item_price: paidAmountVal || (format === 'one-on-one' ? 30000 : 15000) }],
+            },
+            clientIp: request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For'),
+            userAgent: request.headers.get('User-Agent'),
+          })
+        );
 
         return new Response(
           JSON.stringify({ success: true, verified: true, downloadToken, transactionId: txStr, receiptLink }),
@@ -446,7 +618,32 @@ export default {
           } catch (emailErr) {
             console.error('Failed to send product fulfillment email:', emailErr);
           }
-        }
+        // 4. Send CAPI Purchase Event for Digital Product
+        ctx.waitUntil(
+          sendMetaCapiEvent({
+            eventName: 'Purchase',
+            eventId: `PURCHASE_${txStr}`,
+            eventSourceUrl: `https://afigo.sampidia.com/#/product/${productId}`,
+            userData: {
+              email: customerEmail,
+              firstName: String(customerName || '').split(' ')[0],
+              lastName: String(customerName || '').split(' ').slice(1).join(' '),
+            },
+            customData: {
+              value: 25.00,
+              currency: paidCurrency || 'USD',
+              content_ids: [productId],
+              content_name: productId === 'ai-content-generator' ? 'WordPress AI-Powered Automatic Content Generator' : 'WordPress Plugin',
+              content_type: 'product',
+              content_category: 'Plugin',
+              order_id: txStr,
+              num_items: 1,
+              contents: [{ id: productId, quantity: 1, item_price: 25.00 }],
+            },
+            clientIp: request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For'),
+            userAgent: request.headers.get('User-Agent'),
+          })
+        );
 
         return new Response(
           JSON.stringify({ success: true, verified: true, downloadToken, transactionId: txStr, receiptLink, r2DownloadLink }),
@@ -629,7 +826,32 @@ export default {
           } catch (emailErr) {
             console.error('Failed to send webhook fulfillment email:', emailErr);
           }
-        }
+        // Send CAPI Purchase Event for Webhook Confirmation
+        ctx.waitUntil(
+          sendMetaCapiEvent({
+            eventName: 'Purchase',
+            eventId: `PURCHASE_${transactionId}`,
+            eventSourceUrl: `https://afigo.sampidia.com/#/course/${courseId}`,
+            userData: {
+              email: customerEmail,
+              firstName: String(customerName || '').split(' ')[0],
+              lastName: String(customerName || '').split(' ').slice(1).join(' '),
+            },
+            customData: {
+              value: data.amount || (format === 'one-on-one' ? 30000 : 15000),
+              currency: data.currency || 'NGN',
+              content_ids: [courseId],
+              content_name: courseId === 'vibe-coding' ? 'Vibe Coding Masterclass' : 'Zero to n8n Masterclass',
+              content_type: 'product',
+              content_category: 'Course',
+              order_id: transactionId,
+              num_items: 1,
+              contents: [{ id: courseId, quantity: 1, item_price: data.amount || 30000 }],
+            },
+            clientIp: request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For'),
+            userAgent: request.headers.get('User-Agent'),
+          })
+        );
 
         return new Response(
           JSON.stringify({ success: true, message: 'Webhook processed successfully', transactionId }),

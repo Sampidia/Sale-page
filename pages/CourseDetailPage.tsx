@@ -5,6 +5,7 @@ import { COURSES } from '../constants';
 import { CourseFormat } from '../types';
 import { useCurrency } from '../context/CurrencyContext';
 import { trackBeginCheckout, trackSelectContent } from '../utils/analytics';
+import { trackFBViewContent, trackFBInitiateCheckout, trackFBPurchase } from '../utils/facebookPixel';
 
 const CourseDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -204,30 +205,33 @@ const CourseDetailPage: React.FC = () => {
     return () => window.removeEventListener('message', handleBookingMessage);
   }, [transactionRef, email]);
 
+  // ── Track Facebook Ads ViewContent Event on Course Page Load ────────────────
+  useEffect(() => {
+    trackFBViewContent({
+      id: course.id,
+      name: `${course.title} (${format === 'one-on-one' ? '1-on-1 Mentorship' : 'PDF Blueprint'})`,
+      category: 'Masterclass Course',
+      value: coursePriceInfo.amount,
+      currency: coursePriceInfo.currency,
+    });
+  }, [course.id, format, coursePriceInfo.amount, coursePriceInfo.currency]);
+
   // ── Track Facebook Ads Purchase Event ONLY on Confirmed Payment ───────────
   useEffect(() => {
     if (isPaid && transactionRef) {
-      if (typeof window !== 'undefined') {
-        const fbqFunc = (window as any).fbq;
-        if (fbqFunc) {
-          try {
-            fbqFunc('track', 'Purchase', {
-              value: 20,               // ₦30,000 NGN ≈ $20 USD
-              currency: 'USD',         // Meta-accepted ISO 4217 code (NGN is not supported)
-              content_ids: [course.id],
-              content_name: course.title,
-              content_type: 'product',
-            });
-            console.log('[Facebook Pixel] Purchase event tracked successfully:', transactionRef);
-          } catch (err) {
-            console.error('Failed to trigger Facebook Pixel Purchase event:', err);
-          }
-        } else {
-          console.warn('[Facebook Pixel] window.fbq is not defined on window object');
-        }
-      }
+      trackFBPurchase({
+        id: course.id,
+        name: `${course.title} (${format === 'one-on-one' ? '1-on-1 Mentorship' : 'PDF Blueprint'})`,
+        category: 'Masterclass Course',
+        value: coursePriceInfo.amount,
+        currency: coursePriceInfo.currency,
+        transactionRef,
+        email,
+        name,
+        phone,
+      });
     }
-  }, [isPaid, transactionRef, course, format]);
+  }, [isPaid, transactionRef, course, format, coursePriceInfo.amount, coursePriceInfo.currency, email, name, phone]);
 
   // ── Verify Payment with Worker ────────────────────────────────────────────
   const verifyCoursePayment = async (txRef: string) => {
@@ -288,6 +292,17 @@ const CourseDetailPage: React.FC = () => {
       category: format === 'one-on-one' ? '1-on-1 Mentorship' : 'PDF Blueprint',
       value: currentNgnPrice,
       currency: coursePriceInfo.currency,
+    });
+
+    trackFBInitiateCheckout({
+      id: course.id,
+      name: `${course.title} (${format === 'one-on-one' ? '1-on-1 Mentorship' : 'PDF Blueprint'})`,
+      category: format === 'one-on-one' ? '1-on-1 Mentorship' : 'PDF Blueprint',
+      value: coursePriceInfo.amount,
+      currency: coursePriceInfo.currency,
+      email,
+      name,
+      phone,
     });
 
     const flwKey = import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY;
