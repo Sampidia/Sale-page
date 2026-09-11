@@ -32,11 +32,17 @@ const EbooksPage: React.FC = () => {
 
   const { formatProductPrice } = useCurrency();
 
-  const categories: ('All' | EbookCategory)[] = ['All', 'Kids', 'Tech', 'Finance', 'Science'];
+  const categories: string[] = ['All', 'Free', 'Kids', 'Tech', 'Finance', 'Science'];
 
-  const filteredEbooks = activeCategory === 'All'
-    ? EBOOKS
-    : EBOOKS.filter((b) => b.category === activeCategory);
+  const filteredEbooks = EBOOKS.filter((b) => {
+    if (activeCategory === 'All') return true;
+    if (activeCategory === 'Free') return b.isFree || b.price === 0;
+    return b.category === activeCategory;
+  }).sort((a, b) => {
+    const aComingSoon = a.comingSoon ? 1 : 0;
+    const bComingSoon = b.comingSoon ? 1 : 0;
+    return aComingSoon - bComingSoon;
+  });
 
   // ── Track FB ViewContent on Page Load ────────────────────────────────────
   useEffect(() => {
@@ -49,7 +55,7 @@ const EbooksPage: React.FC = () => {
     });
   }, []);
 
-  const WORKER_BASE = (import.meta as any).env?.VITE_COURSE_WORKER_URL || (import.meta as any).env?.VITE_WORKER_URL || 'https://course.sampidia.com';
+  const WORKER_BASE = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course.sampidia.com';
 
   // ── Handle Free Ebook Claim Submit ────────────────────────────────────────
   const handleFreeClaimSubmit = async (e: React.FormEvent) => {
@@ -115,7 +121,7 @@ const EbooksPage: React.FC = () => {
       phone: paidPhone,
     });
 
-    const flwKey = (import.meta as any).env?.VITE_FLUTTERWAVE_PUBLIC_KEY;
+    const flwKey = import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY;
 
     if (!flwKey) {
       setPaidError('Payment gateway configuration is missing (VITE_FLUTTERWAVE_PUBLIC_KEY). Please contact support.');
@@ -128,6 +134,7 @@ const EbooksPage: React.FC = () => {
     }
 
     setPaidError(null);
+    setIsProcessingPaid(true);
 
     (window as any).FlutterwaveCheckout({
       public_key: flwKey,
@@ -149,7 +156,13 @@ const EbooksPage: React.FC = () => {
         if (response.status === 'successful' || response.status === 'completed' || response.transaction_id || response.tx_ref) {
           const validTxRef = String(response.transaction_id || response.tx_ref || txRef);
           verifyPaidEbook(validTxRef, book);
+        } else {
+          setPaidError('Payment was not completed. Please try again.');
+          setIsProcessingPaid(false);
         }
+      },
+      onclose: () => {
+        setIsProcessingPaid(false);
       },
     });
   };
@@ -238,7 +251,7 @@ const EbooksPage: React.FC = () => {
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
                 }`}
               >
-                {cat === 'Kids' ? '🧒 Kids' : cat === 'Tech' ? '💻 Tech' : cat === 'Finance' ? '📈 Finance' : cat === 'Science' ? '🔬 Science' : '✨ All Books'}
+                {cat === 'Free' ? '🎁 Free' : cat === 'Kids' ? '🧒 Kids' : cat === 'Tech' ? '💻 Tech' : cat === 'Finance' ? '📈 Finance' : cat === 'Science' ? '🔬 Science' : '✨ All Books'}
               </button>
             ))}
           </div>

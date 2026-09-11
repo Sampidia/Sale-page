@@ -74,22 +74,6 @@ const ProductPage: React.FC = () => {
     });
   }, [product.id, product.name, product.category, priceInfo.amount, priceInfo.currency]);
 
-  // ── Track Facebook Ads Purchase Event ONLY on Confirmed Payment ───────────
-  useEffect(() => {
-    if (isPaid && transactionRef) {
-      trackFBPurchase({
-        id: product.id,
-        name: product.name,
-        category: product.category,
-        value: priceInfo.amount,
-        currency: priceInfo.currency,
-        transactionRef,
-        email,
-        customerName: name,
-      });
-    }
-  }, [isPaid, product.id, product.name, product.category, priceInfo.amount, priceInfo.currency, transactionRef, email, name]);
-
   // Verify Product Payment with Worker
   const verifyProductPayment = async (txRef: string) => {
     setIsLoading(true);
@@ -128,12 +112,35 @@ const ProductPage: React.FC = () => {
       setReceiptLink(receiptWithCurrency);
       setIsPaid(true);
 
+      // Track Facebook Ads Purchase Event directly upon confirmed payment
+      trackFBPurchase({
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        value: priceInfo.amount,
+        currency: priceInfo.currency,
+        transactionRef: txRef,
+        email,
+        customerName: name,
+      });
+
     } catch (err: any) {
       console.error('Product Payment Verification Error:', err);
       // Fallback display
       setR2DownloadLink(`https://course.sampidia.com/api/download-product-zip?token=demo&productId=${product.id}`);
       setReceiptLink(`https://course.sampidia.com/api/download-receipt?txId=${txRef}&email=${encodeURIComponent(email)}&courseId=${product.id}&currency=${encodeURIComponent(priceInfo.currency)}&amountPaid=${encodeURIComponent(priceInfo.formatted)}`);
       setIsPaid(true);
+
+      trackFBPurchase({
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        value: priceInfo.amount,
+        currency: priceInfo.currency,
+        transactionRef: txRef,
+        email,
+        customerName: name,
+      });
     } finally {
       setIsLoading(false);
     }

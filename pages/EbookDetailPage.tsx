@@ -30,7 +30,7 @@ const EbookDetailPage: React.FC = () => {
     });
   }, [ebook.id, ebook.title, ebook.category, priceInfo.amount, priceInfo.currency]);
 
-  const WORKER_BASE = (import.meta as any).env?.VITE_COURSE_WORKER_URL || (import.meta as any).env?.VITE_WORKER_URL || 'https://course.sampidia.com';
+  const WORKER_BASE = import.meta.env.VITE_COURSE_WORKER_URL || import.meta.env.VITE_WORKER_URL || 'https://course.sampidia.com';
 
   const handleCheckout = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +53,7 @@ const EbookDetailPage: React.FC = () => {
       return;
     }
 
-    const flwKey = (import.meta as any).env?.VITE_FLUTTERWAVE_PUBLIC_KEY;
+    const flwKey = import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY;
     if (!flwKey) {
       setError('Payment gateway is not configured (VITE_FLUTTERWAVE_PUBLIC_KEY is missing).');
       return;
