@@ -727,13 +727,9 @@ const CourseDetailPage: React.FC = () => {
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black text-white mb-3 leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-black text-white mb-4 leading-tight">
             {course.title}
           </h1>
-
-          <p className="text-red-400 font-bold text-xs sm:text-sm uppercase tracking-wide mb-4">
-            {course.subtitle}
-          </p>
 
           <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400 font-bold">
             <span>⏱️ {course.duration}</span>

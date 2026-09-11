@@ -164,7 +164,7 @@ const CoursesPage: React.FC = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
           {COURSES.map((course) => {
             const currentFormat = selectedFormat[course.id] || 'pdf';
             const currentCover = currentFormat === 'one-on-one' ? course.oneOnOneCoverUrl : course.pdfCoverUrl;
@@ -231,13 +231,10 @@ const CoursesPage: React.FC = () => {
                   </div>
 
                   {/* Card Main Header & Instant Action Buttons (ABOVE THE FOLD) */}
-                  <div className="p-5 sm:p-7">
-                    <h2 className="text-lg sm:text-2xl font-black text-white mb-1.5 leading-tight group-hover:text-red-400 transition-colors">
+                  <div className="p-5 sm:p-6 flex flex-col justify-between flex-1">
+                    <h3 className="text-xl font-bold text-white mb-3 leading-snug group-hover:text-red-400 transition-colors">
                       {course.title}
-                    </h2>
-                    <p className="text-red-400/90 text-xs font-extrabold uppercase tracking-wide mb-4">
-                      {course.subtitle}
-                    </p>
+                    </h3>
 
                     {/* IMMEDIATE CTAs ABOVE CURRICULUM */}
                     <div className="flex flex-col sm:flex-row gap-2.5 mb-5">
@@ -264,14 +261,11 @@ const CoursesPage: React.FC = () => {
                     </p>
 
                     {/* Concise Bullet Highlights */}
-                    <div className="space-y-2 border-t border-slate-800/80 pt-4">
-                      <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
-                        Key Highlights Included:
-                      </h4>
+                    <div className="space-y-1.5 border-t border-slate-800/80 pt-3 mt-4">
                       {course.features.slice(0, 3).map((feature, idx) => (
-                        <div key={idx} className="flex items-start gap-2 text-xs text-slate-300">
+                        <div key={idx} className="flex items-center gap-2 text-xs text-slate-300">
                           <span className="text-red-500 font-bold shrink-0">✓</span>
-                          <span>{feature}</span>
+                          <span className="truncate">{feature}</span>
                         </div>
                       ))}
                     </div>

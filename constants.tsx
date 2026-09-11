@@ -782,7 +782,6 @@ export const COURSES: Course[] = [
   {
     id: 'vibe-coding',
     title: 'Vibe Coding: Building High-End Android Apps with Android Studio & Antigravity + AI',
-    subtitle: 'Master AI-Assisted Native Android App Engineering from Scratch',
     description: 'Learn how to leverage AI tools (Antigravity, Gemini, LLMs) inside Android Studio to build, debug, and publish high-performance production Android applications at lightning speed.',
     price: 30000,
     pdfPrice: 15000,
@@ -877,7 +876,6 @@ export const COURSES: Course[] = [
   {
     id: 'zero-to-n8n',
     title: 'Zero to n8n — Free Hosting Mastered',
-    subtitle: 'Self-Host Enterprise AI Automation Pipelines for ₦0/Month',
     description: 'Master self-hosting n8n workflow automation engine on free cloud tiers (Oracle Cloud, Render, Railway, Docker) with SSL, domain configuration, and automated AI LLM pipelines.',
     price: 30000,
     pdfPrice: 15000,

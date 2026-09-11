@@ -117,7 +117,7 @@ export interface CourseCurriculumModule {
 export interface Course {
   id: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   description: string;
   price: number; // Default base price (30000 NGN)
   pdfPrice?: number; // PDF format price (15000 NGN)
