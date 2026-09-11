@@ -137,6 +137,22 @@ export const generateEventId = (prefix = 'EVT', itemId = ''): string => {
   return `${prefix}_${cleanId ? cleanId + '_' : ''}${time}_${rand}`;
 };
 
+const getMetaTestEventCode = (): string | undefined => {
+  if (typeof window === 'undefined') return undefined;
+  try {
+    const search = window.location.search || (window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
+    const urlParams = new URLSearchParams(search);
+    const code = urlParams.get('test_event_code') || urlParams.get('testCode') || urlParams.get('test_code');
+    if (code) {
+      sessionStorage.setItem('meta_test_event_code', code);
+      return code;
+    }
+    return sessionStorage.getItem('meta_test_event_code') || undefined;
+  } catch (e) {
+    return undefined;
+  }
+};
+
 /**
  * Relay CAPI Event to Cloudflare Worker Endpoint
  */
@@ -144,6 +160,7 @@ export const sendCapiRelay = async (payload: {
   eventName: string;
   eventId: string;
   eventSourceUrl: string;
+  test_event_code?: string;
   userData?: {
     email?: string;
     phone?: string;
@@ -170,6 +187,7 @@ export const sendCapiRelay = async (payload: {
 
     const fbp = getMetaFbp();
     const fbc = getMetaFbc();
+    const testEventCode = payload.test_event_code || getMetaTestEventCode();
 
     // Send payload to Worker edge relay
     fetch(`${cleanWorkerBase}api/track-event`, {
@@ -181,6 +199,7 @@ export const sendCapiRelay = async (payload: {
         eventSourceUrl: payload.eventSourceUrl || window.location.href,
         fbp,
         fbc,
+        test_event_code: testEventCode,
         userData: payload.userData || {},
         customData: payload.customData || {},
       }),

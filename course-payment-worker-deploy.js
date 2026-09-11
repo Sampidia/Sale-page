@@ -86,7 +86,8 @@ export default {
       userData = {},
       customData = {},
       clientIp = null,
-      userAgent = null
+      userAgent = null,
+      testEventCode = null
     }) {
       const pixelId = env.FB_PIXEL_ID || '636162258059569';
       const accessToken = env.FB_CAPI_ACCESS_TOKEN;
@@ -173,8 +174,9 @@ export default {
           ]
         };
 
-        if (env.FB_TEST_EVENT_CODE) {
-          capiPayload.test_event_code = env.FB_TEST_EVENT_CODE;
+        const activeTestCode = testEventCode || env.FB_TEST_EVENT_CODE;
+        if (activeTestCode) {
+          capiPayload.test_event_code = activeTestCode;
         }
 
         const capiRes = await fetch(`https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${accessToken}`, {
@@ -200,7 +202,7 @@ export default {
     if (request.method === 'POST' && url.pathname.endsWith('/api/track-event')) {
       try {
         const body = await request.json().catch(() => ({}));
-        const { eventName, eventId, eventSourceUrl, fbp, fbc, userData = {}, customData = {} } = body;
+        const { eventName, eventId, eventSourceUrl, fbp, fbc, test_event_code, testEventCode, userData = {}, customData = {} } = body;
 
         if (!eventName || !eventId) {
           return new Response(JSON.stringify({ error: 'Missing required fields: eventName, eventId' }), {
@@ -214,6 +216,7 @@ export default {
             eventName,
             eventId,
             eventSourceUrl,
+            testEventCode: test_event_code || testEventCode,
             userData: { ...userData, fbp, fbc },
             customData,
             clientIp: request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For'),
