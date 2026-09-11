@@ -625,7 +625,7 @@ const EbooksPage: React.FC = () => {
                   disabled={isProcessingPaid}
                   className="w-full bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white font-bold py-3 px-4 rounded-xl text-xs transition-all cursor-pointer shadow-lg shadow-red-950/50"
                 >
-                  {isProcessingPaid ? 'Processing Checkout...' : `Pay ${formatProductPrice(selectedBookForPaidCheckout.price).formatted} via Flutterwave →`}
+                  {isProcessingPaid ? 'Processing Checkout...' : `Pay ${formatProductPrice(selectedBookForPaidCheckout.price).formatted.replace(/\s[A-Z]{3}$/, '')} Now →`}
                 </button>
               </form>
             )}

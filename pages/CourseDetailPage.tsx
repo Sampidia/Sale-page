@@ -475,7 +475,7 @@ const CourseDetailPage: React.FC = () => {
             </span>
           ) : (
             <>
-              <span>💳</span> Pay {coursePriceInfo.formatted} Now
+              <span>💳</span> Pay {coursePriceInfo.formatted.replace(/\s[A-Z]{3}$/, '')} Now →
             </>
           )}
         </button>

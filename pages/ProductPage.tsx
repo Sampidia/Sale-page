@@ -1018,7 +1018,7 @@ if ($data->result === 'success') {
                     </span>
                   ) : (
                     <>
-                      <span>💳</span> Pay {priceInfo.formatted} via Flutterwave
+                       <span>💳</span> Pay {priceInfo.formatted.replace(/\s[A-Z]{3}$/, '')} Now →
                     </>
                   )}
                 </button>
