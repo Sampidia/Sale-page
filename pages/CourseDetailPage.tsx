@@ -363,7 +363,7 @@ const CourseDetailPage: React.FC = () => {
           <span className="text-3xl sm:text-4xl font-black text-white">{coursePriceInfo.formatted}</span>
         </div>
         {format === 'one-on-one' ? (
-          <p className="text-xs text-purple-400 font-bold mt-1">
+          <p className="text-xs text-amber-400 font-bold mt-1">
             ✓ 1 × 30-min Live Session — buy multiple sessions to go deeper
           </p>
         ) : (
@@ -446,21 +446,21 @@ const CourseDetailPage: React.FC = () => {
 
         {/* 1-on-1 Session Info Banner */}
         {format === 'one-on-one' && (
-          <div className="bg-purple-950/30 border border-purple-800/50 p-4 rounded-2xl space-y-2.5">
-            <span className="font-bold flex items-center gap-1.5 text-purple-300 text-xs">
+          <div className="bg-amber-950/30 border border-amber-800/50 p-4 rounded-2xl space-y-2.5">
+            <span className="font-bold flex items-center gap-1.5 text-amber-300 text-xs">
               <span>🎥</span> 1-on-1 Live Mentorship — Session Details
             </span>
             <ul className="space-y-1.5 text-xs text-slate-300">
               <li className="flex items-start gap-2">
-                <span className="text-purple-400 font-bold shrink-0">⏱️</span>
+                <span className="text-amber-400 font-bold shrink-0">⏱️</span>
                 <span>Each session is <strong className="text-white">30 minutes</strong> of focused 1-on-1 live coaching.</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-purple-400 font-bold shrink-0">🔁</span>
+                <span className="text-amber-400 font-bold shrink-0">🔁</span>
                 <span>Need more time? <strong className="text-white">Purchase multiple sessions</strong> — each checkout books one 30-min slot.</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-purple-400 font-bold shrink-0">📅</span>
+                <span className="text-amber-400 font-bold shrink-0">📅</span>
                 <span>After payment, you'll schedule your slot directly on our <strong className="text-white">Calendly calendar</strong>.</span>
               </li>
             </ul>
@@ -613,7 +613,7 @@ const CourseDetailPage: React.FC = () => {
                         href={`${workerBase}/api/cal-redirect?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-purple-950/40"
+                        className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-amber-950/40"
                       >
                         <span>🔄</span> Reschedule or View Session Status ↗
                       </a>
@@ -622,13 +622,13 @@ const CourseDetailPage: React.FC = () => {
                 ) : (
                   <>
                     <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-6 text-center space-y-3">
-                      <span className="bg-purple-500/20 text-purple-300 text-xs font-black uppercase px-3 py-1 rounded-full border border-purple-500/30">
+                      <span className="bg-amber-500/20 text-amber-300 text-xs font-black uppercase px-3 py-1 rounded-full border border-amber-500/30">
                         Step 2 of 2: Pick Your Live Mentorship Slot
                       </span>
                       <h3 className="text-xl sm:text-2xl font-bold text-white mt-1">
                         Schedule Your 1-on-1 Session with Afigo Sam
                       </h3>
-                      <p className="text-purple-300 text-xs sm:text-sm font-semibold max-w-md mx-auto">
+                      <p className="text-amber-300 text-xs sm:text-sm font-semibold max-w-md mx-auto">
                         👇 Select your preferred date, time, and meeting platform (Google Meet or CalVideo) on the calendar widget below:
                       </p>
                       <div className="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs px-4 py-2 rounded-xl max-w-md mx-auto font-medium">
@@ -639,7 +639,7 @@ const CourseDetailPage: React.FC = () => {
                           href={`${workerBase}/api/cal-redirect?txId=${encodeURIComponent(transactionRef || '')}&email=${encodeURIComponent(email)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-purple-950/40"
+                          className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-amber-950/40"
                         >
                           <span>🗓️</span> Open Cal.com Scheduler in New Tab ↗
                         </a>
@@ -804,13 +804,13 @@ const CourseDetailPage: React.FC = () => {
                   onClick={() => setFormat('one-on-one')}
                   className={`p-4 sm:p-5 rounded-2xl text-left border transition-all flex items-start gap-3 cursor-pointer ${
                     format === 'one-on-one'
-                      ? 'bg-purple-950/40 border-purple-500 text-white ring-1 ring-purple-500/50 shadow-xl'
+                      ? 'bg-amber-950/40 border-amber-500 text-white ring-1 ring-amber-500/50 shadow-xl'
                       : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700'
                   }`}
                 >
                   <div className="mt-0.5 shrink-0">
                     {format === 'one-on-one' ? (
-                      <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shadow-md">
+                      <div className="w-6 h-6 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-xs shadow-md">
                         ✓
                       </div>
                     ) : (
@@ -821,12 +821,12 @@ const CourseDetailPage: React.FC = () => {
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-lg">🤝</span>
-                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${format === 'one-on-one' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-slate-800 text-slate-500'}`}>
+                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${format === 'one-on-one' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-slate-800 text-slate-500'}`}>
                         {format === 'one-on-one' ? 'Selected' : 'Format Option'}
                       </span>
                     </div>
                     <h4 className="font-extrabold text-sm text-white mb-1">1-on-1 Live Mentorship</h4>
-                    <p className="text-xs text-slate-400">Live 1-on-1 video coaching with Afigo Sam. <strong className="text-purple-300">Each session is 30 minutes.</strong> You can purchase multiple sessions.</p>
+                    <p className="text-xs text-slate-400">Live 1-on-1 video coaching with Afigo Sam. <strong className="text-amber-300">Each session is 30 minutes.</strong> You can purchase multiple sessions.</p>
                   </div>
                 </button>
               </div>

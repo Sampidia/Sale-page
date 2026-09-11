@@ -136,7 +136,7 @@ const CoursesPage: React.FC = () => {
           </h1>
 
           <p className="text-slate-300 text-xs sm:text-base max-w-2xl mx-auto mb-4 leading-relaxed">
-            Choose your learning format: <span className="text-red-400 font-bold">Instant PDF Blueprint</span> or <span className="text-purple-400 font-bold">1-on-1 Live Coaching</span>.
+            Choose your learning format: <span className="text-red-400 font-bold">Instant PDF Blueprint</span> or <span className="text-amber-400 font-bold">1-on-1 Live Coaching</span>.
           </p>
         </div>
       </section>
@@ -145,7 +145,7 @@ const CoursesPage: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
 
         {/* Student Access Portal Banner CTA */}
-        <div className="bg-gradient-to-r from-red-950/80 via-slate-900 to-purple-950/80 border border-slate-800/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-4xl mx-auto mb-10 shadow-2xl backdrop-blur-md">
+        <div className="bg-gradient-to-r from-red-950/80 via-slate-900 to-amber-950/40 border border-slate-800/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-4xl mx-auto mb-10 shadow-2xl backdrop-blur-md">
           <div className="flex items-center space-x-3.5 text-left">
             <div className="w-10 h-10 rounded-xl bg-red-600/20 border border-red-500/40 text-red-400 flex items-center justify-center text-xl shrink-0 shadow-inner">
               🔑
@@ -215,7 +215,7 @@ const CoursesPage: React.FC = () => {
                           onClick={() => toggleCourseFormat(course.id, 'one-on-one')}
                           className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1 shrink-0 ${
                             currentFormat === 'one-on-one'
-                              ? 'bg-purple-600 text-white shadow-md'
+                              ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-md'
                               : 'text-slate-400 hover:text-white'
                           }`}
                         >
@@ -237,7 +237,7 @@ const CoursesPage: React.FC = () => {
                         to={`/course/${course.id}`}
                         className="flex-1 text-center bg-red-600 hover:bg-red-700 text-white font-black text-xs sm:text-sm px-4 py-3 rounded-2xl transition-all shadow-lg shadow-red-950/50 flex items-center justify-center gap-1.5"
                       >
-                        <span>🎯</span> Enroll Now — {priceInfo.formatted}
+                        <span>🛒</span> Enroll Now
                       </Link>
 
                       <a
