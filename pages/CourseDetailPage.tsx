@@ -446,14 +446,11 @@ const CourseDetailPage: React.FC = () => {
 
         {/* 1-on-1 Session Info Banner */}
         {format === 'one-on-one' && (
-          <div className="bg-amber-950/30 border border-amber-800/50 p-4 rounded-2xl space-y-2.5">
-            <span className="font-bold flex items-center gap-1.5 text-amber-300 text-xs">
-              <span>🎥</span> 1-on-1 Live Mentorship — Session Details
-            </span>
+          <div className="bg-amber-950/30 border border-amber-800/50 p-4 rounded-2xl">
             <ul className="space-y-1.5 text-xs text-slate-300">
               <li className="flex items-start gap-2">
                 <span className="text-amber-400 font-bold shrink-0">⏱️</span>
-                <span>Each session is <strong className="text-white">30 minutes</strong>. You can purchase multiple sessions.</span>
+                <span>Each session is <strong className="text-white">30 minutes</strong>.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-amber-400 font-bold shrink-0">📅</span>
