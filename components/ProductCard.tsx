@@ -39,10 +39,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="mt-auto">
           <div className="flex items-baseline space-x-2 mb-4">
             <span className="text-2xl font-black text-gray-900">
-              {product.price === 0 ? 'Free' : priceInfo.formatted}
+              {product.price === 0 ? 'Free' : priceInfo.formatted.replace(/\s[A-Z]{3}$/, '')}
             </span>
             {altPriceInfo && product.price !== 0 && (
-              <span className="text-lg text-gray-500 line-through">{altPriceInfo.formatted}</span>
+              <span className="text-lg text-gray-500 line-through">{altPriceInfo.formatted.replace(/\s[A-Z]{3}$/, '')}</span>
             )}
           </div>
 
@@ -65,7 +65,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 to={`/product/${product.id}`}
                 className="w-full text-center border-2 border-red-600 text-red-600 hover:bg-red-50 font-bold py-2.5 rounded-xl transition-colors text-sm"
               >
-                Buy Now - {priceInfo.formatted}
+                Buy Now - {priceInfo.formatted.replace(/\s[A-Z]{3}$/, '')}
               </Link>
             )}
           </div>
