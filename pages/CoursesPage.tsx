@@ -247,7 +247,7 @@ const CoursesPage: React.FC = () => {
                         className="sm:w-auto text-center bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs px-4 py-3 rounded-2xl transition-all flex items-center justify-center gap-1.5"
                         title="Buy directly via Selar"
                       >
-                        <span>🛒</span> Buy on Selar
+                        Buy on Selar
                       </a>
                     </div>
 
@@ -266,20 +266,6 @@ const CoursesPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Footer Action */}
-                <div className="px-5 sm:px-7 pb-5 pt-0 border-t border-slate-800/50 flex items-center justify-between text-xs text-slate-400">
-                  <span className="font-semibold text-emerald-400 flex items-center gap-1 text-[11px]">
-                    <span>⚡</span> Instant Delivery Guaranteed
-                  </span>
-                  <Link
-                    to={`/course/${course.id}`}
-                    className="text-red-400 hover:text-red-300 font-bold flex items-center gap-1 transition-colors text-[11px]"
-                  >
-                    Full Details →
-                  </Link>
-                </div>
-
               </div>
             );
           })}

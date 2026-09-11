@@ -453,15 +453,11 @@ const CourseDetailPage: React.FC = () => {
             <ul className="space-y-1.5 text-xs text-slate-300">
               <li className="flex items-start gap-2">
                 <span className="text-amber-400 font-bold shrink-0">⏱️</span>
-                <span>Each session is <strong className="text-white">30 minutes</strong> of focused 1-on-1 live coaching.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-amber-400 font-bold shrink-0">🔁</span>
-                <span>Need more time? <strong className="text-white">Purchase multiple sessions</strong> — each checkout books one 30-min slot.</span>
+                <span>Each session is <strong className="text-white">30 minutes</strong>. You can purchase multiple sessions.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-amber-400 font-bold shrink-0">📅</span>
-                <span>After payment, you'll schedule your slot directly on our <strong className="text-white">Calendly calendar</strong>.</span>
+                <span>After payment, schedule your slot directly on the calendar.</span>
               </li>
             </ul>
           </div>
