@@ -550,6 +550,68 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Ebook Library Showcase Card */}
+          <div className="mt-16 bg-[#0f111a] border border-slate-800 rounded-3xl p-6 sm:p-10 relative overflow-hidden shadow-2xl group">
+            {/* Ambient Background Glows — Brand Red & Amber */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-red-600/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-500/10 rounded-full blur-[90px] pointer-events-none" />
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+              {/* Left Column — 3D Multi-Book Stack Graphic */}
+              <div className="lg:col-span-5 flex justify-center">
+                <div className="relative w-full max-w-sm aspect-square rounded-2xl overflow-hidden bg-slate-900/50 border border-slate-800/80 p-2 shadow-xl group-hover:scale-102 transition-transform duration-500">
+                  <img
+                    src="assets/adas_golden_thread_multi_stack_3d.png"
+                    alt="Digital Ebook Library & Guides - Ada's Golden Thread"
+                    className="w-full h-full object-contain drop-shadow-2xl"
+                  />
+                </div>
+              </div>
+
+              {/* Right Column — Typography & CTA */}
+              <div className="lg:col-span-7 space-y-4">
+                <div className="inline-flex items-center space-x-2 bg-red-950/80 text-red-300 border border-red-800/60 px-3.5 py-1.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider">
+                  <span>📚 DIGITAL LIBRARY & EBOOKS</span>
+                </div>
+
+                <h3 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                  Discover Empowering Stories & Technical Guides
+                </h3>
+
+                <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+                  Explore our curated collection of illustrated children's books, AI engineering blueprints, financial freedom guides, and scientific research — available in instant PDF downloads.
+                </p>
+
+                {/* Category Pills */}
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <span className="px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-full text-xs font-bold">
+                    Kids
+                  </span>
+                  <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full text-xs font-bold">
+                    Tech
+                  </span>
+                  <span className="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full text-xs font-bold">
+                    Finance
+                  </span>
+                  <span className="px-3 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-full text-xs font-bold">
+                    Science
+                  </span>
+                </div>
+
+                {/* Action CTA Button */}
+                <div className="pt-3">
+                  <Link
+                    to="/ebooks"
+                    className="inline-flex items-center space-x-2 bg-gradient-to-r from-red-600 via-red-500 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-extrabold text-sm px-7 py-3.5 rounded-2xl shadow-xl shadow-red-950/50 hover:shadow-red-900/60 transition-all transform hover:-translate-y-0.5"
+                  >
+                    <span>Explore Ebook Collection</span>
+                    <span>→</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 

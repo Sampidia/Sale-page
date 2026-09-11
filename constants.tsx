@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Product, NavItem, MobileApp, ClientProject, SkillCategory, ExperienceItem, EducationItem, Course } from './types';
+import { Product, NavItem, MobileApp, ClientProject, SkillCategory, ExperienceItem, EducationItem, Course, Ebook } from './types';
 
 export const FLUTTERWAVE_URL = "https://flutterwave.com/pay/wordpressai";
 export const CODECANYON_URL = "#";
@@ -980,4 +980,121 @@ export const BRAIN_LOGO = (
     <path d="M40 40 L60 40 M40 50 L60 50 M40 60 L60 60" stroke="currentColor" strokeWidth="2" />
   </svg>
 );
+
+export const EBOOKS: Ebook[] = [
+  {
+    id: 'adas-golden-thread',
+    title: "Ada's Golden Thread",
+    subtitle: 'An Inspiring Story of Courage, Hope and Education',
+    description: 'A girl child in a rural village facing hardship and overcoming obstacles to go to school.',
+    category: 'Kids',
+    price: 0, // Free ebook download
+    currency: 'NGN',
+    cover3DUrl: 'assets/adas_golden_thread_multi_stack_3d.png',
+    coverFlatUrl: "assets/Ada's Golden Thread.png",
+    ogImage: "assets/Ada's Golden Thread.png",
+    badge: 'Featured Story',
+    isFree: true,
+    pagesCount: 32,
+    hasPortraitPdf: true,
+    hasLandscapePdf: true,
+    author: 'Afigo Sam',
+    features: [
+      "Vibrant full-color illustrated children's storybook",
+      "Inspiring message on female education and resilience",
+      "Available in both Portrait and Landscape PDF formats",
+      "Includes printable discussion questions for young readers"
+    ],
+    detailedFeatures: [
+      {
+        title: 'Empowering Girl Child Education',
+        desc: 'Follow Ada as she navigates village life, rural challenges, and fights for her right to learn.',
+        icon: '📚'
+      },
+      {
+        title: 'Dual PDF Orientations',
+        desc: 'Optimized for mobile reading in Portrait and tablet/desktop reading in Landscape.',
+        icon: '📱'
+      },
+      {
+        title: 'Free Digital Download',
+        desc: 'Instant access for parents, teachers, and children with zero cost.',
+        icon: '🎁'
+      }
+    ],
+    sampleExcerpt: 'In the heart of an African village, where the sun rises like molten gold over dusty roads, lived a young girl named Ada whose dream was bigger than the hills...'
+  },
+  {
+    id: 'prompt-engineering-ai-agents',
+    title: 'Prompt Engineering & Autonomous AI Agent Systems',
+    subtitle: 'Build Enterprise Workflow Pipelines with Gemini, Claude & n8n',
+    description: 'Practical guide to crafting production-grade prompts, chaining LLM agents, and automating complex business tasks.',
+    category: 'Tech',
+    price: 2500,
+    currency: 'NGN',
+    cover3DUrl: 'assets/adas_golden_thread_multi_stack_3d.png',
+    coverFlatUrl: 'assets/vibe-coding-building-high-cover.webp',
+    badge: 'Tech Blueprint',
+    isFree: false,
+    pagesCount: 68,
+    hasPortraitPdf: true,
+    hasLandscapePdf: false,
+    author: 'Afigo Sam',
+    features: [
+      'Advanced Prompt Architecture Templates',
+      'n8n AI Agent Node Configuration Scripts',
+      'API Integration Patterns for Gemini & Claude',
+      'Real-world Automated Content Pipeline Case Studies'
+    ],
+    sampleExcerpt: 'Effective prompt engineering is not about writing long paragraphs; it is about defining deterministic state machines for artificial intelligence...'
+  },
+  {
+    id: 'digital-wealth-saas-monetization',
+    title: 'Digital Wealth & SaaS Monetization Blueprint',
+    subtitle: 'From Code to Cashflow: Building Recurring Income Online',
+    description: 'Learn how to package software scripts, WordPress plugins, and digital services into automated passive income streams.',
+    category: 'Finance',
+    price: 3500,
+    currency: 'NGN',
+    cover3DUrl: 'assets/adas_golden_thread_multi_stack_3d.png',
+    coverFlatUrl: 'assets/zero-to-n8n-free-hosting-cover.webp',
+    badge: 'Finance Guide',
+    isFree: false,
+    pagesCount: 54,
+    hasPortraitPdf: true,
+    hasLandscapePdf: true,
+    author: 'Afigo Sam',
+    features: [
+      'Payment Gateway Integration (Flutterwave, Paystack, Stripe)',
+      'Digital License Server Management Architecture',
+      'Email Lead Magnet Conversion Funnels',
+      'Multi-currency Pricing Strategies'
+    ],
+    sampleExcerpt: 'Monetization begins with solving a specific operational bottleneck. When your digital product saves time or makes money, price is never an objection...'
+  },
+  {
+    id: 'green-nanotechnology-chemistry',
+    title: 'Green Nanotechnology & Applied Plant Extract Synthesis',
+    subtitle: 'Eco-Friendly Metallic Nanoparticles & Antimicrobial Characterization',
+    description: 'Scientific synthesis methods, FTIR/UV-Vis spectroscopic analysis, and gravimetric corrosion inhibitors.',
+    category: 'Science',
+    price: 0,
+    currency: 'NGN',
+    cover3DUrl: 'assets/adas_golden_thread_multi_stack_3d.png',
+    coverFlatUrl: 'assets/vibe-coding-building-high-cover.webp',
+    badge: 'M.Sc. Research',
+    isFree: true,
+    pagesCount: 82,
+    hasPortraitPdf: true,
+    hasLandscapePdf: true,
+    author: 'Oghenekaro Samson Afigo (M.Sc.)',
+    features: [
+      'Green synthesis protocols using Luffa cylindrica leaf extract',
+      'UV-Vis, FTIR, SEM, and XRD characterization charts',
+      'Antimicrobial efficacy testing data & microbial assays',
+      'Gravimetric corrosion analysis of dissimilar metal welds'
+    ],
+    sampleExcerpt: 'Green synthesis offers a sustainable alternative to chemical reduction methods by employing phytochemicals as natural reducing and capping agents...'
+  }
+];
 

@@ -200,8 +200,9 @@ const ProductPage: React.FC = () => {
         logo: 'https://afigo.sampidia.com/assets/favicon-32x32.png',
       },
       callback: (response: any) => {
-        if (response.status === 'successful' || response.status === 'completed') {
-          verifyProductPayment(response.transaction_id || txRef);
+        if (response.status === 'successful' || response.status === 'completed' || response.transaction_id || response.tx_ref) {
+          const validTxRef = String(response.transaction_id || response.tx_ref || txRef);
+          verifyProductPayment(validTxRef);
         } else {
           setError('Payment was not completed. Please try again.');
           setIsLoading(false);

@@ -1,4 +1,29 @@
 
+export type EbookCategory = 'Kids' | 'Tech' | 'Finance' | 'Science';
+
+export interface Ebook {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  category: EbookCategory;
+  price: number; // 0 for free, or numeric price e.g. 2500
+  currency: string; // 'NGN' | 'USD'
+  cover3DUrl: string;
+  coverFlatUrl: string;
+  ogImage?: string;
+  badge?: string;
+  isFree: boolean;
+  pagesCount: number;
+  hasPortraitPdf: boolean;
+  hasLandscapePdf: boolean;
+  showcaseImages?: { img: string; title: string; }[];
+  features: string[];
+  detailedFeatures?: { title: string; desc: string; icon: string; }[];
+  author: string;
+  sampleExcerpt?: string;
+}
+
 export type ProductCategory = 'Plugin' | 'Theme' | 'Template' | 'Script';
 
 export interface Product {

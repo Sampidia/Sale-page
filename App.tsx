@@ -16,6 +16,8 @@ import GetCodePage from './pages/GetCodePage';
 import VerifyCertificatePage from './pages/VerifyCertificatePage';
 import CoursesPage from './pages/CoursesPage';
 import CourseDetailPage from './pages/CourseDetailPage';
+import EbooksPage from './pages/EbooksPage';
+import EbookDetailPage from './pages/EbookDetailPage';
 import CourseDashboard from './components/CourseDashboard';
 import ProjectsPage from './pages/ProjectsPage';
 import { CurrencyProvider } from './context/CurrencyContext';
@@ -35,6 +37,8 @@ const App: React.FC = () => {
           <Route path="/product/ai-content-generator/documentation" element={<AIDocumentationPage />} />
           <Route path="/courses" element={<CoursesPage />} />
           <Route path="/course/:id" element={<CourseDetailPage />} />
+          <Route path="/ebooks" element={<EbooksPage />} />
+          <Route path="/ebook/:id" element={<EbookDetailPage />} />
           <Route path="/my-courses" element={<CourseDashboard />} />
           <Route path="/my-downloads" element={<CourseDashboard />} />
           <Route path="/apps" element={<MobileAppsPage />} />

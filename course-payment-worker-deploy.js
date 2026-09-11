@@ -625,6 +625,9 @@ export default {
         } // end if (env.RESEND_API_KEY)
 
         // 4. Send CAPI Purchase Event for Digital Product
+        const productPriceVal = parseFloat(String(paidAmount || paidAmountStr || '25').replace(/[^0-9.]/g, '')) || 25.00;
+        const productCurrencyVal = (paidCurrency || 'USD').toUpperCase();
+
         ctx.waitUntil(
           sendMetaCapiEvent({
             eventName: 'Purchase',
@@ -636,15 +639,15 @@ export default {
               lastName: String(customerName || '').split(' ').slice(1).join(' '),
             },
             customData: {
-              value: 25.00,
-              currency: paidCurrency || 'USD',
+              value: productPriceVal,
+              currency: productCurrencyVal,
               content_ids: [productId],
               content_name: productId === 'ai-content-generator' ? 'WordPress AI-Powered Automatic Content Generator' : 'WordPress Plugin',
               content_type: 'product',
               content_category: 'Plugin',
               order_id: txStr,
               num_items: 1,
-              contents: [{ id: productId, quantity: 1, item_price: 25.00 }],
+              contents: [{ id: productId, quantity: 1, item_price: productPriceVal }],
             },
             clientIp: request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For'),
             userAgent: request.headers.get('User-Agent'),
@@ -653,6 +656,133 @@ export default {
 
         return new Response(
           JSON.stringify({ success: true, verified: true, downloadToken, transactionId: txStr, receiptLink, r2DownloadLink }),
+          { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ error: err.message || 'Internal Server Error' }),
+          { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 1.2: POST /api/verify-ebook-payment
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'POST' && url.pathname.endsWith('/api/verify-ebook-payment')) {
+      try {
+        const body = await request.json().catch(() => ({}));
+        const {
+          transactionId,
+          ebookId,
+          customerName,
+          customerEmail,
+          customerPhone,
+          amount,
+          currency,
+          isFree = false
+        } = body;
+
+        if (!customerEmail || !ebookId) {
+          return new Response(
+            JSON.stringify({ error: 'Missing required parameters: customerEmail, ebookId' }),
+            { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const txStr = String(transactionId || `EBOOK_${ebookId.toUpperCase()}_${Date.now()}`);
+        const downloadToken = `token_ebk_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        const workerOrigin = new URL(request.url).origin;
+
+        const portraitLink = `${workerOrigin}/api/download-ebook-pdf?token=${downloadToken}&ebookId=${ebookId}&format=portrait`;
+        const landscapeLink = `${workerOrigin}/api/download-ebook-pdf?token=${downloadToken}&ebookId=${ebookId}&format=landscape`;
+        const receiptLink = `${workerOrigin}/api/download-receipt?txId=${encodeURIComponent(txStr)}&email=${encodeURIComponent(customerEmail)}&courseId=${encodeURIComponent(ebookId)}`;
+
+        const paidAmountVal = parseFloat(String(amount || '0').replace(/[^0-9.]/g, '')) || 0;
+        const paidCurrencyVal = (currency || 'NGN').toUpperCase();
+
+        // 1. Record purchase/claim to D1 DB
+        await recordPurchaseToDB({
+          email: customerEmail,
+          customerName: customerName || 'Reader',
+          courseId: ebookId,
+          format: 'pdf',
+          transactionId: txStr,
+          downloadToken,
+          amount: paidAmountVal,
+          currency: paidCurrencyVal,
+          amountPaid: isFree ? 'FREE' : `${paidCurrencyVal} ${paidAmountVal}`,
+          itemType: 'ebook'
+        });
+
+        // 2. Email fulfillment via Resend
+        if (env.RESEND_API_KEY) {
+          const ebookTitle = ebookId === 'adas-golden-thread' ? "Ada's Golden Thread" : 'Digital Ebook Guide';
+          const emailSubject = isFree ? `🎁 Your Free Ebook: ${ebookTitle}` : `📚 Order Confirmed: ${ebookTitle}`;
+
+          const emailHtml = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1e293b; line-height: 1.6;">
+              <h2 style="color: #dc2626; border-bottom: 2px solid #fee2e2; padding-bottom: 12px; margin-top: 0;">
+                ${isFree ? '🎁 Free Ebook Claimed' : '🎉 Order Confirmed'} — ${ebookTitle}
+              </h2>
+              <p>Hi <strong>${customerName || 'Reader'}</strong>,</p>
+              <p>Thank you for acquiring <strong>${ebookTitle}</strong>.</p>
+              <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                <h3 style="color: #166534; margin-top: 0;">📥 Download Your PDF Ebook</h3>
+                <div style="text-align: center; margin: 16px 0;">
+                  <a href="${portraitLink}" style="background:#16a34a; color:#ffffff; padding:12px 24px; border-radius:10px; font-size:14px; font-weight:bold; text-decoration:none; display:inline-block; margin-right:8px;">📱 Download Portrait PDF</a>
+                  <a href="${landscapeLink}" style="background:#0f172a; color:#ffffff; padding:12px 24px; border-radius:10px; font-size:14px; font-weight:bold; text-decoration:none; display:inline-block;">💻 Download Landscape PDF</a>
+                </div>
+              </div>
+              <p style="font-size: 12px; color: #64748b;">Ref: ${txStr} | Support: admin@afigo.sampidia.com</p>
+            </div>
+          `;
+
+          try {
+            await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+              },
+              body: JSON.stringify({
+                from: 'admin@afigo.sampidia.com',
+                to: [customerEmail, 'admin@sampidia.com'],
+                subject: emailSubject,
+                html: emailHtml,
+              }),
+            }).catch(() => {});
+          } catch (e) {}
+        }
+
+        // 3. Send CAPI event (Lead for free, Purchase for paid)
+        ctx.waitUntil(
+          sendMetaCapiEvent({
+            eventName: isFree ? 'Lead' : 'Purchase',
+            eventId: isFree ? `LEAD_${txStr}` : `PURCHASE_${txStr}`,
+            eventSourceUrl: `https://afigo.sampidia.com/#/ebooks`,
+            userData: {
+              email: customerEmail,
+              phone: customerPhone,
+              firstName: String(customerName || '').split(' ')[0],
+              lastName: String(customerName || '').split(' ').slice(1).join(' '),
+            },
+            customData: {
+              value: paidAmountVal > 0 ? paidAmountVal : 0,
+              currency: paidCurrencyVal,
+              content_ids: [ebookId],
+              content_name: ebookId,
+              content_type: 'product',
+              order_id: txStr,
+            },
+            clientIp: request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For'),
+            userAgent: request.headers.get('User-Agent'),
+          })
+        );
+
+        return new Response(
+          JSON.stringify({ success: true, verified: true, downloadToken, transactionId: txStr, portraitLink, landscapeLink, receiptLink }),
           { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
         );
 
@@ -944,6 +1074,66 @@ export default {
           'Content-Disposition': `attachment; filename="${zipFileName}"`,
         },
       });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 2.7: GET /api/download-ebook-pdf
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'GET' && url.pathname.endsWith('/api/download-ebook-pdf')) {
+      const ebookId = url.searchParams.get('ebookId') || 'adas-golden-thread';
+      const format = url.searchParams.get('format') === 'landscape' ? 'landscape' : 'portrait';
+      const pdfFileName = `ebooks/${ebookId}-${format}.pdf`;
+      const downloadDisplayName = `${ebookId}-${format}.pdf`;
+
+      if (env.COURSE_PDFS) {
+        try {
+          const r2Object = await env.COURSE_PDFS.get(pdfFileName);
+          if (r2Object) {
+            return new Response(r2Object.body, {
+              status: 200,
+              headers: {
+                ...headers,
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': `attachment; filename="${downloadDisplayName}"`,
+              },
+            });
+          }
+        } catch (r2Err) {
+          console.error('R2 ebook streaming error:', r2Err);
+        }
+      }
+
+      return new Response(`PDF Document stream for ${ebookId} (${format})`, {
+        status: 200,
+        headers: {
+          ...headers,
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': `attachment; filename="${downloadDisplayName}"`,
+        },
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROUTE 2.8: GET /api/check-ebook-formats
+    // ─────────────────────────────────────────────────────────────────────────
+    if (request.method === 'GET' && url.pathname.endsWith('/api/check-ebook-formats')) {
+      const ebookId = url.searchParams.get('ebookId') || 'adas-golden-thread';
+      let portraitAvailable = false;
+      let landscapeAvailable = false;
+
+      if (env.COURSE_PDFS) {
+        try {
+          const portraitHead = await env.COURSE_PDFS.head(`ebooks/${ebookId}-portrait.pdf`).catch(() => null);
+          const landscapeHead = await env.COURSE_PDFS.head(`ebooks/${ebookId}-landscape.pdf`).catch(() => null);
+          portraitAvailable = !!portraitHead;
+          landscapeAvailable = !!landscapeHead;
+        } catch (e) {}
+      }
+
+      return new Response(
+        JSON.stringify({ ebookId, portraitAvailable, landscapeAvailable }),
+        { status: 200, headers: { ...headers, 'Content-Type': 'application/json' } }
+      );
     }
 
     // ─────────────────────────────────────────────────────────────────────────

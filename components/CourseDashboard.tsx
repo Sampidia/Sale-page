@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import { Link, useSearchParams, useLocation } from 'react-router-dom';
 import SEO from './SEO';
-import { COURSES, PRODUCTS } from '../constants';
+import { COURSES, PRODUCTS, EBOOKS } from '../constants';
 
 interface PurchasedCourseItem {
   id: string;
   courseId: string;
   format?: string;
-  itemType?: 'course' | 'product';
+  itemType?: 'course' | 'product' | 'ebook';
   customerName?: string;
   transactionId: string;
   purchasedAt: string;
   r2DownloadLink: string;
+  portraitDownloadLink?: string;
+  landscapeDownloadLink?: string;
+  hasPortraitPdf?: boolean;
+  hasLandscapePdf?: boolean;
   receiptLink: string;
   calendlyUrl?: string | null;
   calUrl?: string | null;
@@ -31,7 +35,7 @@ const CourseDashboard: React.FC = () => {
   const location = useLocation();
 
   const isProductMode = searchParams.get('type') === 'product' || location.pathname === '/my-downloads';
-  const [activeTab, setActiveTab] = useState<'all' | 'course' | 'product'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'course' | 'product' | 'ebook'>('all');
 
   const [step, setStep] = useState<'email' | 'otp' | 'dashboard'>('email');
   const [email, setEmail] = useState('');
@@ -464,17 +468,27 @@ const CourseDashboard: React.FC = () => {
                     >
                       🔌 Plugins & Assets ({purchases.filter(p => p.itemType === 'product').length})
                     </button>
+                    <button
+                      onClick={() => setActiveTab('ebook')}
+                      className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer ${activeTab === 'ebook' ? 'bg-red-600 text-white shadow-lg shadow-red-950/50' : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'}`}
+                    >
+                      📚 Ebooks & Guides ({purchases.filter(p => p.itemType === 'ebook').length})
+                    </button>
                   </div>
                 )}
 
                 <div className="space-y-4 max-h-[70vh] sm:max-h-[460px] overflow-y-auto pr-1">
                   {purchases
-                    .filter(p => activeTab === 'all' || (activeTab === 'product' ? p.itemType === 'product' : (p.itemType || 'course') === 'course'))
+                    .filter(p => activeTab === 'all' || (activeTab === 'product' ? p.itemType === 'product' : activeTab === 'ebook' ? p.itemType === 'ebook' : (p.itemType || 'course') === 'course'))
                     .map((item) => {
                       const courseData = COURSES.find(c => c.id === item.courseId);
                       const productData = PRODUCTS.find(p => p.id === item.courseId);
+                      const ebookData = EBOOKS.find(b => b.id === item.courseId);
+
                       const title = item.itemType === 'product'
                         ? (productData?.name || 'WordPress Plugin & Digital Product')
+                        : item.itemType === 'ebook'
+                        ? (ebookData?.title || 'Digital Ebook Guide')
                         : (courseData?.title || 'Masterclass Blueprint');
 
                       const formattedDate = item.purchasedAt
@@ -489,7 +503,7 @@ const CourseDashboard: React.FC = () => {
                           <div className="flex items-start justify-between gap-3">
                             <div>
                               <span className="text-[10px] font-bold uppercase tracking-wider bg-red-950/80 text-red-300 border border-red-800/50 px-2.5 py-0.5 rounded-full">
-                                {item.itemType === 'product' ? '🔌 Plugin Package' : (item.format === 'one-on-one' ? '🗓️ 1-on-1 Mentorship' : '📘 PDF Blueprint')}
+                                {item.itemType === 'product' ? '🔌 Plugin Package' : item.itemType === 'ebook' ? '📚 Ebook PDF' : (item.format === 'one-on-one' ? '🗓️ 1-on-1 Mentorship' : '📘 PDF Blueprint')}
                               </span>
                               <h3 className="text-sm font-bold text-white mt-2 leading-snug">
                                 {title}
@@ -499,7 +513,30 @@ const CourseDashboard: React.FC = () => {
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
-                            {item.itemType === 'product' ? (
+                            {item.itemType === 'ebook' ? (
+                              <div className="col-span-1 sm:col-span-2 flex flex-col sm:flex-row gap-2">
+                                {(item.hasPortraitPdf ?? true) && (
+                                  <a
+                                    href={item.portraitDownloadLink || `${WORKER_BASE_URL}/api/download-ebook-pdf?ebookId=${item.courseId}&format=portrait&txId=${encodeURIComponent(item.transactionId)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center flex-1"
+                                  >
+                                    <span>📱 Download Portrait PDF</span>
+                                  </a>
+                                )}
+                                {(item.hasLandscapePdf ?? true) && (
+                                  <a
+                                    href={item.landscapeDownloadLink || `${WORKER_BASE_URL}/api/download-ebook-pdf?ebookId=${item.courseId}&format=landscape&txId=${encodeURIComponent(item.transactionId)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all text-center flex-1 border border-slate-700"
+                                  >
+                                    <span>💻 Download Landscape PDF</span>
+                                  </a>
+                                )}
+                              </div>
+                            ) : item.itemType === 'product' ? (
                               <a
                                 href={item.r2DownloadLink}
                                 target="_blank"
