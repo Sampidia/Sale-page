@@ -8,7 +8,7 @@ import { trackFBViewContent, trackFBInitiateCheckout, trackFBPurchase } from '..
 const EbookDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const ebook = EBOOKS.find((b) => b.id === id) || EBOOKS[0];
-  const { formatCoursePrice } = useCurrency();
+  const { formatProductPrice } = useCurrency();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -18,7 +18,7 @@ const EbookDetailPage: React.FC = () => {
   const [txRef, setTxRef] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const priceInfo = formatCoursePrice(ebook.price);
+  const priceInfo = formatProductPrice(ebook.price);
 
   useEffect(() => {
     trackFBViewContent({
@@ -60,7 +60,7 @@ const EbookDetailPage: React.FC = () => {
     }
 
     if (!(window as any).FlutterwaveCheckout) {
-      setError('Payment SDK is not ready. Please wait a moment and try again.');
+      setError('Payment gateway SDK is loading or blocked. Please disconnect VPN or refresh the page and try again.');
       return;
     }
 

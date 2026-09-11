@@ -164,7 +164,7 @@ const ProductPage: React.FC = () => {
     }
 
     if (!(window as any).FlutterwaveCheckout) {
-      setError('Payment gateway SDK is loading. Please wait a moment and try again.');
+      setError('Payment gateway SDK is loading or blocked. Please disconnect VPN or refresh the page and try again.');
       return;
     }
 

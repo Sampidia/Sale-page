@@ -1115,7 +1115,7 @@ export const EBOOKS: Ebook[] = [
     isFree: true,
     pagesCount: 74,
     hasPortraitPdf: true,
-    hasLandscapePdf: true,
+    hasLandscapePdf: false,
     author: 'Oghenekaro Samson Afigo (M.Sc.)',
     features: [
       'Galvanic corrosion analysis of 5 dissimilar metal weld pairs',

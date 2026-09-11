@@ -30,7 +30,7 @@ const EbooksPage: React.FC = () => {
   const [paidTxRef, setPaidTxRef] = useState('');
   const [paidError, setPaidError] = useState<string | null>(null);
 
-  const { formatCoursePrice } = useCurrency();
+  const { formatProductPrice } = useCurrency();
 
   const categories: ('All' | EbookCategory)[] = ['All', 'Kids', 'Tech', 'Finance', 'Science'];
 
@@ -101,7 +101,7 @@ const EbooksPage: React.FC = () => {
     if (!selectedBookForPaidCheckout || !paidName || !paidEmail) return;
 
     const book = selectedBookForPaidCheckout;
-    const priceInfo = formatCoursePrice(book.price);
+    const priceInfo = formatProductPrice(book.price);
     const txRef = `EBOOK_${book.id.toUpperCase()}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
     trackFBInitiateCheckout({
@@ -123,7 +123,7 @@ const EbooksPage: React.FC = () => {
     }
 
     if (!(window as any).FlutterwaveCheckout) {
-      setPaidError('Payment gateway SDK is loading or blocked. Please refresh the page and try again.');
+      setPaidError('Payment gateway SDK is loading or blocked. Please disconnect VPN or refresh the page and try again.');
       return;
     }
 
@@ -157,7 +157,7 @@ const EbooksPage: React.FC = () => {
   const verifyPaidEbook = async (txRef: string, book: Ebook) => {
     setIsProcessingPaid(true);
     setPaidError(null);
-    const priceInfo = formatCoursePrice(book.price);
+    const priceInfo = formatProductPrice(book.price);
 
     try {
       const cleanWorker = WORKER_BASE.replace(/\/+$/, '');
@@ -249,7 +249,7 @@ const EbooksPage: React.FC = () => {
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredEbooks.map((book) => {
-            const priceInfo = formatCoursePrice(book.price);
+            const priceInfo = formatProductPrice(book.price);
             const isFeatured = book.id === 'adas-golden-thread';
             const isComingSoon = !!book.comingSoon;
 
@@ -615,7 +615,7 @@ const EbooksPage: React.FC = () => {
                   disabled={isProcessingPaid}
                   className="w-full bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white font-bold py-3 px-4 rounded-xl text-xs transition-all cursor-pointer shadow-lg shadow-red-950/50"
                 >
-                  {isProcessingPaid ? 'Processing Checkout...' : `Pay ${formatCoursePrice(selectedBookForPaidCheckout.price).formatted} via Flutterwave →`}
+                  {isProcessingPaid ? 'Processing Checkout...' : `Pay ${formatProductPrice(selectedBookForPaidCheckout.price).formatted} via Flutterwave →`}
                 </button>
               </form>
             )}
