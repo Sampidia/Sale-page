@@ -16,6 +16,7 @@ const EbookDetailPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPaid, setIsPaid] = useState(false);
   const [txRef, setTxRef] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const priceInfo = formatCoursePrice(ebook.price);
 
@@ -47,11 +48,23 @@ const EbookDetailPage: React.FC = () => {
       phone,
     });
 
-    const flwKey = (import.meta as any).env?.VITE_FLUTTERWAVE_PUBLIC_KEY;
-    if (!flwKey || !(window as any).FlutterwaveCheckout) {
+    if (ebook.isFree) {
       verifyEbook(generatedTxRef);
       return;
     }
+
+    const flwKey = (import.meta as any).env?.VITE_FLUTTERWAVE_PUBLIC_KEY;
+    if (!flwKey) {
+      setError('Payment gateway is not configured (VITE_FLUTTERWAVE_PUBLIC_KEY is missing).');
+      return;
+    }
+
+    if (!(window as any).FlutterwaveCheckout) {
+      setError('Payment SDK is not ready. Please wait a moment and try again.');
+      return;
+    }
+
+    setError(null);
 
     (window as any).FlutterwaveCheckout({
       public_key: flwKey,
@@ -75,6 +88,7 @@ const EbookDetailPage: React.FC = () => {
 
   const verifyEbook = async (validTxRef: string) => {
     setIsProcessing(true);
+    setError(null);
     try {
       const cleanWorker = WORKER_BASE.replace(/\/+$/, '');
       const res = await fetch(`${cleanWorker}/api/verify-ebook-payment`, {
@@ -93,6 +107,8 @@ const EbookDetailPage: React.FC = () => {
       });
 
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Payment verification failed.');
+
       setTxRef(data.transactionId || validTxRef);
       setIsPaid(true);
 
@@ -107,10 +123,14 @@ const EbookDetailPage: React.FC = () => {
         customerName: name,
         phone,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setTxRef(validTxRef);
-      setIsPaid(true);
+      if (ebook.isFree) {
+        setTxRef(validTxRef);
+        setIsPaid(true);
+      } else {
+        setError(err.message || 'Payment verification failed. If you were debited, please contact support.');
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -187,6 +207,12 @@ const EbookDetailPage: React.FC = () => {
               </div>
             ) : (
               <form onSubmit={handleCheckout} className="space-y-4">
+                {error && (
+                  <div className="p-3 bg-red-950/80 border border-red-500/50 rounded-xl text-red-300 text-xs font-semibold">
+                    ⚠️ {error}
+                  </div>
+                )}
+
                 <div className="border-b border-slate-800 pb-4">
                   <div className="text-xs font-bold text-slate-400 uppercase">Price</div>
                   <div className="text-2xl font-black text-white">
@@ -221,7 +247,7 @@ const EbookDetailPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="w-full bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-extrabold py-3.5 px-4 rounded-xl text-xs shadow-lg cursor-pointer"
+                  className="w-full bg-red-600 hover:bg-red-500 text-white font-extrabold py-3.5 px-4 rounded-xl text-xs shadow-lg cursor-pointer transition-all"
                 >
                   {isProcessing ? 'Processing...' : (ebook.isFree ? 'Claim Free Ebook Now →' : `Pay ${priceInfo.formatted} & Download →`)}
                 </button>

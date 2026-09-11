@@ -28,6 +28,7 @@ const EbooksPage: React.FC = () => {
   const [isProcessingPaid, setIsProcessingPaid] = useState(false);
   const [paidSuccess, setPaidSuccess] = useState(false);
   const [paidTxRef, setPaidTxRef] = useState('');
+  const [paidError, setPaidError] = useState<string | null>(null);
 
   const { formatCoursePrice } = useCurrency();
 
@@ -116,11 +117,17 @@ const EbooksPage: React.FC = () => {
 
     const flwKey = (import.meta as any).env?.VITE_FLUTTERWAVE_PUBLIC_KEY;
 
-    if (!flwKey || !(window as any).FlutterwaveCheckout) {
-      // Fallback test verification if SDK not present
-      verifyPaidEbook(txRef, book);
+    if (!flwKey) {
+      setPaidError('Payment gateway configuration is missing (VITE_FLUTTERWAVE_PUBLIC_KEY). Please contact support.');
       return;
     }
+
+    if (!(window as any).FlutterwaveCheckout) {
+      setPaidError('Payment gateway SDK is loading or blocked. Please refresh the page and try again.');
+      return;
+    }
+
+    setPaidError(null);
 
     (window as any).FlutterwaveCheckout({
       public_key: flwKey,
@@ -149,6 +156,7 @@ const EbooksPage: React.FC = () => {
 
   const verifyPaidEbook = async (txRef: string, book: Ebook) => {
     setIsProcessingPaid(true);
+    setPaidError(null);
     const priceInfo = formatCoursePrice(book.price);
 
     try {
@@ -188,8 +196,7 @@ const EbooksPage: React.FC = () => {
       });
     } catch (err: any) {
       console.error('Paid Ebook Verify Error:', err);
-      setPaidTxRef(txRef);
-      setPaidSuccess(true);
+      setPaidError(err.message || 'Payment verification failed. If you were debited, please contact support.');
     } finally {
       setIsProcessingPaid(false);
     }
@@ -212,7 +219,7 @@ const EbooksPage: React.FC = () => {
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight mb-4 leading-tight">
-            Discover Empowering Stories & <span className="bg-gradient-to-r from-red-500 via-amber-400 to-emerald-400 bg-clip-text text-transparent">Technical Blueprints</span>
+            Discover Empowering Stories & Technical Blueprints
           </h1>
 
           <p className="text-slate-300 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
@@ -227,7 +234,7 @@ const EbooksPage: React.FC = () => {
                 onClick={() => setActiveCategory(cat)}
                 className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
                   activeCategory === cat
-                    ? 'bg-gradient-to-r from-red-600 to-amber-600 text-white shadow-lg shadow-red-950/50'
+                    ? 'bg-red-600 text-white shadow-lg shadow-red-950/50'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
                 }`}
               >
@@ -244,16 +251,30 @@ const EbooksPage: React.FC = () => {
           {filteredEbooks.map((book) => {
             const priceInfo = formatCoursePrice(book.price);
             const isFeatured = book.id === 'adas-golden-thread';
+            const isComingSoon = !!book.comingSoon;
 
             return (
               <div
                 key={book.id}
-                className={`bg-[#12101b] border rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden shadow-xl ${
-                  isFeatured ? 'border-amber-500/50 shadow-amber-950/20' : 'border-slate-800/80 hover:border-red-500/40'
+                className={`bg-[#12101b] border rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 group relative overflow-hidden shadow-xl ${
+                  isComingSoon
+                    ? 'border-slate-800/50 opacity-60 grayscale-[30%] cursor-not-allowed'
+                    : isFeatured
+                    ? 'border-amber-500/50 shadow-amber-950/20 hover:-translate-y-1'
+                    : 'border-slate-800/80 hover:border-red-500/40 hover:-translate-y-1'
                 }`}
               >
+                {/* Coming Soon Overlay Banner */}
+                {isComingSoon && (
+                  <div className="absolute inset-0 z-20 bg-slate-950/40 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center">
+                    <div className="bg-slate-900/95 border border-slate-700 text-amber-400 font-extrabold px-4 py-2 rounded-2xl text-xs shadow-2xl flex items-center space-x-2 backdrop-blur-md">
+                      <span>🔒 Coming Soon</span>
+                    </div>
+                  </div>
+                )}
+
                 {/* Featured Glow */}
-                {isFeatured && (
+                {isFeatured && !isComingSoon && (
                   <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
                 )}
 
@@ -278,17 +299,27 @@ const EbooksPage: React.FC = () => {
 
                   {/* 3D Cover Image Display */}
                   <div
-                    onClick={() => { setSelectedBookForModal(book); setActiveImageIndex(0); }}
-                    className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-950/80 border border-slate-800/80 p-3 mb-5 group-hover:border-slate-700 transition-all cursor-pointer flex items-center justify-center"
+                    onClick={() => {
+                      if (isComingSoon) return;
+                      setSelectedBookForModal(book);
+                      setActiveImageIndex(0);
+                    }}
+                    className={`relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-950/80 border border-slate-800/80 p-3 mb-5 flex items-center justify-center ${
+                      isComingSoon ? 'cursor-not-allowed' : 'group-hover:border-slate-700 cursor-pointer'
+                    }`}
                   >
                     <img
                       src={book.cover3DUrl}
                       alt={book.title}
-                      className="w-full h-full object-contain drop-shadow-xl group-hover:scale-105 transition-transform duration-500"
+                      className={`w-full h-full object-contain drop-shadow-xl ${
+                        isComingSoon ? '' : 'group-hover:scale-105 transition-transform duration-500'
+                      }`}
                     />
-                    <div className="absolute bottom-2 right-2 bg-slate-900/90 text-slate-300 text-[10px] font-bold px-2 py-1 rounded-md border border-slate-700 backdrop-blur-md">
-                      🔍 Preview Gallery
-                    </div>
+                    {!isComingSoon && (
+                      <div className="absolute bottom-2 right-2 bg-slate-900/90 text-slate-300 text-[10px] font-bold px-2 py-1 rounded-md border border-slate-700 backdrop-blur-md">
+                        🔍 Preview Gallery
+                      </div>
+                    )}
                   </div>
 
                   {/* Title & Subtitle */}
@@ -324,7 +355,11 @@ const EbooksPage: React.FC = () => {
                 <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-3">
                   <div>
                     <div className="text-[10px] uppercase font-bold text-slate-400">Price</div>
-                    {book.isFree ? (
+                    {isComingSoon ? (
+                      <span className="text-sm font-black text-slate-500 uppercase tracking-wide">
+                        COMING SOON
+                      </span>
+                    ) : book.isFree ? (
                       <span className="text-lg font-black text-emerald-400 uppercase tracking-wide">
                         FREE
                       </span>
@@ -335,7 +370,14 @@ const EbooksPage: React.FC = () => {
                     )}
                   </div>
 
-                  {book.isFree ? (
+                  {isComingSoon ? (
+                    <button
+                      disabled
+                      className="bg-slate-800 text-slate-500 font-extrabold py-3 px-5 rounded-2xl text-xs border border-slate-700/50 flex items-center space-x-1.5 cursor-not-allowed"
+                    >
+                      <span>🔒 Coming Soon</span>
+                    </button>
+                  ) : book.isFree ? (
                     <button
                       onClick={() => { setSelectedBookForFreeClaim(book); setClaimSuccess(false); setClaimError(null); }}
                       className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3 px-5 rounded-2xl text-xs transition-all shadow-lg shadow-emerald-950/40 flex items-center space-x-1.5 cursor-pointer"
@@ -344,8 +386,8 @@ const EbooksPage: React.FC = () => {
                     </button>
                   ) : (
                     <button
-                      onClick={() => { setSelectedBookForPaidCheckout(book); setPaidSuccess(false); }}
-                      className="bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-extrabold py-3 px-5 rounded-2xl text-xs transition-all shadow-lg shadow-red-950/50 flex items-center space-x-1.5 cursor-pointer"
+                      onClick={() => { setSelectedBookForPaidCheckout(book); setPaidSuccess(false); setPaidError(null); }}
+                      className="bg-red-600 hover:bg-red-500 text-white font-extrabold py-3 px-5 rounded-2xl text-xs transition-all shadow-lg shadow-red-950/50 flex items-center space-x-1.5 cursor-pointer"
                     >
                       <span>🛒 Buy Now</span>
                     </button>
@@ -527,6 +569,12 @@ const EbooksPage: React.FC = () => {
               </div>
             ) : (
               <form onSubmit={handlePaidCheckoutSubmit} className="space-y-4 pt-2">
+                {paidError && (
+                  <div className="p-3 bg-red-950/80 border border-red-500/50 rounded-xl text-red-300 text-xs font-semibold">
+                    ⚠️ {paidError}
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Full Name</label>
                   <input
@@ -565,7 +613,7 @@ const EbooksPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isProcessingPaid}
-                  className="w-full bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 disabled:opacity-50 text-white font-bold py-3 px-4 rounded-xl text-xs transition-all cursor-pointer shadow-lg shadow-red-950/50"
+                  className="w-full bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white font-bold py-3 px-4 rounded-xl text-xs transition-all cursor-pointer shadow-lg shadow-red-950/50"
                 >
                   {isProcessingPaid ? 'Processing Checkout...' : `Pay ${formatCoursePrice(selectedBookForPaidCheckout.price).formatted} via Flutterwave →`}
                 </button>

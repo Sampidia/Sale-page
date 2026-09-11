@@ -22,6 +22,7 @@ export interface Ebook {
   detailedFeatures?: { title: string; desc: string; icon: string; }[];
   author: string;
   sampleExcerpt?: string;
+  comingSoon?: boolean; // If true, card is grayed out and buttons disabled
 }
 
 export type ProductCategory = 'Plugin' | 'Theme' | 'Template' | 'Script';

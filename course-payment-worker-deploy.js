@@ -128,9 +128,28 @@ export default {
           }
         }
 
+        // Whitelist currency check for Meta CAPI
+        let capiCurrency = customData.currency ? String(customData.currency).toUpperCase() : 'USD';
+        const META_SUPPORTED_CURRENCIES = new Set([
+          'USD', 'EUR', 'GBP', 'NGN', 'CAD', 'AUD', 'JPY', 'INR', 'ZAR', 'BRL',
+          'MXN', 'SGD', 'NZD', 'HKD', 'SEK', 'NOK', 'DKK', 'PLN', 'CZK', 'HUF',
+          'ILS', 'MYR', 'PHP', 'THB', 'IDR', 'TWD', 'AED', 'SAR', 'EGP', 'CLP',
+          'COP', 'PEN', 'PKR', 'GHS', 'TRY', 'ARS', 'CRC', 'VND', 'KWD', 'QAR',
+          'BHD', 'OMR', 'CHF'
+        ]);
+        const UNSUPPORTED_TO_USD_RATES = { KES: 130, UGX: 3700, TZS: 2600, RWF: 1350, SLE: 22.5 };
+
+        if (!META_SUPPORTED_CURRENCIES.has(capiCurrency)) {
+          const rate = UNSUPPORTED_TO_USD_RATES[capiCurrency];
+          if (rate && val) {
+            val = Number((val / rate).toFixed(2));
+          }
+          capiCurrency = 'USD';
+        }
+
         const capiCustomData = {
           ...(val !== undefined ? { value: val } : {}),
-          ...(customData.currency ? { currency: String(customData.currency).toUpperCase() } : {}),
+          currency: capiCurrency,
           ...(customData.content_ids ? { content_ids: customData.content_ids } : {}),
           ...(customData.content_name ? { content_name: customData.content_name } : {}),
           ...(customData.content_type ? { content_type: customData.content_type } : { content_type: 'product' }),

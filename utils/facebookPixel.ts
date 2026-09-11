@@ -72,11 +72,59 @@ export const getMetaFbp = (): string | null => {
  * Sanitize & Format Numeric Digit for custom_data.value (Must be > 0)
  * Resolves Meta Event Manager "How to set value (price)" warning
  */
+/**
+ * Sanitize & Format Numeric Digit for custom_data.value (Must be > 0)
+ * Resolves Meta Event Manager "How to set value (price)" warning
+ */
 export const formatNumericValue = (val: number | string | undefined | null, fallback = 25.00): number => {
   if (val === undefined || val === null) return fallback;
   const num = typeof val === 'number' ? val : parseFloat(String(val).replace(/[^0-9.]/g, ''));
   if (isNaN(num) || num <= 0) return fallback;
   return Number(num.toFixed(2));
+};
+
+/**
+ * Whitelist of ISO currency codes accepted by Meta / Facebook Pixel JS SDK (fbevents.js) & CAPI.
+ * Currencies outside this list (e.g. KES, UGX, TZS, RWF, SLE) cause fbevents.js to emit:
+ * "[Meta Pixel] - Parameter 'currency' is invalid for event 'Purchase'." and drop the event.
+ */
+const META_SUPPORTED_CURRENCIES = new Set([
+  'USD', 'EUR', 'GBP', 'NGN', 'CAD', 'AUD', 'JPY', 'INR', 'ZAR', 'BRL',
+  'MXN', 'SGD', 'NZD', 'HKD', 'SEK', 'NOK', 'DKK', 'PLN', 'CZK', 'HUF',
+  'ILS', 'MYR', 'PHP', 'THB', 'IDR', 'TWD', 'AED', 'SAR', 'EGP', 'CLP',
+  'COP', 'PEN', 'PKR', 'GHS', 'TRY', 'ARS', 'CRC', 'VND', 'KWD', 'QAR',
+  'BHD', 'OMR', 'CHF'
+]);
+
+const UNSUPPORTED_TO_USD_RATES: Record<string, number> = {
+  KES: 130,   // Kenyan Shilling
+  UGX: 3700,  // Ugandan Shilling
+  TZS: 2600,  // Tanzanian Shilling
+  RWF: 1350,  // Rwandan Franc
+  SLE: 22.5,  // Sierra Leonean Leone
+};
+
+export const normalizeMetaCurrencyAndValue = (
+  val: number | string | undefined | null,
+  rawCurrency?: string,
+  fallbackVal = 25.00
+): { currency: string; value: number } => {
+  const numericVal = formatNumericValue(val, fallbackVal);
+  const cleanCurrency = (rawCurrency || 'USD').trim().toUpperCase();
+
+  if (META_SUPPORTED_CURRENCIES.has(cleanCurrency)) {
+    return { currency: cleanCurrency, value: numericVal };
+  }
+
+  // If currency is unsupported by Meta Pixel (e.g. KES, UGX, TZS, RWF, SLE),
+  // convert value to USD baseline so fbevents.js accepts and dispatches the event cleanly.
+  const rateToUsd = UNSUPPORTED_TO_USD_RATES[cleanCurrency];
+  if (rateToUsd && rateToUsd > 0 && numericVal > 0) {
+    const convertedUsd = Number((numericVal / rateToUsd).toFixed(2));
+    return { currency: 'USD', value: convertedUsd > 0 ? convertedUsd : 1.00 };
+  }
+
+  return { currency: 'USD', value: numericVal };
 };
 
 /**
@@ -154,8 +202,7 @@ export const trackFBViewContent = async (params: {
 }) => {
   if (typeof window === 'undefined') return;
 
-  const numericValue = formatNumericValue(params.value, 0); // 0 allowed for view content if free, but for products pass actual price
-  const currency = (params.currency || 'USD').toUpperCase();
+  const { currency, value: numericValue } = normalizeMetaCurrencyAndValue(params.value, params.currency, 0);
   const eventId = generateEventId('VIEW', params.id);
   const eventSourceUrl = window.location.href;
 
@@ -205,8 +252,7 @@ export const trackFBInitiateCheckout = async (params: {
 }) => {
   if (typeof window === 'undefined') return;
 
-  const numericValue = formatNumericValue(params.value, 25.00);
-  const currency = (params.currency || 'USD').toUpperCase();
+  const { currency, value: numericValue } = normalizeMetaCurrencyAndValue(params.value, params.currency, 25.00);
   const eventId = generateEventId('IC', params.id);
   const eventSourceUrl = window.location.href;
 
@@ -268,8 +314,7 @@ export const trackFBPurchase = async (params: {
 }) => {
   if (typeof window === 'undefined') return;
 
-  const numericValue = formatNumericValue(params.value, 25.00);
-  const currency = (params.currency || 'USD').toUpperCase();
+  const { currency, value: numericValue } = normalizeMetaCurrencyAndValue(params.value, params.currency, 25.00);
   const eventId = `PURCHASE_${params.transactionRef}`;
   const eventSourceUrl = window.location.href;
 

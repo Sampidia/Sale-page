@@ -602,7 +602,7 @@ const LandingPage: React.FC = () => {
                 <div className="pt-3">
                   <Link
                     to="/ebooks"
-                    className="inline-flex items-center space-x-2 bg-gradient-to-r from-red-600 via-red-500 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-extrabold text-sm px-7 py-3.5 rounded-2xl shadow-xl shadow-red-950/50 hover:shadow-red-900/60 transition-all transform hover:-translate-y-0.5"
+                    className="inline-flex items-center space-x-2 bg-red-600 hover:bg-red-500 text-white font-extrabold text-sm px-7 py-3.5 rounded-2xl shadow-xl shadow-red-950/50 hover:shadow-red-900/60 transition-all transform hover:-translate-y-0.5"
                   >
                     <span>Explore Ebook Collection</span>
                     <span>→</span>
