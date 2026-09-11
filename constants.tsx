@@ -791,7 +791,6 @@ export const COURSES: Course[] = [
     pdfCoverUrl: 'assets/Vibe-Coding-PDF-Cover.webp',
     oneOnOneCoverUrl: 'assets/vibe-coding-building-high-cover.webp',
     ogImage: 'assets/og-vibe-coding.png',
-    badge: 'Hot Masterclass',
     level: 'Beginner to Advanced',
     duration: 'Comprehensive Blueprint / 2-Hour Live Mentorship',
     features: [
@@ -885,7 +884,6 @@ export const COURSES: Course[] = [
     pdfCoverUrl: 'assets/zero-to-n8n-free-hosting-PDF-cover.webp',
     oneOnOneCoverUrl: 'assets/zero-to-n8n-free-hosting-cover.webp',
     ogImage: 'assets/og-zero-to-n8n.png',
-    badge: 'Popular Masterclass',
     level: 'Beginner to Intermediate',
     duration: 'Complete Blueprint / 2-Hour Live Mentorship',
     features: [

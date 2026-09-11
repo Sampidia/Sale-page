@@ -177,24 +177,19 @@ const CoursesPage: React.FC = () => {
                 className="bg-slate-900/70 border border-slate-800 hover:border-red-500/40 rounded-3xl overflow-hidden transition-all duration-300 shadow-2xl flex flex-col justify-between backdrop-blur-md group"
               >
                 <div>
-                  {/* Clean Top Info Bar (Prevents Mobile Collision) */}
-                  <div className="p-4 bg-slate-950 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="bg-red-500/15 text-red-400 border border-red-500/30 backdrop-blur-md font-bold text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full uppercase tracking-wider select-none pointer-events-none">
-                        {course.badge}
-                      </span>
-                      <span className="bg-slate-900 text-slate-300 border border-slate-800 text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full">
-                        {course.level}
-                      </span>
-                    </div>
-
-                    <div className="bg-red-950/60 border border-red-800/60 text-red-400 font-black text-xs sm:text-sm px-3 py-0.5 rounded-full">
-                      {priceInfo.formatted}
-                    </div>
-                  </div>
-
                   {/* Image Showcase Container */}
                   <div className="relative aspect-[16/9] overflow-hidden bg-slate-950 border-b border-slate-800">
+                    {/* Top Overlay Badges */}
+                    <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between z-10 pointer-events-none">
+                      <span className="bg-slate-950/80 text-slate-300 border border-slate-800 text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-md shadow-lg">
+                        {course.level}
+                      </span>
+
+                      <div className="bg-red-950/80 border border-red-800/80 text-red-400 text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-md shadow-lg">
+                        {priceInfo.formatted}
+                      </div>
+                    </div>
+
                     <img
                       src={currentCover}
                       alt={course.title}
@@ -262,7 +257,7 @@ const CoursesPage: React.FC = () => {
 
                     {/* Concise Bullet Highlights */}
                     <div className="space-y-1.5 border-t border-slate-800/80 pt-3 mt-4">
-                      {course.features.slice(0, 3).map((feature, idx) => (
+                      {course.features.slice(0, 2).map((feature, idx) => (
                         <div key={idx} className="flex items-center gap-2 text-xs text-slate-300">
                           <span className="text-red-500 font-bold shrink-0">✓</span>
                           <span className="truncate">{feature}</span>
