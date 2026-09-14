@@ -5,7 +5,7 @@ import BookDocumentation from '../components/BookDocumentation';
 import SEO from '../components/SEO';
 import { useCurrency } from '../context/CurrencyContext';
 import { trackBeginCheckout } from '../utils/analytics';
-import { trackFBViewContent, trackFBInitiateCheckout, trackFBPurchase, trackFBLead } from '../utils/facebookPixel';
+import { trackFBViewContent, trackFBInitiateCheckout, trackFBPurchase, trackFBLead, getMetaFbc, getMetaFbp } from '../utils/facebookPixel';
 
 const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -95,6 +95,9 @@ const ProductPage: React.FC = () => {
           amount: priceInfo.amount,
           currency: priceInfo.currency,
           amountPaid: priceInfo.formatted,
+          customerPhone: phone,
+          fbc: getMetaFbc(),
+          fbp: getMetaFbp(),
         }),
       });
 

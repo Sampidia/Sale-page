@@ -4,7 +4,7 @@ import SEO from '../components/SEO';
 import { EBOOKS } from '../constants';
 import { Ebook, EbookCategory } from '../types';
 import { useCurrency } from '../context/CurrencyContext';
-import { trackFBViewContent, trackFBInitiateCheckout, trackFBPurchase, trackFBLead } from '../utils/facebookPixel';
+import { trackFBViewContent, trackFBInitiateCheckout, trackFBPurchase, trackFBLead, getMetaFbc, getMetaFbp } from '../utils/facebookPixel';
 
 const EbooksPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
@@ -78,6 +78,8 @@ const EbooksPage: React.FC = () => {
           amount: 0,
           currency: 'NGN',
           isFree: true,
+          fbc: getMetaFbc(),
+          fbp: getMetaFbp(),
         }),
       });
 
@@ -186,6 +188,8 @@ const EbooksPage: React.FC = () => {
           amount: priceInfo.amount,
           currency: priceInfo.currency,
           isFree: false,
+          fbc: getMetaFbc(),
+          fbp: getMetaFbp(),
         }),
       });
 

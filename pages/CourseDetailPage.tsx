@@ -5,7 +5,7 @@ import { COURSES } from '../constants';
 import { CourseFormat } from '../types';
 import { useCurrency } from '../context/CurrencyContext';
 import { trackBeginCheckout, trackSelectContent } from '../utils/analytics';
-import { trackFBViewContent, trackFBInitiateCheckout, trackFBPurchase } from '../utils/facebookPixel';
+import { trackFBViewContent, trackFBInitiateCheckout, trackFBPurchase, getMetaFbc, getMetaFbp } from '../utils/facebookPixel';
 
 const CourseDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -254,6 +254,8 @@ const CourseDetailPage: React.FC = () => {
           amount: coursePriceInfo.amount,
           currency: coursePriceInfo.currency,
           amountPaid: coursePriceInfo.formatted,
+          fbc: getMetaFbc(),
+          fbp: getMetaFbp(),
         }),
       });
 

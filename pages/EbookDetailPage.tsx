@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { EBOOKS } from '../constants';
 import { useCurrency } from '../context/CurrencyContext';
-import { trackFBViewContent, trackFBInitiateCheckout, trackFBPurchase } from '../utils/facebookPixel';
+import { trackFBViewContent, trackFBInitiateCheckout, trackFBPurchase, getMetaFbc, getMetaFbp } from '../utils/facebookPixel';
 
 const EbookDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -103,6 +103,8 @@ const EbookDetailPage: React.FC = () => {
           amount: priceInfo.amount,
           currency: priceInfo.currency,
           isFree: ebook.isFree,
+          fbc: getMetaFbc(),
+          fbp: getMetaFbp(),
         }),
       });
 

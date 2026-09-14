@@ -242,7 +242,7 @@ export default {
     if (request.method === 'POST' && url.pathname.endsWith('/api/verify-course-payment')) {
       try {
         const body = await request.json();
-        const { transactionId, courseId, format, customerName, customerEmail, customerPhone, amount: paidAmountValInput, currency: paidCurrencyInput, amountPaid: paidAmountStr } = body || {};
+        const { transactionId, courseId, format, customerName, customerEmail, customerPhone, amount: paidAmountValInput, currency: paidCurrencyInput, amountPaid: paidAmountStr, fbc, fbp } = body || {};
         let bodyAmountVal = paidAmountValInput;
         let bodyCurrencyVal = paidCurrencyInput;
 
@@ -430,6 +430,8 @@ export default {
               phone: customerPhone,
               firstName: String(customerName || '').split(' ')[0],
               lastName: String(customerName || '').split(' ').slice(1).join(' '),
+              ...(fbc ? { fbc } : {}),
+              ...(fbp ? { fbp } : {}),
             },
             customData: {
               value: bodyAmountVal || (format === 'one-on-one' ? 30000 : 15000),
@@ -519,7 +521,7 @@ export default {
     if (request.method === 'POST' && url.pathname.endsWith('/api/verify-product-payment')) {
       try {
         const body = await request.json();
-        const { transactionId, productId = 'ai-content-generator', customerName, customerEmail, currency: paidCurrencyInput, amount: amountInput, amountPaid: paidAmount } = body || {};
+        const { transactionId, productId = 'ai-content-generator', customerName, customerEmail, customerPhone, currency: paidCurrencyInput, amount: amountInput, amountPaid: paidAmount, fbc, fbp } = body || {};
         let bodyAmountVal = amountInput || paidAmount;
         let bodyCurrencyVal = paidCurrencyInput;
 
@@ -671,8 +673,11 @@ export default {
             eventSourceUrl: `https://afigo.sampidia.com/#/product/${productId}`,
             userData: {
               email: customerEmail,
+              phone: customerPhone,
               firstName: String(customerName || '').split(' ')[0],
               lastName: String(customerName || '').split(' ').slice(1).join(' '),
+              ...(fbc ? { fbc } : {}),
+              ...(fbp ? { fbp } : {}),
             },
             customData: {
               value: productPriceVal,
@@ -717,7 +722,9 @@ export default {
           customerPhone,
           amount,
           currency,
-          isFree = false
+          isFree = false,
+          fbc,
+          fbp
         } = body;
 
         if (!customerEmail || !ebookId) {
@@ -803,6 +810,8 @@ export default {
               phone: customerPhone,
               firstName: String(customerName || '').split(' ')[0],
               lastName: String(customerName || '').split(' ').slice(1).join(' '),
+              ...(fbc ? { fbc } : {}),
+              ...(fbp ? { fbp } : {}),
             },
             customData: {
               value: paidAmountVal > 0 ? paidAmountVal : 0,

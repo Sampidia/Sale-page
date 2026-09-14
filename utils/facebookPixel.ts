@@ -51,11 +51,26 @@ export const getMetaFbc = (): string | null => {
   if (cookieFbc) return cookieFbc;
 
   if (typeof window !== 'undefined') {
-    const urlParams = new URLSearchParams(window.location.search);
-    const fbclid = urlParams.get('fbclid');
-    if (fbclid) {
+    let fbclid: string | null = null;
+
+    // 1. Check standard search params (?fbclid=...)
+    if (window.location.search) {
+      const urlParams = new URLSearchParams(window.location.search);
+      fbclid = urlParams.get('fbclid');
+    }
+
+    // 2. Check HashRouter query params (#/path?fbclid=...)
+    if (!fbclid && window.location.hash && window.location.hash.includes('?')) {
+      const hashQuery = window.location.hash.split('?')[1];
+      if (hashQuery) {
+        const hashParams = new URLSearchParams(hashQuery);
+        fbclid = hashParams.get('fbclid');
+      }
+    }
+
+    if (fbclid && fbclid.trim()) {
       const creationTime = Date.now();
-      return `fb.1.${creationTime}.${fbclid}`;
+      return `fb.1.${creationTime}.${fbclid.trim()}`;
     }
   }
   return null;
