@@ -114,7 +114,7 @@ const PortalDeactivationForm: React.FC<{ prefillEmail?: string }> = ({ prefillEm
       </div>
 
       {import.meta.env.VITE_TURNSTILE_SITE_KEY ? (
-        <div className="flex justify-center overflow-hidden rounded-xl bg-gray-50 border border-gray-100 p-2">
+        <div className="flex justify-center rounded-xl bg-gray-50 border border-gray-100 p-2">
           <Turnstile
             siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
             onSuccess={(token) => setTurnstileToken(token)}
@@ -305,7 +305,7 @@ const MobileAppDeletionForm: React.FC<{ initialApp?: string }> = ({ initialApp }
       </div>
 
       {import.meta.env.VITE_TURNSTILE_SITE_KEY ? (
-        <div className="flex justify-center my-4 overflow-hidden rounded-xl bg-gray-50 border border-gray-100 p-2">
+        <div className="flex justify-center my-4 rounded-xl bg-gray-50 border border-gray-100 p-2">
           <Turnstile
             siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
             onSuccess={(token) => setTurnstileToken(token)}

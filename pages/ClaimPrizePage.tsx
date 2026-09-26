@@ -269,9 +269,9 @@ const ClaimPrizePage: React.FC = () => {
 
       {/* ─── FORM SECTION ─────────────────────────────────────── */}
       <section
+        className="cp-form-section"
         style={{
           background: '#0f0c29',
-          padding: '64px 24px 80px',
         }}
       >
         <div style={{ maxWidth: '640px', margin: '0 auto' }}>
@@ -294,11 +294,11 @@ const ClaimPrizePage: React.FC = () => {
 
           {/* Card */}
           <div
+            className="cp-card"
             style={{
               background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(139,92,246,0.25)',
+              border: '1px solid rgba(239,68,68,0.25)',
               borderRadius: '24px',
-              padding: '40px',
               backdropFilter: 'blur(16px)',
               boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
               position: 'relative',
@@ -494,10 +494,10 @@ const ClaimPrizePage: React.FC = () => {
                               padding: '12px 16px',
                               borderRadius: '12px',
                               border: isSelected
-                                ? '2px solid #7c3aed'
-                                : '1px solid rgba(139,92,246,0.25)',
+                                ? '2px solid #ef4444'
+                                : '1px solid rgba(239,68,68,0.25)',
                               background: isSelected
-                                ? 'rgba(124,58,237,0.18)'
+                                ? 'rgba(239,68,68,0.18)'
                                 : 'rgba(255,255,255,0.04)',
                               cursor: 'pointer',
                               transition: 'all 0.2s',
@@ -516,7 +516,7 @@ const ClaimPrizePage: React.FC = () => {
                             <span style={{ fontSize: '20px' }}>{c.flag}</span>
                             <span
                               style={{
-                                color: isSelected ? '#c4b5fd' : '#94a3b8',
+                                color: isSelected ? '#fca5a5' : '#94a3b8',
                                 fontSize: '13px',
                                 fontWeight: isSelected ? 700 : 500,
                               }}
@@ -530,7 +530,7 @@ const ClaimPrizePage: React.FC = () => {
                                   width: '16px',
                                   height: '16px',
                                   borderRadius: '50%',
-                                  background: '#7c3aed',
+                                  background: '#ef4444',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
@@ -808,15 +808,19 @@ const ClaimPrizePage: React.FC = () => {
                   {/* Cloudflare Turnstile */}
                   {import.meta.env.VITE_TURNSTILE_SITE_KEY ? (
                     <div
+                      className="cp-turnstile-wrapper"
                       style={{
                         display: 'flex',
                         justifyContent: 'center',
+                        alignItems: 'center',
                         marginBottom: '24px',
                         borderRadius: '12px',
-                        overflow: 'hidden',
+                        overflow: 'visible',
                         background: 'rgba(255,255,255,0.03)',
                         border: '1px solid rgba(255,255,255,0.08)',
-                        padding: '10px',
+                        padding: '12px 4px',
+                        width: '100%',
+                        boxSizing: 'border-box',
                       }}
                     >
                       <Turnstile
@@ -877,8 +881,8 @@ const ClaimPrizePage: React.FC = () => {
                         padding: '14px',
                         borderRadius: '14px',
                         background: isLoading
-                          ? 'rgba(109,40,217,0.5)'
-                          : 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)',
+                          ? 'rgba(220,38,38,0.5)'
+                          : 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
                         border: 'none',
                         color: '#fff',
                         fontWeight: 800,
@@ -890,7 +894,7 @@ const ClaimPrizePage: React.FC = () => {
                         gap: '8px',
                         boxShadow: isLoading
                           ? 'none'
-                          : '0 8px 24px rgba(124,58,237,0.4)',
+                          : '0 8px 24px rgba(239,68,68,0.4)',
                         transition: 'all 0.2s',
                         letterSpacing: '0.02em',
                       }}
@@ -945,14 +949,14 @@ const ClaimPrizePage: React.FC = () => {
                     width: '88px',
                     height: '88px',
                     borderRadius: '50%',
-                    background: 'rgba(124,58,237,0.15)',
-                    border: '2px solid rgba(124,58,237,0.5)',
+                    background: 'rgba(239,68,68,0.15)',
+                    border: '2px solid rgba(239,68,68,0.5)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     margin: '0 auto 24px',
                     fontSize: '40px',
-                    boxShadow: '0 0 40px rgba(124,58,237,0.3)',
+                    boxShadow: '0 0 40px rgba(239,68,68,0.3)',
                     animation: 'pulse 2s ease-in-out infinite',
                   }}
                 >
@@ -977,7 +981,7 @@ const ClaimPrizePage: React.FC = () => {
                 <div
                   style={{
                     background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(139,92,246,0.2)',
+                    border: '1px solid rgba(239,68,68,0.2)',
                     borderRadius: '16px',
                     padding: '24px',
                     textAlign: 'left',
@@ -1021,13 +1025,13 @@ const ClaimPrizePage: React.FC = () => {
                     width: '100%',
                     padding: '16px',
                     borderRadius: '14px',
-                    background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)',
+                    background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
                     color: '#fff',
                     fontWeight: 800,
                     fontSize: '14px',
                     textDecoration: 'none',
                     textAlign: 'center',
-                    boxShadow: '0 8px 24px rgba(124,58,237,0.4)',
+                    boxShadow: '0 8px 24px rgba(239,68,68,0.4)',
                     boxSizing: 'border-box',
                   }}
                 >
@@ -1039,15 +1043,41 @@ const ClaimPrizePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Keyframe styles */}
+      {/* Keyframe & Responsive styles */}
       <style>{`
+        .cp-form-section {
+          padding: 64px 24px 80px;
+        }
+        .cp-card {
+          padding: 40px;
+        }
+        .cp-turnstile-wrapper > div,
+        .cp-turnstile-wrapper iframe {
+          max-width: 100%;
+        }
+        @media (max-width: 640px) {
+          .cp-form-section {
+            padding: 32px 12px 48px !important;
+          }
+          .cp-card {
+            padding: 20px 14px !important;
+            border-radius: 18px !important;
+          }
+        }
+        @media (max-width: 350px) {
+          .cp-turnstile-wrapper > div,
+          .cp-turnstile-wrapper iframe {
+            transform: scale(0.92);
+            transform-origin: center center;
+          }
+        }
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
         @keyframes pulse {
-          0%, 100% { box-shadow: 0 0 40px rgba(124,58,237,0.3); }
-          50% { box-shadow: 0 0 60px rgba(124,58,237,0.6); }
+          0%, 100% { box-shadow: 0 0 40px rgba(239,68,68,0.3); }
+          50% { box-shadow: 0 0 60px rgba(239,68,68,0.6); }
         }
         @keyframes fadeSlideIn {
           from { opacity: 0; transform: translateY(8px); }
