@@ -81,7 +81,7 @@ const GetCodePage: React.FC = () => {
         import.meta.env.VITE_CLAIM_PRIZE_WORKER_URL ||
         'http://localhost:8788';
 
-      const tournamentId = type === 'quick' ? 'quicky_challenge01' : 'weekend_Cup01';
+      const tournamentId = type === 'quick' ? 'quicky_challenge02' : 'weekend_Cup01';
 
       // Step 1: Browser fetches Firebase count directly (avoids Cloudflare error 1042)
       const firebaseRes = await fetch(
@@ -203,7 +203,7 @@ const GetCodePage: React.FC = () => {
         title:
           tournamentType === 'weekend'
             ? 'Naija Ayo Weekend Challenge'
-            : 'Naija Ayo Quick Challenge',
+            : 'Naija Ayo Quick Challenge 2.0',
         description: 'Tournament entry passcode purchase',
         logo: 'https://afigo.sampidia.com/assets/favicon-32x32.png',
       },
@@ -674,7 +674,7 @@ const GetCodePage: React.FC = () => {
                       {[
                         { 
                           type: 'quick' as TournamentType, 
-                          label: 'Quick Challenge', 
+                          label: 'Quick Challenge 2.0', 
                           price: quickChallengePrice === 0 ? 'Free' : `₦${quickChallengePrice}` 
                         },
                         { 
