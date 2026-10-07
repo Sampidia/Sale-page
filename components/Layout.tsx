@@ -230,7 +230,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </span>
               </Link>
               <p className="text-slate-400 max-w-md text-sm leading-relaxed mb-4">
-                Full-Stack Web & Mobile Developer, Published n8n AI Workflow Creator, and M.Sc. Industrial Chemist. Founder of Afigo-Sam Technology & Co-Founder of SamPidia.
+                Full-Stack Web & Mobile Developer, Published n8n AI Workflow Creator, and M.Sc. Industrial Chemist. Founder of Afigo Brightpath Technology LTD, Afigo-Sam Technology & Co-Founder of SamPidia.
               </p>
               <div className="flex items-center space-x-4 text-xs font-semibold text-slate-400">
                 <a href={FIVERR_URL} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">Fiverr Pro</a>

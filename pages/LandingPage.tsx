@@ -164,7 +164,7 @@ const LandingPage: React.FC = () => {
 
               {/* Bio Paragraph */}
               <p className="text-xs sm:text-sm text-slate-300/90 mb-5 leading-relaxed max-w-xl font-normal">
-                Founder of <strong className="text-white font-semibold">Afigo-Sam Technology</strong> & co-founder of <strong className="text-white font-semibold">SamPidia</strong>. Published n8n workflow creator with 8+ years of engineering experience delivering hotel booking engines, e-commerce stores, custom WordPress plugins, React Native apps, and Solana dApps.
+                Founder of <strong className="text-white font-semibold">Afigo Brightpath Technology LTD</strong>, <strong className="text-white font-semibold">Afigo-Sam Technology</strong> & co-founder of <strong className="text-white font-semibold">SamPidia</strong>. Published n8n workflow creator with 8+ years of engineering experience delivering hotel booking engines, e-commerce stores, custom WordPress plugins, React Native apps, and Solana dApps.
               </p>
 
               {/* CTA Buttons — Prominent & Visible Above Fold */}

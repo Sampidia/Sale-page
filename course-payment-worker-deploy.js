@@ -3593,7 +3593,7 @@ async function processDailyDripEmails(env) {
                   <p style="margin-top: 30px; border-top: 1px solid #e2e8f0; pt-20px; font-size: 13px; color: #64748b;">
                     Keep building,<br>
                     <strong>Oghenekaro Samson Afigo</strong><br>
-                    Founder, Afigo-Sam Technology & SamPidia
+                    Founder, Afigo Brightpath Technology LTD, Afigo-Sam Technology & SamPidia
                   </p>
                 </div>
               `
