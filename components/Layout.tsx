@@ -263,6 +263,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <Link to="/privacy-policy" onClick={scrollToTop} className="text-slate-400 hover:text-red-400 transition-colors">Privacy Policy</Link>
                 </li>
                 <li>
+                  <Link to="/terms-of-service" onClick={scrollToTop} className="text-slate-400 hover:text-red-400 transition-colors">Terms of Service</Link>
+                </li>
+                <li>
                   <Link to="/refund-policy" onClick={scrollToTop} className="text-slate-400 hover:text-red-400 transition-colors">Refund Policy</Link>
                 </li>
               </ul>

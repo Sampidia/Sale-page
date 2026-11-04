@@ -299,10 +299,26 @@ const MobileAppDeletionForm: React.FC<{ initialApp?: string }> = ({ initialApp }
         </select>
       </div>
 
-      <div className="bg-amber-50 rounded-xl p-4 border border-amber-100 text-xs text-amber-800 leading-relaxed">
-        <strong>⚠️ Warning:</strong> This action is irreversible. All of your progress, data, and active licenses
-        related to <strong>{currentAppName}</strong> will be permanently deleted after 48 hours.
-      </div>
+      {selectedApp === 'lagos-street-race' ? (
+        <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 text-xs text-blue-900 leading-relaxed space-y-2">
+          <p>
+            <strong>🏎️ Lagos Street Race (Meta / Facebook Instant Game):</strong> You have two options to delete your data:
+          </p>
+          <ul className="list-disc pl-4 space-y-1 text-[11px] text-blue-800">
+            <li>
+              <strong>Instant Auto-Deletion (Recommended):</strong> On Facebook, go to <em>Settings & Privacy &gt; Settings &gt; Apps and Websites</em>, locate <strong>Lagos Street Race</strong> and click <strong>Remove</strong>.
+            </li>
+            <li>
+              <strong>Manual Support Request:</strong> Fill in this form or email <strong>admin@sampidia.com</strong> with your Facebook Gaming Name/ID (App ID: <code>2077465642893808</code>). Records are purged within 30 days.
+            </li>
+          </ul>
+        </div>
+      ) : (
+        <div className="bg-amber-50 rounded-xl p-4 border border-amber-100 text-xs text-amber-800 leading-relaxed">
+          <strong>⚠️ Warning:</strong> This action is irreversible. All of your progress, data, and active licenses
+          related to <strong>{currentAppName}</strong> will be permanently deleted after 48 hours.
+        </div>
+      )}
 
       {import.meta.env.VITE_TURNSTILE_SITE_KEY ? (
         <div className="flex justify-center my-4 rounded-xl bg-gray-50 border border-gray-100 p-2">

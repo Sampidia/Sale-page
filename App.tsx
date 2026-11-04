@@ -45,6 +45,12 @@ const App: React.FC = () => {
           <Route path="/app/:id" element={<MobileAppDetailPage />} />
           <Route path="/delete-account" element={<DeleteAccountPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<PrivacyPolicyPage defaultTab="terms" />} />
+          <Route path="/terms-of-service" element={<PrivacyPolicyPage defaultTab="terms" />} />
+          <Route path="/lagos-street-race" element={<PrivacyPolicyPage defaultTab="lagos" />} />
+          <Route path="/lagos-street-race/privacy" element={<PrivacyPolicyPage defaultTab="privacy" />} />
+          <Route path="/lagos-street-race/terms" element={<PrivacyPolicyPage defaultTab="terms" />} />
+          <Route path="/lagos-street-race/data-deletion" element={<PrivacyPolicyPage defaultTab="deletion" />} />
           <Route path="/refund-policy" element={<RefundPolicyPage />} />
           <Route path="/claim-prize" element={<ClaimPrizePage />} />
           <Route path="/get-code" element={<GetCodePage />} />
