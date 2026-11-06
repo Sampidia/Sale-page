@@ -10,6 +10,7 @@ import MobileAppsPage from './pages/MobileAppsPage';
 import MobileAppDetailPage from './pages/MobileAppDetailPage';
 import DeleteAccountPage from './pages/DeleteAccountPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsOfServicePage from './pages/TermsOfServicePage';
 import RefundPolicyPage from './pages/RefundPolicyPage';
 import ClaimPrizePage from './pages/ClaimPrizePage';
 import GetCodePage from './pages/GetCodePage';
@@ -45,11 +46,12 @@ const App: React.FC = () => {
           <Route path="/app/:id" element={<MobileAppDetailPage />} />
           <Route path="/delete-account" element={<DeleteAccountPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-          <Route path="/terms" element={<PrivacyPolicyPage defaultTab="terms" />} />
-          <Route path="/terms-of-service" element={<PrivacyPolicyPage defaultTab="terms" />} />
+          <Route path="/terms" element={<TermsOfServicePage />} />
+          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+          <Route path="/trader-status" element={<TermsOfServicePage />} />
           <Route path="/lagos-street-race" element={<PrivacyPolicyPage defaultTab="lagos" />} />
           <Route path="/lagos-street-race/privacy" element={<PrivacyPolicyPage defaultTab="privacy" />} />
-          <Route path="/lagos-street-race/terms" element={<PrivacyPolicyPage defaultTab="terms" />} />
+          <Route path="/lagos-street-race/terms" element={<TermsOfServicePage />} />
           <Route path="/lagos-street-race/data-deletion" element={<PrivacyPolicyPage defaultTab="deletion" />} />
           <Route path="/lagos-street-race/data-safety" element={<PrivacyPolicyPage defaultTab="data-safety" />} />
           <Route path="/lagos-street-race/permissions" element={<PrivacyPolicyPage defaultTab="permissions" />} />

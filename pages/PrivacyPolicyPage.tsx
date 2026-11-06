@@ -1101,9 +1101,27 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                     </div>
                   </div>
 
-                  <p className="text-gray-700 leading-relaxed mb-8 text-base">
+                  <p className="text-gray-700 leading-relaxed mb-6 text-base">
                     Welcome to <strong>Lagos Street Race</strong>! By downloading, installing, launching, or playing the game on Android (Google Play Store), Apple App Store, Facebook Instant Games, or Meta Platforms, you agree to be bound by these Terms of Service ("Terms").
                   </p>
+
+                  {/* Trader Status & Full Terms Callout */}
+                  <div className="mb-8 p-5 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
+                    <div>
+                      <span className="font-black text-emerald-950 text-sm block mb-1">
+                        🏛️ Google Play App-Level Trader Status Declared & Compliant
+                      </span>
+                      <p className="text-emerald-900 leading-relaxed">
+                        Under the EU Digital Services Act (DSA) and Google Play Developer guidelines, our developer account is a declared trader and <strong>trader status correctly applies to this app</strong>. Users in the EEA and UK benefit from full consumer protection laws.
+                      </p>
+                    </div>
+                    <Link
+                      to="/terms-of-service"
+                      className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-md whitespace-nowrap text-xs"
+                    >
+                      View Dedicated Terms & Trader Hub →
+                    </Link>
+                  </div>
 
                   <div className="space-y-8">
                     {/* 1. License to Play */}
