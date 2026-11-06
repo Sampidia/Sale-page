@@ -147,7 +147,7 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
         title="Privacy Policy, Terms & Google Play Data Safety | Lagos Street Race"
         description="Official Privacy Policy, Google Play Data Safety Disclosures, Android Runtime Permissions, and User Data Deletion Instructions for Lagos Street Race (Android Google Play, Apple App Store, Meta Platforms) and Afigo-Sam digital ecosystem."
         keywords="Lagos Street Race privacy policy, android data safety, google play developer policy, app store privacy nutrition, com.sampidia.lagosstreetrace, 2077465642893808, Afigo Brightpath Technology LTD, android permissions, google play billing, AdMob, FBInstant, GDPR, COPPA"
-        ogImage="/assets/og-preview.png"
+        ogImage="/assets/Feature graphiC.webp"
         jsonLd={privacySchema}
       />
 

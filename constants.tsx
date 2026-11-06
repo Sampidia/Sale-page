@@ -780,8 +780,8 @@ export const MOBILE_APPS: MobileApp[] = [
     id: 'lagos-street-race',
     name: 'Lagos Street Race',
     category: 'Games',
-    imageUrl: 'assets/og-preview.png',
-    ogImage: 'assets/og-preview.png',
+    imageUrl: 'assets/Feature graphiC.webp',
+    ogImage: 'assets/Feature graphiC.webp',
     description: "Welcome to Lagos Street Race! Experience high-speed 3D arcade racing across Nigeria's iconic Third Mainland Bridge and Lagos expressways on Android (Google Play Store), Apple App Store, and Facebook Instant Games. Dodge traffic, unlock high-performance vehicles, customize your ride, and compete with friends on global leaderboards.",
     googlePlayUrl: 'https://play.google.com/store/apps/details?id=com.sampidia.lagosstreetrace',
     appStoreUrl: '#',
@@ -823,7 +823,7 @@ export const MOBILE_APPS: MobileApp[] = [
       }
     ],
     showcaseImages: [
-      { img: 'assets/og-preview.png', title: 'Lagos Street Race 3D Arcade Racer' }
+      { img: 'assets/Feature graphiC.webp', title: 'Lagos Street Race Feature Graphic' }
     ]
   }
 ];
