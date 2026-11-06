@@ -782,20 +782,22 @@ export const MOBILE_APPS: MobileApp[] = [
     category: 'Games',
     imageUrl: 'assets/og-preview.png',
     ogImage: 'assets/og-preview.png',
-    description: "Welcome to Lagos Street Race! Experience high-speed 3D arcade racing across Nigeria's iconic Third Mainland Bridge and Lagos expressways on Facebook Instant Games and Meta Platforms. Dodge traffic, unlock high-performance vehicles, customize your ride, and compete with friends on global social leaderboards.",
-    googlePlayUrl: 'https://fb.gg/play/2077465642893808',
+    description: "Welcome to Lagos Street Race! Experience high-speed 3D arcade racing across Nigeria's iconic Third Mainland Bridge and Lagos expressways on Android (Google Play Store), Apple App Store, and Facebook Instant Games. Dodge traffic, unlock high-performance vehicles, customize your ride, and compete with friends on global leaderboards.",
+    googlePlayUrl: 'https://play.google.com/store/apps/details?id=com.sampidia.lagosstreetrace',
+    appStoreUrl: '#',
     features: [
-      'Facebook Instant Games integration (Zero download needed)',
+      'Android Google Play native edition & Apple App Store ready',
+      'Facebook Instant Games cross-platform play',
       'High-speed 3D racing on Third Mainland Bridge',
-      'Real-time leaderboards & gaming avatar cockpit displays',
-      'Meta Cloud Save API data persistence',
+      'Real-time leaderboards & cockpit avatar displays',
+      'Google Play Games Services & Meta Cloud Save sync',
       'Lagos Coins, vehicle upgrades & VIP Season Pass'
     ],
     detailedFeatures: [
       {
-        title: 'Instant Play on Meta Platforms',
-        desc: 'Jump into high-speed street racing straight from Facebook, Facebook Gaming, and Messenger without lengthy installs.',
-        icon: '⚡'
+        title: 'High-Performance Native 3D Engine',
+        desc: 'Optimized for Android devices and App Store with high frame rates, responsive touch steering, and rich haptic feedback.',
+        icon: '📱'
       },
       {
         title: 'Third Mainland Bridge Leaderboards',
@@ -803,8 +805,8 @@ export const MOBILE_APPS: MobileApp[] = [
         icon: '🏆'
       },
       {
-        title: 'Meta Cloud Save Synchronization',
-        desc: 'Your vehicles, Lagos Coins, high scores, and customizations seamlessly persist across your devices via Meta Cloud Storage.',
+        title: 'Secure Cloud Progression & Billing',
+        desc: 'Your vehicles, Lagos Coins, high scores, and customizations persist across sessions via Google Play Games Services & Meta Cloud Storage.',
         icon: '☁️'
       }
     ],
@@ -815,13 +817,13 @@ export const MOBILE_APPS: MobileApp[] = [
         metric: 'High Speed Action'
       },
       {
-        title: 'Social & Instant Gamers',
-        desc: 'Challenge your Facebook friends, share scores, and climb weekly community leaderboards.',
-        metric: 'Social Competition'
+        title: 'Mobile & Social Gamers',
+        desc: 'Compete on Android, iOS, or Facebook Instant Games with seamless cross-platform leaderboards.',
+        metric: 'Global Competition'
       }
     ],
     showcaseImages: [
-      { img: 'assets/og-preview.png', title: 'Lagos Street Race Meta Instant Game' }
+      { img: 'assets/og-preview.png', title: 'Lagos Street Race 3D Arcade Racer' }
     ]
   }
 ];

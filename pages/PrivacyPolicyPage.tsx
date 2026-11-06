@@ -11,11 +11,17 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<'all' | 'lagos' | 'ecosystem'>('all');
   const [copiedAppId, setCopiedAppId] = useState(false);
+  const [copiedPackageName, setCopiedPackageName] = useState(false);
 
   const lagosSections = [
     { id: 'lagos-street-race-privacy', label: '🔒 Lagos Race: Privacy Policy' },
-    { id: 'lagos-street-race-terms', label: '📜 Lagos Race: Terms of Service' },
-    { id: 'lagos-street-race-deletion', label: '🗑️ Lagos Race: Data Deletion' },
+    { id: 'lagos-data-safety', label: '📊 Google Play Data Safety' },
+    { id: 'lagos-android-permissions', label: '📱 Android Permissions' },
+    { id: 'lagos-monetization-ads', label: '💰 Billing & Ad Standards' },
+    { id: 'lagos-families-policy', label: '🧸 Families & Children Policy' },
+    { id: 'lagos-app-store', label: '🍎 Apple App Store Disclosures' },
+    { id: 'lagos-street-race-terms', label: '📜 Terms of Service' },
+    { id: 'lagos-street-race-deletion', label: '🗑️ Data & Account Deletion' },
   ];
 
   const ecosystemSections = [
@@ -46,7 +52,6 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
   };
 
   useEffect(() => {
-    // Check url hash or query param or defaultTab
     const hashTarget = location.hash ? location.hash.replace('#', '') : '';
     const searchParams = new URLSearchParams(location.search);
     const tabParam = searchParams.get('tab') || defaultTab || '';
@@ -55,7 +60,9 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
       if (
         hashTarget.includes('lagos') ||
         hashTarget === 'terms' ||
-        hashTarget === 'deletion'
+        hashTarget === 'deletion' ||
+        hashTarget === 'data-safety' ||
+        hashTarget === 'permissions'
       ) {
         if (hashTarget === 'lagos-street-race' || hashTarget === 'lagos') {
           setActiveTab('lagos');
@@ -71,7 +78,13 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
         }
       }, 150);
     } else if (tabParam) {
-      if (tabParam.includes('lagos') || tabParam === 'terms' || tabParam === 'deletion') {
+      if (
+        tabParam.includes('lagos') ||
+        tabParam === 'terms' ||
+        tabParam === 'deletion' ||
+        tabParam === 'data-safety' ||
+        tabParam === 'permissions'
+      ) {
         setActiveTab('lagos');
         const mapTarget: Record<string, string> = {
           terms: 'lagos-street-race-terms',
@@ -80,6 +93,10 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
           'lagos-privacy': 'lagos-street-race-privacy',
           deletion: 'lagos-street-race-deletion',
           'lagos-deletion': 'lagos-street-race-deletion',
+          'data-safety': 'lagos-data-safety',
+          'lagos-data-safety': 'lagos-data-safety',
+          permissions: 'lagos-android-permissions',
+          'lagos-permissions': 'lagos-android-permissions',
         };
         const targetId = mapTarget[tabParam] || 'lagos-street-race';
         setTimeout(() => {
@@ -105,12 +122,18 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
     setTimeout(() => setCopiedAppId(false), 2500);
   };
 
+  const copyPackageName = () => {
+    navigator.clipboard.writeText('com.sampidia.lagosstreetrace');
+    setCopiedPackageName(true);
+    setTimeout(() => setCopiedPackageName(false), 2500);
+  };
+
   const privacySchema = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    name: 'Privacy Policy & Terms | Lagos Street Race & Afigo Ecosystem',
+    name: 'Privacy Policy, Terms & Android Data Safety | Lagos Street Race & Afigo Ecosystem',
     description:
-      'Official Privacy Policy, Terms of Service, and User Data Deletion Instructions for Lagos Street Race (Meta Instant Game ID: 2077465642893808) and Afigo-Sam digital products.',
+      'Official Privacy Policy, Google Play Data Safety Disclosures, Android Permissions, Terms of Service, and User Data Deletion Instructions for Lagos Street Race (Android Google Play, Apple App Store, Facebook Instant Games) and Afigo-Sam digital products.',
     publisher: {
       '@type': 'Organization',
       name: 'Afigo Brightpath Technology LTD',
@@ -121,9 +144,9 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
       <SEO
-        title="Privacy Policy & Terms | Lagos Street Race & Afigo Ecosystem"
-        description="Official Privacy Policy, Terms of Service, and User Data Deletion Instructions for Lagos Street Race (Facebook Instant Games, Application ID: 2077465642893808) and Afigo-Sam digital products."
-        keywords="Lagos Street Race privacy policy, Lagos Street Race terms, Lagos Street Race data deletion, facebook instant games privacy, meta audience network, FBInstant, 2077465642893808, Afigo Brightpath Technology LTD, android data safety, GDPR"
+        title="Privacy Policy, Terms & Google Play Data Safety | Lagos Street Race"
+        description="Official Privacy Policy, Google Play Data Safety Disclosures, Android Runtime Permissions, and User Data Deletion Instructions for Lagos Street Race (Android Google Play, Apple App Store, Meta Platforms) and Afigo-Sam digital ecosystem."
+        keywords="Lagos Street Race privacy policy, android data safety, google play developer policy, app store privacy nutrition, com.sampidia.lagosstreetrace, 2077465642893808, Afigo Brightpath Technology LTD, android permissions, google play billing, AdMob, FBInstant, GDPR, COPPA"
         ogImage="/assets/og-preview.png"
         jsonLd={privacySchema}
       />
@@ -140,24 +163,30 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
             {BRAIN_LOGO}
           </div>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/20 border border-red-500/30 text-red-300 text-xs font-bold uppercase tracking-wider mb-4">
-            <span>Official Legal & Privacy Portal</span>
+            <span>Official Legal, Data Safety & Compliance Portal</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-black mb-4 tracking-tight">
             Privacy Policy & Terms
           </h1>
           <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Transparent policies, terms of service, and user data rights for{' '}
-            <strong className="text-white">Lagos Street Race (Facebook Instant Games)</strong> and the{' '}
+            Transparent policies, Google Play Data Safety standards, and user data rights for{' '}
+            <strong className="text-white">Lagos Street Race (Android, App Store & Meta)</strong> and the{' '}
             <strong className="text-white">Afigo-Sam Digital Ecosystem</strong>.
           </p>
 
           {/* Quick Badges */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs">
-            <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full font-semibold text-gray-200 border border-white/10">
-              🏎️ Lagos Street Race: App ID <strong>2077465642893808</strong>
+            <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-4 py-2 rounded-full font-bold">
+              🤖 Google Play Data Safety Verified
             </span>
             <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full font-semibold text-gray-200 border border-white/10">
-              📅 Effective Date: November 4, 2026
+              🏎️ Android Package: <strong>com.sampidia.lagosstreetrace</strong>
+            </span>
+            <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full font-semibold text-gray-200 border border-white/10">
+              🌐 Meta App ID: <strong>2077465642893808</strong>
+            </span>
+            <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full font-semibold text-gray-200 border border-white/10">
+              📅 Updated: November 6, 2026
             </span>
             <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full font-semibold text-gray-200 border border-white/10">
               🏛️ Entity: Afigo Brightpath Technology LTD
@@ -185,7 +214,9 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
               }`}
             >
               <span>🏎️ Lagos Street Race</span>
-              <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full font-mono">Meta</span>
+              <span className="text-[10px] bg-emerald-500/30 text-emerald-300 px-1.5 py-0.5 rounded-full font-mono font-bold">
+                Play & App Store
+              </span>
             </button>
             <button
               onClick={() => setActiveTab('ecosystem')}
@@ -215,8 +246,8 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                   <h3 className="text-xs font-black uppercase tracking-wider text-red-600">
                     🏎️ Lagos Street Race
                   </h3>
-                  <span className="text-[10px] bg-red-50 text-red-700 font-bold px-2 py-0.5 rounded-full border border-red-200">
-                    Instant Game
+                  <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+                    Android & iOS
                   </span>
                 </div>
                 <nav className="space-y-1">
@@ -262,7 +293,7 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
 
               {/* Quick Support Badge */}
               <div className="pt-4 border-t border-gray-100 px-3 text-xs text-gray-500">
-                <p className="font-bold text-gray-700 mb-1">Support Contact</p>
+                <p className="font-bold text-gray-700 mb-1">Developer Support</p>
                 <a
                   href="mailto:admin@sampidia.com"
                   className="text-red-600 font-semibold hover:underline block break-all"
@@ -277,7 +308,7 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
           <main className="col-span-1 lg:col-span-3 space-y-12">
 
             {/* ========================================================================= */}
-            {/* LAGOS STREET RACE SECTION (META PLATFORMS & FACEBOOK INSTANT GAMES) */}
+            {/* LAGOS STREET RACE SECTION (ANDROID PLAY STORE, APP STORE & META) */}
             {/* ========================================================================= */}
             {(activeTab === 'all' || activeTab === 'lagos') && (
               <div id="lagos-street-race" className="scroll-mt-24 space-y-8">
@@ -292,27 +323,43 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
 
                   <div className="relative z-10 space-y-4">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="bg-red-600 text-white text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">
-                        Facebook Instant Game
+                      <span className="bg-emerald-600 text-white text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
+                        <span>🤖</span>
+                        <span>Google Play Store</span>
                       </span>
-                      <span className="bg-white/10 text-gray-300 text-[11px] font-medium px-3 py-1 rounded-full border border-white/10">
-                        Meta Platforms Verified
+                      <span className="bg-blue-600 text-white text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
+                        <span>🍎</span>
+                        <span>Apple App Store Ready</span>
                       </span>
-                      <span className="bg-white/10 text-gray-300 text-[11px] font-medium px-3 py-1 rounded-full border border-white/10">
-                        Effective: Nov 4, 2026
+                      <span className="bg-red-600 text-white text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
+                        <span>🕹️</span>
+                        <span>Meta Instant Games</span>
                       </span>
                     </div>
 
                     <h2 className="text-3xl sm:text-4xl font-black text-white">
-                      Lagos Street Race — Legal & Compliance Hub
+                      Lagos Street Race — Legal, Privacy & Google Play Data Safety
                     </h2>
 
                     <p className="text-sm sm:text-base text-gray-300 max-w-2xl leading-relaxed">
-                      Official legal documentation for <strong>Lagos Street Race</strong> on Facebook Instant Games and Meta Platforms, published by <strong>Afigo Brightpath Technology LTD</strong>.
+                      Comprehensive legal documentation and privacy governance for <strong>Lagos Street Race</strong> across Android (Google Play Store), Apple App Store, and Facebook Instant Games, published by <strong>Afigo Brightpath Technology LTD</strong> in strict accordance with <strong>Google Android Developer Best Practices</strong>.
                     </p>
 
                     {/* Metadata & Quick Jump Grid */}
                     <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                      <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+                        <div>
+                          <p className="text-gray-400 font-medium">Android Package Name (Play Store)</p>
+                          <p className="font-mono font-bold text-white text-sm">com.sampidia.lagosstreetrace</p>
+                        </div>
+                        <button
+                          onClick={copyPackageName}
+                          className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-semibold transition-all"
+                        >
+                          {copiedPackageName ? '✓ Copied' : 'Copy'}
+                        </button>
+                      </div>
+
                       <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
                         <div>
                           <p className="text-gray-400 font-medium">Meta Application ID</p>
@@ -322,21 +369,8 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                           onClick={copyAppId}
                           className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-semibold transition-all"
                         >
-                          {copiedAppId ? '✓ Copied' : 'Copy ID'}
+                          {copiedAppId ? '✓ Copied' : 'Copy'}
                         </button>
-                      </div>
-
-                      <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
-                        <div>
-                          <p className="text-gray-400 font-medium">Developer & Entity</p>
-                          <p className="font-bold text-white text-sm">Afigo Brightpath Technology LTD</p>
-                        </div>
-                        <a
-                          href="mailto:admin@sampidia.com"
-                          className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold transition-all"
-                        >
-                          Email Support
-                        </a>
                       </div>
                     </div>
 
@@ -351,6 +385,22 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                         <span>↓</span>
                       </a>
                       <a
+                        href="#lagos-data-safety"
+                        onClick={(e) => scrollToSection(e, 'lagos-data-safety')}
+                        className="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 rounded-xl font-bold transition-all flex items-center gap-1.5 border border-emerald-500/30"
+                      >
+                        <span>📊 Data Safety Matrix</span>
+                        <span>↓</span>
+                      </a>
+                      <a
+                        href="#lagos-android-permissions"
+                        onClick={(e) => scrollToSection(e, 'lagos-android-permissions')}
+                        className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-all flex items-center gap-1.5 border border-white/10"
+                      >
+                        <span>📱 Android Permissions</span>
+                        <span>↓</span>
+                      </a>
+                      <a
                         href="#lagos-street-race-terms"
                         onClick={(e) => scrollToSection(e, 'lagos-street-race-terms')}
                         className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-all flex items-center gap-1.5 border border-white/10"
@@ -361,17 +411,10 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                       <a
                         href="#lagos-street-race-deletion"
                         onClick={(e) => scrollToSection(e, 'lagos-street-race-deletion')}
-                        className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-all flex items-center gap-1.5 border border-white/10"
-                      >
-                        <span>🗑️ Data Deletion Instructions</span>
-                        <span>↓</span>
-                      </a>
-                      <Link
-                        to="/delete-account?app=lagos-street-race"
                         className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all flex items-center gap-1.5"
                       >
-                        <span>Self-Service Deletion Form →</span>
-                      </Link>
+                        <span>🗑️ Account Deletion Portal →</span>
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -386,10 +429,8 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                   <span id="lagos-privacy" className="scroll-mt-24 block"></span>
                   <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-gray-100 mb-6">
                     <div>
-                      <div className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 uppercase tracking-wider mb-1">
-                        <span>Facebook Instant Games</span>
-                        <span>•</span>
-                        <span>Meta Platforms</span>
+                      <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">
+                        <span>Google Play Program & App Store Certified</span>
                       </div>
                       <h2 className="text-2xl sm:text-3xl font-black text-gray-900">
                         Privacy Policy for Lagos Street Race
@@ -397,14 +438,27 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                     </div>
                     <div className="text-right text-xs text-gray-500 font-mono">
                       <div><strong>Effective Date:</strong> November 4, 2026</div>
-                      <div><strong>Last Updated:</strong> November 4, 2026</div>
-                      <div className="text-red-600 font-bold">App ID: 2077465642893808</div>
+                      <div><strong>Last Updated:</strong> November 6, 2026</div>
+                      <div className="text-emerald-600 font-bold">Android Package: com.sampidia.lagosstreetrace</div>
+                      <div className="text-red-600 font-bold">Meta App ID: 2077465642893808</div>
                     </div>
                   </div>
 
-                  <p className="text-gray-700 leading-relaxed mb-8 text-base">
-                    This Privacy Policy explains how <strong>"Lagos Street Race"</strong> ("we", "us", or "our") collects, uses, and safeguards information when you play our game on Facebook Instant Games and Meta Platforms.
+                  <p className="text-gray-700 leading-relaxed mb-6 text-base">
+                    This Privacy Policy explains how <strong>"Lagos Street Race"</strong> ("we", "us", or "our", developed and published by <strong>Afigo Brightpath Technology LTD</strong>) collects, uses, protects, and handles information across all supported editions, including:
                   </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8 text-xs">
+                    <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100 text-emerald-900 font-medium">
+                      <strong>🤖 Android Version:</strong> Distributed via the Google Play Store under package <code>com.sampidia.lagosstreetrace</code>.
+                    </div>
+                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 text-blue-900 font-medium">
+                      <strong>🍎 iOS / App Store Version:</strong> Native distribution via the Apple App Store.
+                    </div>
+                    <div className="bg-red-50 p-4 rounded-xl border border-red-100 text-red-900 font-medium">
+                      <strong>🕹️ Instant Games Version:</strong> Cross-platform instant play via Facebook Instant Games & Meta Platforms.
+                    </div>
+                  </div>
 
                   <div className="space-y-8">
                     {/* 1. Information We Access and Collect */}
@@ -414,38 +468,42 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                         Information We Access and Collect
                       </h3>
                       <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                        Lagos Street Race operates on the Facebook Instant Games platform. We adhere to Meta’s Zero-Permission and Gaming Profile guidelines:
+                        We adhere to Google Play’s User Data policies, Apple App Store privacy requirements, and Meta’s Zero-Permission Gaming Profile standards. Depending on the version you play, we access:
                       </p>
-                      <ul className="space-y-3 text-sm text-gray-700 pl-1">
+                      <ul className="space-y-3.5 text-sm text-gray-700 pl-1">
                         <li className="flex items-start gap-2.5">
                           <span className="text-red-500 font-bold mt-0.5">•</span>
                           <div>
-                            <strong className="text-gray-900">Gaming Profile Information:</strong> Through the Meta Instant Games SDK (<code className="bg-gray-200 text-gray-800 px-1.5 py-0.5 rounded text-xs">FBInstant.player</code>), we may access your public Facebook Gaming ID, Gaming Profile name, and Gaming Profile photo strictly for display on in-game leaderboards and cockpit displays.
+                            <strong className="text-gray-900">Device & Advertising Identifiers:</strong> On Android devices, we may access the Google Advertising ID (AAID/GAID) and anonymous system identifiers. These are used strictly for in-app ad attribution (via Google AdMob), frequency capping, and anti-fraud diagnostics. You can reset or opt out of your Advertising ID at any time in your Android device settings (<em>Settings &gt; Google &gt; Ads</em>).
                           </div>
                         </li>
                         <li className="flex items-start gap-2.5">
                           <span className="text-red-500 font-bold mt-0.5">•</span>
                           <div>
-                            <strong className="text-gray-900">Game Progress & Telemetry:</strong> We store in-game progress (including distance traveled, high scores, coins, unlocked vehicles, and customizations). This data is stored using Meta's Cloud Save API (<code className="bg-gray-200 text-gray-800 px-1.5 py-0.5 rounded text-xs">FBInstant.player.setDataAsync</code>) and your browser's local storage.
+                            <strong className="text-gray-900">Game Progress & Cloud Saves:</strong> We store in-game progress, high scores, distance traveled on Third Mainland Bridge, earned virtual currency ("Lagos Coins"), unlocked vehicles, and custom paint jobs. On Android, this data is backed up using Google Play Games Services and local encrypted SQLite/Shared Preferences. On Meta Platforms, it is synced via <code className="bg-gray-200 text-gray-800 px-1.5 py-0.5 rounded text-xs">FBInstant.player.setDataAsync</code>.
                           </div>
                         </li>
                         <li className="flex items-start gap-2.5">
                           <span className="text-red-500 font-bold mt-0.5">•</span>
                           <div>
-                            <strong className="text-gray-900">Advertising & Analytics:</strong> We display in-game ads provided by Meta Audience Network (Rewarded Video and Interstitial Ads). Meta may collect device identifiers and usage metrics in accordance with the{' '}
-                            <a
-                              href="https://www.facebook.com/privacy/policy"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-red-600 font-semibold underline hover:text-red-700"
-                            >
-                              Meta Privacy Policy
-                            </a>.
+                            <strong className="text-gray-900">Gaming Profile & Leaderboard Information:</strong> Through Google Play Games Services, Apple Game Center, or the Meta Instant Games SDK (<code className="bg-gray-200 text-gray-800 px-1.5 py-0.5 rounded text-xs">FBInstant.player</code>), we may access your public Gamer Tag / Facebook Gaming ID, display name, and public avatar strictly to display your ranking on global and friends-only leaderboards.
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2.5">
+                          <span className="text-red-500 font-bold mt-0.5">•</span>
+                          <div>
+                            <strong className="text-gray-900">Crash & Performance Diagnostics:</strong> We capture anonymized crash stack traces, frame rate bottlenecks, and ANR (Application Not Responding) rates via Google Firebase Crashlytics and Google Play Console vitals to maintain high performance across thousands of Android device models.
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2.5">
+                          <span className="text-red-500 font-bold mt-0.5">•</span>
+                          <div>
+                            <strong className="text-gray-900">In-App Purchases Telemetry:</strong> All financial transactions (e.g., buying coin bundles or the VIP Season Pass) are processed directly by the <strong>Google Play In-App Billing API</strong> or <strong>Apple In-App Purchases</strong>. We only receive non-sensitive purchase receipts and token IDs to unlock your digital assets.
                           </div>
                         </li>
                       </ul>
-                      <div className="mt-4 pt-4 border-t border-gray-200/70 text-xs text-gray-600 font-semibold bg-white p-3 rounded-xl border border-gray-200">
-                        🛡️ <strong>Zero Sensitive Data Policy:</strong> We <u>do not</u> collect or store sensitive personal information such as your phone number, real-world physical address, financial card details, or private contact lists.
+                      <div className="mt-5 pt-4 border-t border-gray-200/70 text-xs text-emerald-800 font-semibold bg-emerald-50/80 p-3.5 rounded-xl border border-emerald-200">
+                        🛡️ <strong>Zero Sensitive Data Guarantee:</strong> We <u>do not</u> access, collect, or store your real-world physical address, phone number, contacts list, microphone, camera, photos, or credit card numbers.
                       </div>
                     </div>
 
@@ -456,24 +514,28 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                         How We Use Your Information
                       </h3>
                       <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                        We use the information accessible through Meta strictly to:
+                        We use the information gathered strictly for legitimate operational purposes:
                       </p>
                       <ul className="space-y-2.5 text-sm text-gray-700 pl-1">
                         <li className="flex items-start gap-2.5">
                           <span className="text-emerald-500 font-bold mt-0.5">✓</span>
-                          <span>Operate, maintain, and provide core game features.</span>
+                          <span>Operate, maintain, and render high-performance 3D street racing across bridge and expressway tracks.</span>
                         </li>
                         <li className="flex items-start gap-2.5">
                           <span className="text-emerald-500 font-bold mt-0.5">✓</span>
-                          <span>Display your score and gaming avatar on Third Mainland Bridge leaderboards.</span>
+                          <span>Synchronize and preserve your car fleet, upgrades, and high scores across device reinstalls via Google Play Games Services and Meta Cloud Save.</span>
                         </li>
                         <li className="flex items-start gap-2.5">
                           <span className="text-emerald-500 font-bold mt-0.5">✓</span>
-                          <span>Sync and restore your vehicle purchases and unlocked content across sessions via Meta Cloud Storage.</span>
+                          <span>Display your score and gaming avatar on Third Mainland Bridge leaderboards and cockpit HUDs.</span>
                         </li>
                         <li className="flex items-start gap-2.5">
                           <span className="text-emerald-500 font-bold mt-0.5">✓</span>
-                          <span>Reward in-game perks (e.g. "Second Chance" extra lives) upon voluntary viewing of Rewarded Ads.</span>
+                          <span>Grant optional voluntary in-game rewards (e.g. "Second Chance" extra lives, nitro recharges, or double coin bonuses) upon completed viewing of rewarded video ads.</span>
+                        </li>
+                        <li className="flex items-start gap-2.5">
+                          <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                          <span>Detect, diagnose, and resolve crashes and frame drops across varying Android OS versions and GPU architectures.</span>
                         </li>
                       </ul>
                     </div>
@@ -482,19 +544,36 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                     <div className="bg-gray-50 rounded-2xl p-6 sm:p-7 border border-gray-100">
                       <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-3 flex items-center gap-2">
                         <span className="w-7 h-7 bg-red-100 text-red-600 rounded-lg flex items-center justify-center text-xs font-bold">3</span>
-                        Data Sharing and Third Parties
+                        Data Sharing and Third-Party SDKs
                       </h3>
+                      <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                        We only partner with certified, privacy-compliant developer SDKs:
+                      </p>
                       <ul className="space-y-3 text-sm text-gray-700 pl-1">
                         <li className="flex items-start gap-2.5">
                           <span className="text-red-500 font-bold mt-0.5">•</span>
                           <div>
-                            <strong className="text-gray-900">No Sale of Data:</strong> We do not sell, rent, or trade your personal data to any third party.
+                            <strong className="text-gray-900">No Sale of Personal Data:</strong> We never sell, rent, or trade your personal information, gaming metrics, or device identifiers to data brokers.
                           </div>
                         </li>
                         <li className="flex items-start gap-2.5">
                           <span className="text-red-500 font-bold mt-0.5">•</span>
                           <div>
-                            <strong className="text-gray-900">Meta Platforms:</strong> As an Instant Game, all gameplay data flows through Meta’s secure hosting infrastructure under the{' '}
+                            <strong className="text-gray-900">Google LLC (Play Services, Firebase & AdMob):</strong> Provides cloud leaderboards, telemetry, crash analysis, and ad serving in accordance with the{' '}
+                            <a
+                              href="https://policies.google.com/privacy"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-emerald-600 font-semibold underline hover:text-emerald-700"
+                            >
+                              Google Privacy Policy
+                            </a>.
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2.5">
+                          <span className="text-red-500 font-bold mt-0.5">•</span>
+                          <div>
+                            <strong className="text-gray-900">Meta Platforms, Inc. (Instant Games & Audience Network):</strong> For instant gameplay and rewarded interstitial ads under the{' '}
                             <a
                               href="https://developers.facebook.com/terms"
                               target="_blank"
@@ -505,6 +584,20 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                             </a>.
                           </div>
                         </li>
+                        <li className="flex items-start gap-2.5">
+                          <span className="text-red-500 font-bold mt-0.5">•</span>
+                          <div>
+                            <strong className="text-gray-900">Apple Inc. (App Store & Game Center):</strong> For iOS builds, authentication, and in-app purchase receipts under the{' '}
+                            <a
+                              href="https://www.apple.com/legal/privacy/"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 font-semibold underline hover:text-blue-700"
+                            >
+                              Apple Privacy Policy
+                            </a>.
+                          </div>
+                        </li>
                       </ul>
                     </div>
 
@@ -512,29 +605,34 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                     <div className="bg-gray-50 rounded-2xl p-6 sm:p-7 border border-gray-100">
                       <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-3 flex items-center gap-2">
                         <span className="w-7 h-7 bg-red-100 text-red-600 rounded-lg flex items-center justify-center text-xs font-bold">4</span>
-                        Data Retention and Deletion
+                        Data Retention and Deletion (Google Play & GDPR Compliant)
                       </h3>
                       <p className="text-gray-600 text-sm leading-relaxed mb-3">
-                        Your game progress remains in Meta Cloud Save for as long as you keep the game connected to your Facebook account. You have the right to request deletion of your gameplay data at any time. For detailed instructions, please see our{' '}
-                        <a
-                          href="#lagos-street-race-deletion"
-                          onClick={(e) => scrollToSection(e, 'lagos-street-race-deletion')}
-                          className="text-red-600 font-bold underline hover:text-red-700"
-                        >
-                          User Data Deletion Instructions
-                        </a>{' '}
-                        below.
+                        In full compliance with <strong>Google Play's Account Deletion Policy</strong> and GDPR Art. 17, players may request complete deletion of their account records, high scores, cloud saves, and associated identifiers at any time.
                       </p>
+                      <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                        Users do not need to keep the app installed to request deletion. You can initiate a deletion directly via our web portal:
+                      </p>
+                      <Link
+                        to="/delete-account?app=lagos-street-race"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-md"
+                      >
+                        <span>Open Web-Based Account Deletion Request Form</span>
+                        <span>→</span>
+                      </Link>
                     </div>
 
-                    {/* 5. Children's Privacy */}
+                    {/* 5. Children's Privacy & Families Policy */}
                     <div className="bg-gray-50 rounded-2xl p-6 sm:p-7 border border-gray-100">
                       <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-3 flex items-center gap-2">
                         <span className="w-7 h-7 bg-red-100 text-red-600 rounded-lg flex items-center justify-center text-xs font-bold">5</span>
-                        Children's Privacy
+                        Children's Privacy & Google Play Families Policy
                       </h3>
+                      <p className="text-gray-600 text-sm leading-relaxed mb-3">
+                        Lagos Street Race is designed for a general audience (ages 13 and older). We do not knowingly collect personal data from children under the age of 13 (or under 16 in the European Economic Area).
+                      </p>
                       <p className="text-gray-600 text-sm leading-relaxed">
-                        Lagos Street Race is designed for general audiences and does not knowingly collect personal information from children under the age of 13.
+                        To comply with COPPA, GDPR-K, and Google Play Families guidelines, all in-app advertising SDKs are configured with child-protection flags (<code className="text-xs bg-gray-200 px-1 py-0.5 rounded font-mono">tagForChildDirectedTreatment</code>) ensuring that behavioral profiling and targeted advertisements are disabled if a child user is identified. Parents may contact us at <a href="mailto:admin@sampidia.com" className="text-red-600 font-bold underline">admin@sampidia.com</a> to request immediate record expunction.
                       </p>
                     </div>
 
@@ -542,12 +640,16 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                     <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-6 sm:p-7 border border-red-100">
                       <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-3 flex items-center gap-2">
                         <span className="w-7 h-7 bg-red-600 text-white rounded-lg flex items-center justify-center text-xs font-bold">6</span>
-                        Contact Us
+                        Developer Entity & Legal Contact
                       </h3>
                       <p className="text-gray-700 text-sm leading-relaxed mb-4">
-                        If you have questions, concerns, or requests regarding this Privacy Policy or your data, please contact us at:
+                        If you have questions, inquiries, or requests regarding this Privacy Policy, your data rights, or our mobile gaming compliance, please contact:
                       </p>
                       <div className="space-y-2 text-sm text-gray-800">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-gray-900">Developer / Entity:</span>
+                          <span className="font-medium">Afigo Brightpath Technology LTD</span>
+                        </div>
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-gray-900">Email:</span>
                           <a
@@ -558,8 +660,13 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                           </a>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-gray-900">Developer/Entity:</span>
-                          <span className="font-medium">Afigo Brightpath Technology LTD</span>
+                          <span className="font-bold text-gray-900">Website:</span>
+                          <a
+                            href="https://afigo.sampidia.com"
+                            className="text-gray-700 underline hover:text-gray-900"
+                          >
+                            https://afigo.sampidia.com
+                          </a>
                         </div>
                       </div>
                     </div>
@@ -567,7 +674,410 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                 </section>
 
                 {/* ─────────────────────────────────────────────────────────── */}
-                {/* 2. LAGOS STREET RACE: TERMS OF SERVICE */}
+                {/* 2. GOOGLE PLAY DATA SAFETY SECTION (OFFICIAL DISCLOSURES) */}
+                {/* ─────────────────────────────────────────────────────────── */}
+                <section
+                  id="lagos-data-safety"
+                  className="scroll-mt-24 bg-white rounded-[2.5rem] border border-gray-100 p-8 sm:p-12 shadow-xl shadow-gray-200/50"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-gray-100 mb-6">
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">
+                        <span>Google Play Console Compliance</span>
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-gray-900">
+                        Google Play Data Safety Disclosures
+                      </h2>
+                    </div>
+                    <span className="text-xs font-bold px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full">
+                      Formally Declared for Reviewers
+                    </span>
+                  </div>
+
+                  <p className="text-gray-700 leading-relaxed mb-6 text-sm">
+                    In compliance with the <strong>Google Play Developer Program Policy on User Data</strong>, the table below provides exact disclosures regarding what data is collected, shared, and encrypted within the Android edition of <strong>Lagos Street Race</strong> (<code>com.sampidia.lagosstreetrace</code>):
+                  </p>
+
+                  <div className="overflow-x-auto mb-8">
+                    <table className="w-full border-collapse bg-white shadow-sm border border-gray-200 rounded-2xl overflow-hidden text-xs">
+                      <thead>
+                        <tr className="bg-gray-100 text-gray-900 font-bold border-b border-gray-200 text-left">
+                          <th className="px-4 py-3.5">Data Category</th>
+                          <th className="px-4 py-3.5">Specific Data Type</th>
+                          <th className="px-4 py-3.5">Purpose</th>
+                          <th className="px-4 py-3.5">Collection Type</th>
+                          <th className="px-4 py-3.5">Shared with Third Parties?</th>
+                          <th className="px-4 py-3.5">Encrypted in Transit?</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 text-gray-700">
+                        <tr className="hover:bg-gray-50/80">
+                          <td className="px-4 py-3.5 font-bold text-gray-900">Device or Other IDs</td>
+                          <td className="px-4 py-3.5">Google Advertising ID (AAID/GAID), Android ID</td>
+                          <td className="px-4 py-3.5">Analytics, Advertising, Fraud Prevention</td>
+                          <td className="px-4 py-3.5">Automatic (AdMob & Play Services)</td>
+                          <td className="px-4 py-3.5 text-emerald-700 font-semibold">Yes (Google AdMob)</td>
+                          <td className="px-4 py-3.5 text-emerald-700 font-bold">Yes (TLS 1.3)</td>
+                        </tr>
+                        <tr className="hover:bg-gray-50/80">
+                          <td className="px-4 py-3.5 font-bold text-gray-900">App Activity</td>
+                          <td className="px-4 py-3.5">Gameplay interactions, high scores, distance, car unlocks</td>
+                          <td className="px-4 py-3.5">Core Game Functionality, Cloud Saves, Leaderboards</td>
+                          <td className="px-4 py-3.5">Required for online features</td>
+                          <td className="px-4 py-3.5">Yes (Google Play Games leaderboards)</td>
+                          <td className="px-4 py-3.5 text-emerald-700 font-bold">Yes (HTTPS)</td>
+                        </tr>
+                        <tr className="hover:bg-gray-50/80">
+                          <td className="px-4 py-3.5 font-bold text-gray-900">Financial Info</td>
+                          <td className="px-4 py-3.5">Purchase history tokens (Lagos Coins, VIP Passes)</td>
+                          <td className="px-4 py-3.5">In-App Purchase fulfillment & entitlement restoration</td>
+                          <td className="px-4 py-3.5">Optional (Google Play Billing API)</td>
+                          <td className="px-4 py-3.5">Processed by Google Play Billing (No card details seen)</td>
+                          <td className="px-4 py-3.5 text-emerald-700 font-bold">Yes (PCI-DSS/Google)</td>
+                        </tr>
+                        <tr className="hover:bg-gray-50/80">
+                          <td className="px-4 py-3.5 font-bold text-gray-900">App Diagnostics</td>
+                          <td className="px-4 py-3.5">Crash logs (stack traces), ANRs, frame rate metrics</td>
+                          <td className="px-4 py-3.5">Analytics, Bug Fixing & Device Optimization</td>
+                          <td className="px-4 py-3.5">Automatic (Firebase Crashlytics)</td>
+                          <td className="px-4 py-3.5">Yes (Google Firebase)</td>
+                          <td className="px-4 py-3.5 text-emerald-700 font-bold">Yes (HTTPS)</td>
+                        </tr>
+                        <tr className="hover:bg-gray-50/80">
+                          <td className="px-4 py-3.5 font-bold text-gray-900">Location (Coarse)</td>
+                          <td className="px-4 py-3.5">Approximate region / country derived from IP address</td>
+                          <td className="px-4 py-3.5">Localized leaderboard rankings & regional ads</td>
+                          <td className="px-4 py-3.5">Network-derived (No GPS)</td>
+                          <td className="px-4 py-3.5">Yes (Ad networks)</td>
+                          <td className="px-4 py-3.5 text-emerald-700 font-bold">Yes (TLS 1.3)</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Core Google Play Security Highlights */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                    <div className="bg-emerald-50 rounded-2xl p-5 border border-emerald-100">
+                      <div className="text-emerald-700 font-black text-sm mb-1 flex items-center gap-1.5">
+                        <span>🔒</span>
+                        <span>Encrypted in Transit</span>
+                      </div>
+                      <p className="text-emerald-950/80 leading-relaxed">
+                        All communications between the Android game client, Google Play Games Services, and our cloud endpoints use TLS 1.3 encryption.
+                      </p>
+                    </div>
+
+                    <div className="bg-blue-50 rounded-2xl p-5 border border-blue-100">
+                      <div className="text-blue-700 font-black text-sm mb-1 flex items-center gap-1.5">
+                        <span>🗑️</span>
+                        <span>User Data Deletion</span>
+                      </div>
+                      <p className="text-blue-950/80 leading-relaxed">
+                        We provide an active, public web deletion mechanism so users can delete their game data without needing to re-open the app.
+                      </p>
+                    </div>
+
+                    <div className="bg-amber-50 rounded-2xl p-5 border border-amber-100">
+                      <div className="text-amber-700 font-black text-sm mb-1 flex items-center gap-1.5">
+                        <span>🚫</span>
+                        <span>No Data Sale</span>
+                      </div>
+                      <p className="text-amber-950/80 leading-relaxed">
+                        Personal data, gamer profiles, and device identifiers are strictly never sold to commercial data aggregators or brokers.
+                      </p>
+                    </div>
+                  </div>
+                </section>
+
+                {/* ─────────────────────────────────────────────────────────── */}
+                {/* 3. ANDROID PERMISSIONS & DEVICE ACCESS DISCLOSURE */}
+                {/* ─────────────────────────────────────────────────────────── */}
+                <section
+                  id="lagos-android-permissions"
+                  className="scroll-mt-24 bg-white rounded-[2.5rem] border border-gray-100 p-8 sm:p-12 shadow-xl shadow-gray-200/50"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-gray-100 mb-6">
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 uppercase tracking-wider mb-1">
+                        <span>Android Runtime & Manifest Disclosure</span>
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-gray-900">
+                        Android Permissions & Device Hardware Access
+                      </h2>
+                    </div>
+                    <span className="text-xs bg-gray-100 text-gray-700 font-bold px-3 py-1 rounded-full">
+                      Zero Sensitive Permissions
+                    </span>
+                  </div>
+
+                  <p className="text-gray-700 leading-relaxed mb-6 text-sm">
+                    In compliance with Google Play Developer Policy guidelines on <strong>Permissions and APIs that Access Sensitive Information</strong>, here is the exhaustive list of permissions requested in the Android Manifest of <strong>Lagos Street Race</strong> and their specific, justified technical use:
+                  </p>
+
+                  <div className="space-y-4 mb-8">
+                    <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <code className="bg-gray-200 text-gray-900 px-2 py-0.5 rounded font-mono font-bold text-xs">
+                            android.permission.INTERNET
+                          </code>
+                          <span className="text-emerald-700 bg-emerald-100 font-bold px-2 py-0.5 rounded text-[10px]">Normal</span>
+                        </div>
+                        <p className="text-gray-600">
+                          Enables the game to communicate with Google Play Games Services, download track updates, sync cloud saves, and fetch in-game ads.
+                        </p>
+                      </div>
+                      <span className="text-gray-400 font-medium whitespace-nowrap">Core Networking</span>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <code className="bg-gray-200 text-gray-900 px-2 py-0.5 rounded font-mono font-bold text-xs">
+                            android.permission.ACCESS_NETWORK_STATE
+                          </code>
+                          <span className="text-emerald-700 bg-emerald-100 font-bold px-2 py-0.5 rounded text-[10px]">Normal</span>
+                        </div>
+                        <p className="text-gray-600">
+                          Checks whether the device is connected to Wi-Fi or cellular data before initiating network requests, preventing battery drain and unexpected error popups while offline.
+                        </p>
+                      </div>
+                      <span className="text-gray-400 font-medium whitespace-nowrap">Network Diagnostics</span>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <code className="bg-gray-200 text-gray-900 px-2 py-0.5 rounded font-mono font-bold text-xs">
+                            com.android.vending.BILLING
+                          </code>
+                          <span className="text-blue-700 bg-blue-100 font-bold px-2 py-0.5 rounded text-[10px]">Play Billing</span>
+                        </div>
+                        <p className="text-gray-600">
+                          Required by the Google Play In-App Billing Library to securely process purchases of Lagos Coins, vehicle packs, and the VIP Season Pass.
+                        </p>
+                      </div>
+                      <span className="text-gray-400 font-medium whitespace-nowrap">Google Play Commerce</span>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <code className="bg-gray-200 text-gray-900 px-2 py-0.5 rounded font-mono font-bold text-xs">
+                            android.permission.VIBRATE
+                          </code>
+                          <span className="text-emerald-700 bg-emerald-100 font-bold px-2 py-0.5 rounded text-[10px]">Normal</span>
+                        </div>
+                        <p className="text-gray-600">
+                          Provides tactile haptic feedback during races (e.g. wall scrapes, high-speed drifts, and crash collisions). Players can disable vibration in the game settings at any time.
+                        </p>
+                      </div>
+                      <span className="text-gray-400 font-medium whitespace-nowrap">Haptic Immersion</span>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <code className="bg-gray-200 text-gray-900 px-2 py-0.5 rounded font-mono font-bold text-xs">
+                            android.permission.WAKE_LOCK
+                          </code>
+                          <span className="text-emerald-700 bg-emerald-100 font-bold px-2 py-0.5 rounded text-[10px]">Normal</span>
+                        </div>
+                        <p className="text-gray-600">
+                          Prevents the device display from going to sleep or dimming during active gameplay while the player is steering on Third Mainland Bridge.
+                        </p>
+                      </div>
+                      <span className="text-gray-400 font-medium whitespace-nowrap">Display Control</span>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <code className="bg-gray-200 text-gray-900 px-2 py-0.5 rounded font-mono font-bold text-xs">
+                            android.permission.POST_NOTIFICATIONS
+                          </code>
+                          <span className="text-purple-700 bg-purple-100 font-bold px-2 py-0.5 rounded text-[10px]">Runtime Opt-In</span>
+                        </div>
+                        <p className="text-gray-600">
+                          On Android 13 (API level 33) and above, this permission requests explicit runtime authorization to deliver optional daily bonuses, event alerts, and leaderboard challenges. Players can deny or revoke this permission at any time.
+                        </p>
+                      </div>
+                      <span className="text-gray-400 font-medium whitespace-nowrap">Push Notifications</span>
+                    </div>
+                  </div>
+
+                  {/* Explicit Non-Collection Statement */}
+                  <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-xs text-red-950">
+                    <h4 className="font-bold text-red-900 text-sm mb-2 flex items-center gap-1.5">
+                      <span>🚫</span>
+                      <span>Permissions NEVER Requested by Lagos Street Race:</span>
+                    </h4>
+                    <p className="leading-relaxed mb-3">
+                      To safeguard user privacy and reduce unnecessary device privileges, the Android build of Lagos Street Race does <strong>NOT</strong> request or include:
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 font-mono text-[11px] text-red-900 font-semibold">
+                      <div>❌ No ACCESS_FINE_LOCATION</div>
+                      <div>❌ No CAMERA</div>
+                      <div>❌ No RECORD_AUDIO</div>
+                      <div>❌ No READ_CONTACTS</div>
+                      <div>❌ No READ_PHONE_STATE</div>
+                      <div>❌ No READ_EXTERNAL_STORAGE</div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* ─────────────────────────────────────────────────────────── */}
+                {/* 4. BILLING & ADVERTISING POLICY COMPLIANCE */}
+                {/* ─────────────────────────────────────────────────────────── */}
+                <section
+                  id="lagos-monetization-ads"
+                  className="scroll-mt-24 bg-white rounded-[2.5rem] border border-gray-100 p-8 sm:p-12 shadow-xl shadow-gray-200/50"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-gray-100 mb-6">
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">
+                        <span>Google Play Monetization & Ads Policy</span>
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-gray-900">
+                        In-App Purchases & Advertising Standards
+                      </h2>
+                    </div>
+                    <span className="text-xs bg-blue-100 text-blue-800 font-bold px-3 py-1 rounded-full">
+                      Play Billing 100% Compliant
+                    </span>
+                  </div>
+
+                  <div className="space-y-6 text-sm text-gray-700">
+                    <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+                      <h3 className="text-base font-black text-gray-900 mb-2 flex items-center gap-2">
+                        <span>💳</span>
+                        <span>Google Play In-App Billing Compliance</span>
+                      </h3>
+                      <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-3">
+                        In accordance with the <strong>Google Play Payments Policy</strong>, all purchases of virtual currency ("Lagos Coins"), car customization liveries, vehicle upgrade tiers, and the VIP Season Pass made on the Android version are conducted exclusively through Google Play's billing system.
+                      </p>
+                      <ul className="list-disc pl-5 text-xs text-gray-600 space-y-1">
+                        <li>All prices and local currency equivalents are clearly displayed in the in-game garage before purchase confirmation.</li>
+                        <li>Digital purchases are non-transferable and non-refundable, except as required by Google Play Refund Policies or applicable statutory consumer rights.</li>
+                        <li>The developer never handles, stores, or sees your credit card number, CVC, bank credentials, or Google account password.</li>
+                      </ul>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+                      <h3 className="text-base font-black text-gray-900 mb-2 flex items-center gap-2">
+                        <span>📢</span>
+                        <span>Google Play Ads Policy & Deceptive Ads Prevention</span>
+                      </h3>
+                      <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-3">
+                        Lagos Street Race strictly adheres to the <strong>Google Play Developer Program Policy on Ads</strong>:
+                      </p>
+                      <ul className="list-disc pl-5 text-xs text-gray-600 space-y-1.5">
+                        <li><strong>No Deceptive Ads:</strong> Advertisements are distinctly labeled and clearly separated from game control interfaces to prevent accidental clicks.</li>
+                        <li><strong>Non-Disruptive Interstitials:</strong> Full-screen interstitial ads only trigger during natural breaks in gameplay (e.g. after a race finish or returning to the garage), never during active steering, accelerating, or immediately when the app launches.</li>
+                        <li><strong>Voluntary Rewarded Ads:</strong> Watching rewarded video ads (e.g. for a "Second Chance" extra life or double coins) is entirely optional and initiated solely by a voluntary user tap.</li>
+                        <li><strong>Certified Ad Networks:</strong> We exclusively integrate Google Mobile Ads SDK (AdMob) and Meta Audience Network, both of which comply with Google Play SDK policies.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+
+                {/* ─────────────────────────────────────────────────────────── */}
+                {/* 5. FAMILIES POLICY & CHILDREN'S PRIVACY */}
+                {/* ─────────────────────────────────────────────────────────── */}
+                <section
+                  id="lagos-families-policy"
+                  className="scroll-mt-24 bg-white rounded-[2.5rem] border border-gray-100 p-8 sm:p-12 shadow-xl shadow-gray-200/50"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-gray-100 mb-6">
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-600 uppercase tracking-wider mb-1">
+                        <span>COPPA, GDPR-K & Google Families Policy</span>
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-gray-900">
+                        Families Policy & Children's Privacy
+                      </h2>
+                    </div>
+                    <span className="text-xs bg-purple-100 text-purple-800 font-bold px-3 py-1 rounded-full">
+                      Child Safety First
+                    </span>
+                  </div>
+
+                  <div className="space-y-4 text-xs sm:text-sm text-gray-700 leading-relaxed">
+                    <p>
+                      Lagos Street Race is rated and designed for general audiences (ages 13 and above). We take children's privacy and online safety with the utmost seriousness in compliance with the <strong>Children’s Online Privacy Protection Act (COPPA)</strong>, <strong>EU GDPR Article 8 (GDPR-K)</strong>, and the <strong>Google Play Families Policy</strong>.
+                    </p>
+                    <div className="bg-purple-50 rounded-2xl p-6 border border-purple-100 space-y-3">
+                      <h4 className="font-bold text-purple-900 text-sm">Key Safeguards for Young Audiences:</h4>
+                      <ul className="list-disc pl-5 text-xs text-purple-950/80 space-y-1.5">
+                        <li><strong>Neutral Age Screening:</strong> If an age gate is presented, it is designed neutrally without pre-selecting age or encouraging false inputs.</li>
+                        <li><strong>Ad Personalization Disabled:</strong> If a player indicates they are under 13 (or under 16 in the European Union), the Google Mobile Ads SDK is automatically configured to pass <code className="bg-white/80 px-1 py-0.5 rounded font-mono text-[11px]">tagForChildDirectedTreatment(true)</code> and <code className="bg-white/80 px-1 py-0.5 rounded font-mono text-[11px]">tagForUnderAgeOfConsent(true)</code>, disabling all behavioral, remarketing, and interest-based ad tracking.</li>
+                        <li><strong>Zero Inappropriate Content:</strong> Ad providers are constrained to family-friendly ad ratings (G or PG equivalent).</li>
+                        <li><strong>Parental Rights:</strong> Parents or legal guardians may review, update, or request immediate deletion of any data linked to their child by emailing <a href="mailto:admin@sampidia.com" className="text-purple-700 font-bold underline">admin@sampidia.com</a>.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+
+                {/* ─────────────────────────────────────────────────────────── */}
+                {/* 6. APPLE APP STORE PRIVACY NUTRITION LABELS */}
+                {/* ─────────────────────────────────────────────────────────── */}
+                <section
+                  id="lagos-app-store"
+                  className="scroll-mt-24 bg-white rounded-[2.5rem] border border-gray-100 p-8 sm:p-12 shadow-xl shadow-gray-200/50"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-gray-100 mb-6">
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">
+                        <span>Apple App Store Privacy Details</span>
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-gray-900">
+                        App Store Privacy Nutrition Labels & ATT
+                      </h2>
+                    </div>
+                    <span className="text-xs bg-blue-100 text-blue-800 font-bold px-3 py-1 rounded-full">
+                      iOS Compliance
+                    </span>
+                  </div>
+
+                  <p className="text-gray-700 leading-relaxed mb-6 text-sm">
+                    In preparation for iOS and Apple App Store availability, the following declarations align with Apple’s <strong>App Privacy Nutrition Labels</strong> and the <strong>App Tracking Transparency (ATT)</strong> framework:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                    <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200">
+                      <h4 className="font-bold text-gray-900 mb-2 flex items-center gap-1.5 text-sm">
+                        <span>🎯</span>
+                        <span>Data Used to Track You</span>
+                      </h4>
+                      <p className="text-gray-600 leading-relaxed">
+                        If granted permission via the iOS App Tracking Transparency prompt: <strong>Identifier for Advertisers (IDFA)</strong>, used exclusively by certified ad networks (AdMob, Meta Audience Network).
+                      </p>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200">
+                      <h4 className="font-bold text-gray-900 mb-2 flex items-center gap-1.5 text-sm">
+                        <span>👤</span>
+                        <span>Data Linked to You</span>
+                      </h4>
+                      <p className="text-gray-600 leading-relaxed">
+                        <strong>User Content & Identifiers:</strong> Game Center Gamer ID, high score rankings, and in-app purchase receipts linked to your player profile for cloud progress restoration.
+                      </p>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200">
+                      <h4 className="font-bold text-gray-900 mb-2 flex items-center gap-1.5 text-sm">
+                        <span>📊</span>
+                        <span>Data Not Linked to You</span>
+                      </h4>
+                      <p className="text-gray-600 leading-relaxed">
+                        <strong>Diagnostics & Performance:</strong> Crash logs, launch time, and performance metrics collected in aggregate without identifying individual users.
+                      </p>
+                    </div>
+                  </div>
+                </section>
+
+                {/* ─────────────────────────────────────────────────────────── */}
+                {/* 7. LAGOS STREET RACE: TERMS OF SERVICE */}
                 {/* ─────────────────────────────────────────────────────────── */}
                 <section
                   id="lagos-street-race-terms"
@@ -577,9 +1087,9 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                   <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-gray-100 mb-6">
                     <div>
                       <div className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 uppercase tracking-wider mb-1">
-                        <span>User Agreement</span>
+                        <span>User Agreement & EULA</span>
                         <span>•</span>
-                        <span>Facebook Instant Games</span>
+                        <span>Android & Multi-Platform</span>
                       </div>
                       <h2 className="text-2xl sm:text-3xl font-black text-gray-900">
                         Terms of Service for Lagos Street Race
@@ -587,12 +1097,12 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                     </div>
                     <div className="text-right text-xs text-gray-500 font-mono">
                       <div><strong>Effective Date:</strong> November 4, 2026</div>
-                      <div><strong>Last Updated:</strong> November 4, 2026</div>
+                      <div><strong>Last Updated:</strong> November 6, 2026</div>
                     </div>
                   </div>
 
                   <p className="text-gray-700 leading-relaxed mb-8 text-base">
-                    Welcome to <strong>Lagos Street Race</strong>! By launching or playing the game on Facebook Instant Games or Meta Platforms, you agree to be bound by these Terms of Service ("Terms").
+                    Welcome to <strong>Lagos Street Race</strong>! By downloading, installing, launching, or playing the game on Android (Google Play Store), Apple App Store, Facebook Instant Games, or Meta Platforms, you agree to be bound by these Terms of Service ("Terms").
                   </p>
 
                   <div className="space-y-8">
@@ -603,7 +1113,7 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                         License to Play
                       </h3>
                       <p className="text-gray-600 text-sm leading-relaxed">
-                        We grant you a non-exclusive, non-transferable, revocable license to access and play Lagos Street Race solely for your personal, non-commercial entertainment on supported Meta platforms.
+                        We grant you a non-exclusive, non-transferable, revocable license to access, install, and play Lagos Street Race solely for your personal, non-commercial entertainment on supported Android, iOS, and Meta platforms.
                       </p>
                     </div>
 
@@ -624,7 +1134,7 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                         </li>
                         <li className="flex items-start gap-2.5">
                           <span className="text-red-500 font-bold mt-0.5">•</span>
-                          <span>All virtual items and currency are licensed, not sold. If payments are made through Meta In-App Purchases, they are processed directly by Meta and subject to Meta's Payment Terms.</span>
+                          <span>All virtual items and currency are licensed, not sold. In-App Purchases on Android are processed via Google Play In-App Billing, on iOS via Apple In-App Purchases, and on Meta via Meta In-App Purchases, subject to respective platform terms.</span>
                         </li>
                       </ul>
                     </div>
@@ -641,11 +1151,11 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                       <ul className="space-y-2.5 text-sm text-gray-700 pl-1">
                         <li className="flex items-start gap-2.5">
                           <span className="text-red-500 font-bold mt-0.5">•</span>
-                          <span>Exploit, hack, automate, or reverse-engineer game mechanics or score reporting APIs.</span>
+                          <span>Exploit, hack, automate, bot, or reverse-engineer game mechanics or score reporting APIs.</span>
                         </li>
                         <li className="flex items-start gap-2.5">
                           <span className="text-red-500 font-bold mt-0.5">•</span>
-                          <span>Post abusive, defamatory, or offensive content via the Facebook Challenge or Messenger share dialogs.</span>
+                          <span>Post abusive, defamatory, or offensive content via social sharing, custom usernames, or challenge dialogs.</span>
                         </li>
                         <li className="flex items-start gap-2.5">
                           <span className="text-red-500 font-bold mt-0.5">•</span>
@@ -661,7 +1171,7 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                         Intellectual Property
                       </h3>
                       <p className="text-gray-600 text-sm leading-relaxed">
-                        All assets, 3D vehicle models, sounds, voice lines, shaders, visual designs, and game code in Lagos Street Race are the property of the developer or used under licensed agreement. You may not copy, extract, distribute, or modify game assets without prior written consent.
+                        All assets, 3D vehicle models, sounds, voice lines, shaders, visual designs, and game code in Lagos Street Race are the property of Afigo Brightpath Technology LTD or used under licensed agreement. You may not copy, extract, distribute, decompile, or modify game assets without prior written consent.
                       </p>
                     </div>
 
@@ -705,7 +1215,7 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                 </section>
 
                 {/* ─────────────────────────────────────────────────────────── */}
-                {/* 3. LAGOS STREET RACE: USER DATA DELETION INSTRUCTIONS */}
+                {/* 8. USER DATA DELETION INSTRUCTIONS (PLAY & META) */}
                 {/* ─────────────────────────────────────────────────────────── */}
                 <section
                   id="lagos-street-race-deletion"
@@ -715,81 +1225,109 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                   <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-gray-100 mb-6">
                     <div>
                       <div className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 uppercase tracking-wider mb-1">
-                        <span>GDPR / CCPA / Meta Platform Compliance</span>
+                        <span>Google Play Account Deletion & GDPR Art. 17 Compliant</span>
                       </div>
                       <h2 className="text-2xl sm:text-3xl font-black text-gray-900">
                         User Data Deletion Instructions for Lagos Street Race
                       </h2>
                     </div>
                     <div className="text-right text-xs text-gray-500 font-mono">
-                      <div className="text-red-600 font-bold">Application ID: 2077465642893808</div>
-                      <div><strong>Effective Date:</strong> November 4, 2026</div>
+                      <div className="text-emerald-600 font-bold">Package: com.sampidia.lagosstreetrace</div>
+                      <div className="text-red-600 font-bold">Meta App ID: 2077465642893808</div>
                     </div>
                   </div>
 
                   <p className="text-gray-700 leading-relaxed mb-8 text-base">
-                    In compliance with Meta Platform Policies and General Data Protection Regulations (GDPR / CCPA), users of <strong>Lagos Street Race</strong> have the right to request the deletion of all personal data, game progress, and leaderboard scores associated with their account.
+                    In compliance with the <strong>Google Play Account Deletion Policy</strong>, <strong>Meta Platform Policies</strong>, and global privacy laws (GDPR / CCPA / NDPR), users of <strong>Lagos Street Race</strong> have the unequivocal right to request permanent deletion of all personal data, game progress, cloud saves, and leaderboard entries associated with their account.
                   </p>
-                  <p className="text-gray-600 text-sm leading-relaxed mb-6">
-                    Below are the steps to delete your data:
+                  <p className="text-gray-600 text-sm leading-relaxed mb-6 font-semibold">
+                    You can delete your data using any of the following methods:
                   </p>
 
                   <div className="space-y-8">
-                    {/* Method 1: Automatic Deletion via Facebook Settings */}
-                    <div className="bg-emerald-50/60 rounded-2xl p-6 sm:p-8 border border-emerald-200">
+                    {/* Method A: Google Play & Web Deletion Form (Google Play Certified URL) */}
+                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 sm:p-8 border border-emerald-200">
                       <div className="flex items-center justify-between gap-2 mb-3">
                         <h3 className="text-lg sm:text-xl font-black text-emerald-950 flex items-center gap-2">
                           <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm font-bold shadow-sm">
                             1
                           </span>
-                          Method 1: Automatic Deletion via Facebook Settings (Recommended)
+                          Method 1: Web-Based Account & Data Deletion Portal (Google Play Official URL)
                         </h3>
-                        <span className="text-xs bg-emerald-200/70 text-emerald-900 font-bold px-2.5 py-1 rounded-full">
-                          Instant Callback
+                        <span className="text-xs bg-emerald-200/80 text-emerald-900 font-bold px-2.5 py-1 rounded-full">
+                          Recommended for Android & iOS
                         </span>
                       </div>
                       <p className="text-emerald-900/90 text-sm leading-relaxed mb-4">
-                        You can remove Lagos Street Race and revoke its data permissions directly through your Facebook account:
+                        Google Play policy mandates an accessible web URL where users can request deletion without needing to reinstall the app:
                       </p>
-                      <ol className="space-y-3 text-sm text-gray-800 list-decimal pl-5">
-                        <li>Log in to your Facebook account on web or mobile.</li>
-                        <li>Go to <strong>Settings & Privacy</strong> &gt; <strong>Settings</strong>.</li>
-                        <li>In the left navigation menu, select <strong>Apps and Websites</strong> (or <strong>Games</strong>).</li>
-                        <li>Locate <strong>Lagos Street Race</strong> in the list of active games.</li>
-                        <li>Click <strong>Remove</strong> next to the game.</li>
-                        <li>Check the box to <strong>"Delete posts, videos or events Lagos Street Race posted on your timeline"</strong> and click <strong>Remove</strong>.</li>
-                        <li>Facebook will immediately revoke the game's access and trigger Meta's automated data deletion callback.</li>
+                      <ol className="space-y-2 text-sm text-gray-800 list-decimal pl-5 mb-5">
+                        <li>Visit our secure self-service portal: <Link to="/delete-account?app=lagos-street-race" className="text-emerald-700 font-bold underline">https://afigo.sampidia.com/#/delete-account</Link>.</li>
+                        <li>Select <strong>Lagos Street Race</strong> from the app dropdown.</li>
+                        <li>Enter your email address and your in-game username or Google Play Games display name.</li>
+                        <li>Submit the request. Your cloud progression and leaderboard records will be permanently purged within <strong>48 hours</strong>.</li>
                       </ol>
-                      <div className="mt-5 pt-4 border-t border-emerald-200/60 flex flex-wrap gap-3">
-                        <a
-                          href="https://www.facebook.com/settings?tab=applications"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-all shadow-md inline-flex items-center gap-1.5"
-                        >
-                          <span>Open Facebook Apps & Games Settings</span>
-                          <span>↗</span>
-                        </a>
-                      </div>
+                      <Link
+                        to="/delete-account?app=lagos-street-race"
+                        className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-all shadow-md inline-flex items-center gap-1.5"
+                      >
+                        <span>Launch Official Web Deletion Form</span>
+                        <span>→</span>
+                      </Link>
                     </div>
 
-                    {/* Method 2: Manual Data Deletion Request */}
+                    {/* Method B: Automatic Deletion via Facebook Settings (Instant Games) */}
+                    <div className="bg-blue-50/70 rounded-2xl p-6 sm:p-8 border border-blue-200">
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <h3 className="text-lg sm:text-xl font-black text-blue-950 flex items-center gap-2">
+                          <span className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm font-bold shadow-sm">
+                            2
+                          </span>
+                          Method 2: Automatic Deletion via Facebook Settings (For Instant Games Players)
+                        </h3>
+                        <span className="text-xs bg-blue-200/80 text-blue-900 font-bold px-2.5 py-1 rounded-full">
+                          Instant Callback
+                        </span>
+                      </div>
+                      <p className="text-blue-900/90 text-sm leading-relaxed mb-4">
+                        If you play Lagos Street Race via Facebook Instant Games:
+                      </p>
+                      <ol className="space-y-2.5 text-sm text-gray-800 list-decimal pl-5 mb-5">
+                        <li>Log in to your Facebook account on web or mobile app.</li>
+                        <li>Navigate to <strong>Settings & Privacy</strong> &gt; <strong>Settings</strong>.</li>
+                        <li>In the left menu, click <strong>Apps and Websites</strong> (or <strong>Games</strong>).</li>
+                        <li>Find <strong>Lagos Street Race</strong> and click <strong>Remove</strong>.</li>
+                        <li>Check the box to <em>"Delete posts, videos or events Lagos Street Race posted on your timeline"</em> and confirm.</li>
+                        <li>Facebook immediately revokes token access and dispatches Meta's automated data deletion callback.</li>
+                      </ol>
+                      <a
+                        href="https://www.facebook.com/settings?tab=applications"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-all shadow-md inline-flex items-center gap-1.5"
+                      >
+                        <span>Open Facebook Apps & Games Settings</span>
+                        <span>↗</span>
+                      </a>
+                    </div>
+
+                    {/* Method C: Manual Support Request (Email) */}
                     <div className="bg-gray-50 rounded-2xl p-6 sm:p-8 border border-gray-200">
                       <div className="flex items-center justify-between gap-2 mb-3">
                         <h3 className="text-lg sm:text-xl font-black text-gray-900 flex items-center gap-2">
                           <span className="w-8 h-8 rounded-xl bg-gray-900 text-white flex items-center justify-center text-sm font-bold shadow-sm">
-                            2
+                            3
                           </span>
-                          Method 2: Manual Data Deletion Request (Developer Support)
+                          Method 3: Direct Email to Developer Support
                         </h3>
                         <span className="text-xs bg-gray-200 text-gray-700 font-bold px-2.5 py-1 rounded-full">
-                          30-Day Turnaround
+                          Direct Assistance
                         </span>
                       </div>
                       <p className="text-gray-700 text-sm leading-relaxed mb-4">
-                        If you would like us to permanently purge your leaderboard entries, cloud saves, and associated Gaming IDs from our records manually:
+                        You can email our data protection team directly:
                       </p>
-                      <ol className="space-y-3 text-sm text-gray-800 list-decimal pl-5 mb-5">
+                      <ol className="space-y-2.5 text-sm text-gray-800 list-decimal pl-5 mb-5">
                         <li>
                           Send an email to{' '}
                           <a href="mailto:admin@sampidia.com" className="text-red-600 font-bold underline">
@@ -800,34 +1338,19 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                           <strong>Subject line:</strong> <code className="bg-gray-200 text-gray-900 px-2 py-0.5 rounded font-mono text-xs">Data Deletion Request - Lagos Street Race</code>
                         </li>
                         <li>
-                          Include the following details in your email:
-                          <ul className="list-disc pl-5 mt-1.5 space-y-1 text-gray-600 text-xs">
-                            <li>Your Facebook Gaming Profile Name (or Facebook Profile URL).</li>
-                            <li>Your Meta Player ID (accessible in the in-game settings/garage, if available).</li>
-                          </ul>
+                          Include your Gamer Tag, Google Play Games profile name, or Facebook Gaming Profile URL.
                         </li>
                         <li>
-                          <strong>Resolution Time:</strong> We will verify and permanently delete all stored game data and cloud persistence records within <strong>30 days</strong> of receiving your request, and confirm completion via reply email.
+                          <strong>Confirmation:</strong> All associated database entries will be erased within 48 hours, with confirmation dispatched to your email.
                         </li>
                       </ol>
-
-                      {/* Action buttons */}
-                      <div className="flex flex-wrap gap-3 pt-2">
-                        <a
-                          href="mailto:admin@sampidia.com?subject=Data%20Deletion%20Request%20-%20Lagos%20Street%20Race&body=Dear%20Support%20Team%2C%0A%0APlease%20permanently%20delete%20all%20gameplay%20data%2C%20cloud%20saves%2C%20and%20leaderboard%20scores%20for%20my%20account%20in%20Lagos%20Street%20Race%20(Application%20ID%3A%202077465642893808).%0A%0AFacebook%20Gaming%20Profile%20Name%20or%20URL%3A%20%0AMeta%20Player%20ID%20(if%20known)%3A%20%0A%0AThank%20you."
-                          className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs transition-all shadow-md inline-flex items-center gap-1.5"
-                        >
-                          <span>Send Pre-Filled Deletion Email</span>
-                          <span>✉️</span>
-                        </a>
-                        <Link
-                          to="/delete-account?app=lagos-street-race"
-                          className="px-5 py-2.5 bg-gray-900 hover:bg-black text-white font-bold rounded-xl text-xs transition-all shadow-md inline-flex items-center gap-1.5"
-                        >
-                          <span>Open Self-Service Portal Form</span>
-                          <span>→</span>
-                        </Link>
-                      </div>
+                      <a
+                        href="mailto:admin@sampidia.com?subject=Data%20Deletion%20Request%20-%20Lagos%20Street%20Race&body=Dear%20Support%20Team%2C%0A%0APlease%20permanently%20delete%20all%20gameplay%20data%2C%20cloud%20saves%2C%20and%20leaderboard%20scores%20for%20my%20account%20in%20Lagos%20Street%20Race%20(Package%3A%20com.sampidia.lagosstreetrace%20%2F%20Meta%20App%20ID%3A%202077465642893808).%0A%0AGamer%20Tag%20or%20Profile%20Name%3A%20%0APlatform%20(Android%20%2F%20iOS%20%2F%20Facebook)%3A%20%0A%0AThank%20you."
+                        className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs transition-all shadow-md inline-flex items-center gap-1.5"
+                      >
+                        <span>Send Pre-Filled Email Request</span>
+                        <span>✉️</span>
+                      </a>
                     </div>
                   </div>
                 </section>
@@ -847,7 +1370,7 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                     Ecosystem General Privacy Policy
                   </h2>
                   <p className="text-xs text-gray-400 mt-1">
-                    Coverage for WordPress Plugins, Themes, Android Apps, and Web Services.
+                    Coverage for WordPress Plugins, Themes, Native Android Apps, and Web Services.
                   </p>
                 </div>
 
@@ -920,24 +1443,39 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                     <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-6 border border-red-200">
                       <div className="flex items-center justify-between gap-2 mb-2">
                         <h4 className="text-lg font-bold text-gray-900">🏎️ Lagos Street Race</h4>
-                        <span className="text-xs bg-red-600 text-white font-bold px-2.5 py-0.5 rounded-full">
-                          Facebook Instant Game
-                        </span>
+                        <div className="flex gap-1.5">
+                          <span className="text-xs bg-emerald-600 text-white font-bold px-2 py-0.5 rounded-full">
+                            Google Play
+                          </span>
+                          <span className="text-xs bg-blue-600 text-white font-bold px-2 py-0.5 rounded-full">
+                            App Store
+                          </span>
+                          <span className="text-xs bg-red-600 text-white font-bold px-2 py-0.5 rounded-full">
+                            Meta
+                          </span>
+                        </div>
                       </div>
                       <p className="text-gray-700 text-sm leading-relaxed text-justify mb-2">
-                        A high-speed 3D arcade racing experience running on the Facebook Instant Games platform and Meta Platforms.
+                        High-speed 3D arcade racing across Nigeria's iconic Third Mainland Bridge and Lagos expressways on Android (Google Play Store), Apple App Store, and Facebook Instant Games.
                       </p>
                       <ul className="list-disc pl-5 text-xs text-gray-600 space-y-1">
-                        <li><strong>Meta Zero-Permission Architecture:</strong> Uses <code className="bg-white/80 px-1 py-0.5 rounded text-[11px]">FBInstant.player</code> exclusively to show public gaming avatars and scores on the Third Mainland Bridge leaderboards.</li>
-                        <li><strong>Meta Cloud Save:</strong> Progression (unlocked vehicles, customizations, Lagos Coins) is stored using Meta's Cloud Save API and your browser's local cache.</li>
+                        <li><strong>Google Play Data Safety Compliant:</strong> Uses Google Play Games Services for cloud saving and AdMob for certified voluntary rewarded ads.</li>
+                        <li><strong>Zero Sensitive Permissions:</strong> No camera, audio, or precise GPS location required.</li>
                       </ul>
-                      <div className="mt-3">
+                      <div className="mt-3 flex gap-4">
                         <a
                           href="#lagos-street-race-privacy"
                           onClick={(e) => scrollToSection(e, 'lagos-street-race-privacy')}
                           className="text-xs text-red-600 font-bold hover:underline"
                         >
-                          Read Dedicated Lagos Street Race Policy & Terms Above ↑
+                          View Full Privacy Policy ↑
+                        </a>
+                        <a
+                          href="#lagos-data-safety"
+                          onClick={(e) => scrollToSection(e, 'lagos-data-safety')}
+                          className="text-xs text-emerald-600 font-bold hover:underline"
+                        >
+                          View Play Data Safety Table ↑
                         </a>
                       </div>
                     </div>
@@ -948,8 +1486,8 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                         A traditional strategic board game variant built for Google Android devices.
                       </p>
                       <ul className="list-disc pl-5 mt-2 text-xs text-gray-500 space-y-1">
-                        <li><strong>Offline Architecture:</strong> Standard game modes (single-player vs AI and pass-and-play local multiplayer) run completely locally on your hardware.</li>
-                        <li><strong>Ad Serving & Diagnostics:</strong> Optional ads might be rendered via Google AdMob, which collects temporary mobile ad identifiers (GAID) and crash statistics. Refer to the Google Services section below.</li>
+                        <li><strong>Offline Architecture:</strong> Standard game modes run completely locally on your hardware.</li>
+                        <li><strong>Ad Serving & Diagnostics:</strong> Optional ads rendered via Google AdMob, collecting GAID and crash statistics.</li>
                       </ul>
                     </div>
 
@@ -959,8 +1497,8 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                         An entertainment hub for motivational audio podcasts and inspirational media.
                       </p>
                       <ul className="list-disc pl-5 mt-2 text-xs text-gray-500 space-y-1">
-                        <li><strong>Account Synchronization:</strong> Optional user registrations allow you to save media feeds, synchronize listen logs, and store bookmarks securely on our encrypted servers.</li>
-                        <li><strong>Streaming Telemetry:</strong> Anonymized usage analytics (e.g. streaming playback events) are captured to improve stream quality and bandwidth allocation.</li>
+                        <li><strong>Account Synchronization:</strong> Optional user registrations allow you to save media feeds and listen logs on encrypted servers.</li>
+                        <li><strong>Streaming Telemetry:</strong> Anonymized usage analytics are captured to optimize streaming bandwidth.</li>
                       </ul>
                     </div>
 
@@ -970,7 +1508,7 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                         A retail safety tool built to scan and verify batch authenticity against public regulatory alert lists (including NAFDAC recall logs).
                       </p>
                       <ul className="list-disc pl-5 mt-2 text-xs text-gray-500 space-y-1">
-                        <li><strong>Query Isolation:</strong> Your scanned batch codes and item queries are checked in real-time against public regulatory recall registries. We do not store your queries, and we do not link scan history to your identity.</li>
+                        <li><strong>Query Isolation:</strong> Scanned batch codes are checked in real-time against public registries without recording identities or query logs.</li>
                       </ul>
                     </div>
                   </div>
@@ -985,7 +1523,7 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                     Google Play & Android Data Safety Compliance
                   </h3>
                   <p className="text-gray-600 leading-relaxed text-justify mb-6">
-                    To comply with Google Play's rigorous <strong>Data Safety policies</strong>, we provide full disclosure on how our native Android apps handle, share, and protect your device and user data.
+                    To comply with Google Play's rigorous <strong>Data Safety policies</strong>, we provide full disclosure on how our native Android applications handle, share, and protect your device and user data.
                   </p>
 
                   <div className="overflow-x-auto mb-6">
@@ -1007,7 +1545,7 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                         </tr>
                         <tr>
                           <td className="px-4 py-3 font-semibold text-gray-900">Identifiers</td>
-                          <td className="px-4 py-3">Advertising ID, Android ID</td>
+                          <td className="px-4 py-3">Advertising ID (AAID), Android ID</td>
                           <td className="px-4 py-3">Anonymized ad-attribution, anti-fraud, and analytic telemetry</td>
                           <td className="px-4 py-3">Yes, Google Play Services & AdMob.</td>
                         </tr>
@@ -1049,9 +1587,9 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                   {/* Mobile App Deletion */}
                   <div className="bg-[#0a0e27] text-white rounded-3xl p-8 border border-gray-800 relative overflow-hidden shadow-xl mb-6">
                     <div className="absolute top-0 right-0 p-6 opacity-5">{BRAIN_LOGO}</div>
-                    <h4 className="text-xl font-bold mb-3 text-red-400">📱 Mobile App & Games Data Deletion</h4>
+                    <h4 className="text-xl font-bold mb-3 text-red-400">📱 Mobile Apps & Games Data Deletion</h4>
                     <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                      Users of our mobile applications (Naija Ayo Worldwide, Afro Short, Fake Detector) and instant games (Lagos Street Race) may submit an immediate removal request. Once verified, your username, email, and preference history are <strong className="text-white">permanently wiped</strong> from our servers within <strong className="text-white">48 hours</strong> (or within 30 days for Meta records).
+                      Users of our mobile applications (Naija Ayo Worldwide, Afro Short, Fake Detector) and games (Lagos Street Race) may submit an immediate removal request. Once verified, your username, email, and preference history are <strong className="text-white">permanently wiped</strong> from our servers within <strong className="text-white">48 hours</strong>.
                     </p>
                     <Link
                       to="/delete-account"
@@ -1118,7 +1656,7 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                     <li className="flex items-start">
                       <span className="text-red-500 mr-3 text-lg font-bold">✓</span>
                       <div>
-                        <strong className="text-gray-900">Purchase Information:</strong> Transacted through safe digital payment gateways (like Flutterwave or Envato). We keep transaction IDs, licensing names, and licensing emails to check validity, distribute key updates, and support purchases.
+                        <strong className="text-gray-900">Purchase Information:</strong> Transacted through safe digital payment gateways (like Flutterwave, Envato, or Google Play Billing). We keep transaction IDs and licensing emails to check validity, distribute key updates, and support purchases.
                       </div>
                     </li>
                     <li className="flex items-start">
@@ -1150,15 +1688,15 @@ const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ defaultTab }) => 
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-gray-500">
                     <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100">
-                      <h4 className="font-bold text-gray-900 mb-2">Meta Platforms & Audience Network</h4>
+                      <h4 className="font-bold text-gray-900 mb-2">Google Play Services & AdMob</h4>
                       <p className="leading-relaxed">
-                        Powers Facebook Instant Games infrastructure, player profile displays via <code className="text-[11px] bg-gray-200 px-1 rounded">FBInstant.player</code>, cloud state syncing, and optional rewarded/interstitial advertisements under Meta's platform terms.
+                        Provides core Android libraries, game licensing checks, achievements sync, and in-game advertisements. Google processes identifiers and diagnostic logs under their own privacy standards.
                       </p>
                     </div>
                     <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100">
-                      <h4 className="font-bold text-gray-900 mb-2">Google Play Services & AdMob</h4>
+                      <h4 className="font-bold text-gray-900 mb-2">Meta Platforms & Audience Network</h4>
                       <p className="leading-relaxed">
-                        Provides core system libraries, game licensing checks, achievements sync, and in-game advertisements. Google processes identifiers and diagnostic logs under their own privacy standards.
+                        Powers Facebook Instant Games infrastructure, player profile displays via <code className="text-[11px] bg-gray-200 px-1 rounded">FBInstant.player</code>, cloud state syncing, and optional rewarded/interstitial advertisements under Meta's platform terms.
                       </p>
                     </div>
                     <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100">

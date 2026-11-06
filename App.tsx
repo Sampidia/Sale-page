@@ -51,6 +51,8 @@ const App: React.FC = () => {
           <Route path="/lagos-street-race/privacy" element={<PrivacyPolicyPage defaultTab="privacy" />} />
           <Route path="/lagos-street-race/terms" element={<PrivacyPolicyPage defaultTab="terms" />} />
           <Route path="/lagos-street-race/data-deletion" element={<PrivacyPolicyPage defaultTab="deletion" />} />
+          <Route path="/lagos-street-race/data-safety" element={<PrivacyPolicyPage defaultTab="data-safety" />} />
+          <Route path="/lagos-street-race/permissions" element={<PrivacyPolicyPage defaultTab="permissions" />} />
           <Route path="/refund-policy" element={<RefundPolicyPage />} />
           <Route path="/claim-prize" element={<ClaimPrizePage />} />
           <Route path="/get-code" element={<GetCodePage />} />

@@ -302,14 +302,17 @@ const MobileAppDeletionForm: React.FC<{ initialApp?: string }> = ({ initialApp }
       {selectedApp === 'lagos-street-race' ? (
         <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 text-xs text-blue-900 leading-relaxed space-y-2">
           <p>
-            <strong>🏎️ Lagos Street Race (Meta / Facebook Instant Game):</strong> You have two options to delete your data:
+            <strong>🏎️ Lagos Street Race (Android Google Play, App Store & Meta Instant Games):</strong>
           </p>
-          <ul className="list-disc pl-4 space-y-1 text-[11px] text-blue-800">
+          <ul className="list-disc pl-4 space-y-1.5 text-[11px] text-blue-800">
             <li>
-              <strong>Instant Auto-Deletion (Recommended):</strong> On Facebook, go to <em>Settings & Privacy &gt; Settings &gt; Apps and Websites</em>, locate <strong>Lagos Street Race</strong> and click <strong>Remove</strong>.
+              <strong>Google Play & App Store Players:</strong> Submitting this web form requests permanent deletion of your cloud-saved game progress, high scores, and user IDs from our active servers within <strong>48 hours</strong> in full compliance with Google Play's Account Deletion Policy.
             </li>
             <li>
-              <strong>Manual Support Request:</strong> Fill in this form or email <strong>admin@sampidia.com</strong> with your Facebook Gaming Name/ID (App ID: <code>2077465642893808</code>). Records are purged within 30 days.
+              <strong>Facebook Instant Games Players:</strong> You can trigger instant automatic deletion by visiting Facebook <em>Settings & Privacy &gt; Settings &gt; Apps and Websites</em>, selecting <strong>Lagos Street Race</strong> and clicking <strong>Remove</strong>.
+            </li>
+            <li>
+              <strong>Email Developer Support:</strong> You can also email <strong>admin@sampidia.com</strong> with your player handle or Gaming Profile ID (Meta App ID: <code>2077465642893808</code>).
             </li>
           </ul>
         </div>
