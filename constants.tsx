@@ -81,6 +81,21 @@ export const TESTIMONIALS: Testimonial[] = [
 
 export const CLIENT_PROJECTS: ClientProject[] = [
   {
+    id: 'cape-holidays',
+    title: 'Cape Holidays',
+    category: 'Hotel Booking',
+    client: 'Johan',
+    location: 'Cape Town, South Africa',
+    date: 'October 2026',
+    description: 'Direct booking portal and luxury accommodation management platform for premium villas, apartments, and vacation rentals in Cape Town.',
+    imageUrl: 'assets/direct-capeholidays-screenshot.webp',
+    additionalImages: [
+      'assets/direct-capeholidays-screenshot.webp'
+    ],
+    websiteUrl: 'https://direct.capeholidays.info/',
+    tags: ['Hotel Booking', 'Vacation Rentals', 'Direct Booking Engine', 'Luxury Villas']
+  },
+  {
     id: 'turtle-bay-beach-house',
     title: 'Turtle Bay Beach House',
     category: 'Hotel Booking',
@@ -129,23 +144,6 @@ export const CLIENT_PROJECTS: ClientProject[] = [
     ],
     websiteUrl: 'https://evaww.com/',
     tags: ['Hotel Booking', 'Resort Booking', 'Custom PHP', 'Payment Gateway']
-  },
-  {
-    id: 'hotel-casa-escobar',
-    title: 'Hotel Casa Escobar',
-    category: 'Hotel Booking',
-    client: 'Leonardoalza',
-    location: 'Guadalajara de Buga, Valle del Cauca, Colombia',
-    date: 'May 2022',
-    description: 'Complete hotel booking engine with room selection, amenities preview, event space reservation, and seamless online payment gateway integration.',
-    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/hotelcasaescobar.webp',
-    additionalImages: [
-      'https://portfolio.sampidia.com/img/portfolio/hotelcasa1.webp',
-      'https://portfolio.sampidia.com/img/portfolio/hotelcasa2.webp',
-      'https://portfolio.sampidia.com/img/portfolio/hotelcasa3.webp'
-    ],
-    websiteUrl: 'https://hotelcasaescobar.com/',
-    tags: ['WordPress', 'MotoPress Booking', 'Payment Gateway', 'Custom PHP']
   },
   {
     id: 'hotel-botanikal',
