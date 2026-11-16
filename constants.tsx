@@ -96,6 +96,21 @@ export const CLIENT_PROJECTS: ClientProject[] = [
     tags: ['Hotel Booking', 'Vacation Rentals', 'Direct Booking Engine', 'Luxury Villas']
   },
   {
+    id: 'caribbean-girls-properties',
+    title: 'Caribbean Girls Properties',
+    category: 'Hotel Booking',
+    client: 'Nya E.',
+    location: 'St. Lucia, Caribbean',
+    date: 'October 2026',
+    description: 'Curated vacation rental booking and boutique villa management platform in St. Lucia offering custom guest concierge, airport transfers, and private excursions.',
+    imageUrl: 'assets/caribbeangirlsproperties.webp',
+    additionalImages: [
+      'assets/caribbeangirlsproperties.webp'
+    ],
+    websiteUrl: 'https://caribbeangirlsproperties.com',
+    tags: ['Hotel Booking', 'Vacation Rentals', 'Villa Management', 'Property Management', 'St. Lucia']
+  },
+  {
     id: 'turtle-bay-beach-house',
     title: 'Turtle Bay Beach House',
     category: 'Hotel Booking',
@@ -161,23 +176,6 @@ export const CLIENT_PROJECTS: ClientProject[] = [
     ],
     websiteUrl: 'https://hotelbotanikal.com/',
     tags: ['Hotel Booking', 'Luxury Resort', 'Payment Integration', 'Multilingual']
-  },
-  {
-    id: 'element-quindio',
-    title: 'Elementquindio Resort',
-    category: 'Hotel Booking',
-    client: 'Markmediaman',
-    location: 'Circasia - Salento, Colombia',
-    date: 'June 2022',
-    description: 'Boutique lodging booking portal for eco-shelters designed for magical sunsets and forest nature immersion.',
-    imageUrl: 'https://portfolio.sampidia.com/img/portfolio/Elementquindio.webp',
-    additionalImages: [
-      'https://portfolio.sampidia.com/img/portfolio/Elementquindio1.webp',
-      'https://portfolio.sampidia.com/img/portfolio/Elementquindio2.webp',
-      'https://portfolio.sampidia.com/img/portfolio/Elementquindio3.webp'
-    ],
-    websiteUrl: 'https://elementquindio.com/',
-    tags: ['Hotel Booking', 'Custom Reservation', 'Stripe/PayPal']
   },
   {
     id: 'riad-rodaina',
